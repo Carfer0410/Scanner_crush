@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import '../widgets/custom_widgets.dart';
 import '../services/theme_service.dart';
 import '../services/crush_service.dart';
+import '../services/audio_service.dart';
 import 'result_screen.dart';
 
 class FormScreen extends StatefulWidget {
@@ -37,6 +38,9 @@ class _FormScreenState extends State<FormScreen> {
     setState(() {
       _isLoading = true;
     });
+
+    // 🎵 Reproducir sonido de inicio de escaneo
+    AudioService.instance.playMagicWhoosh();
 
     // Add haptic feedback
     HapticFeedback.mediumImpact();

@@ -5,6 +5,7 @@ import 'screens/welcome_screen.dart';
 import 'services/ad_service.dart';
 import 'services/theme_service.dart';
 import 'services/daily_love_service.dart';
+import 'services/audio_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,7 +23,7 @@ void main() async {
   await AdService.instance.initialize();
   await ThemeService.instance.initialize();
   await DailyLoveService.instance.initialize();
-
+  await AudioService.instance.initialize();
   runApp(const ScannerCrushApp());
 }
 

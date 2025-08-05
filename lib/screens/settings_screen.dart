@@ -5,6 +5,7 @@ import '../widgets/custom_widgets.dart';
 import '../services/theme_service.dart';
 import '../services/ad_service.dart';
 import '../services/crush_service.dart';
+import '../services/audio_service.dart';
 import 'premium_screen.dart';
 import 'history_screen.dart';
 
@@ -84,6 +85,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               'Tema ${ThemeService.instance.isDarkMode ? "Claro" : "Oscuro"}',
                           subtitle: 'Cambiar el tema de la aplicación',
                           onTap: () => _toggleTheme(),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 30),
+
+                    // 🎵 NUEVA SECCIÓN DE AUDIO
+                    _buildSettingsSection(
+                      title: 'Audio',
+                      items: [
+                        _buildSettingsItem(
+                          icon:
+                              AudioService.instance.soundEnabled
+                                  ? Icons.volume_up
+                                  : Icons.volume_off,
+                          title: 'Efectos de Sonido',
+                          subtitle: 'Sonidos en botones y acciones',
+                          onTap: () => _toggleSoundEffects(),
+                          trailing: Switch(
+                            value: AudioService.instance.soundEnabled,
+                            onChanged: (value) => _toggleSoundEffects(),
+                            activeColor: ThemeService.instance.primaryColor,
+                          ),
+                        ),
+                        _buildSettingsItem(
+                          icon:
+                              AudioService.instance.musicEnabled
+                                  ? Icons.music_note
+                                  : Icons.music_off,
+                          title: 'Música de Fondo',
+                          subtitle: 'Música ambiente relajante',
+                          onTap: () => _toggleBackgroundMusic(),
+                          trailing: Switch(
+                            value: AudioService.instance.musicEnabled,
+                            onChanged: (value) => _toggleBackgroundMusic(),
+                            activeColor: ThemeService.instance.primaryColor,
+                          ),
                         ),
                       ],
                     ),
@@ -367,6 +405,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void _toggleTheme() async {
     await ThemeService.instance.toggleTheme();
+    setState(() {});
+  }
+
+  // 🎵 NUEVOS MÉTODOS DE AUDIO
+  void _toggleSoundEffects() async {
+    await AudioService.instance.setSoundEnabled(
+      !AudioService.instance.soundEnabled,
+    );
+    setState(() {});
+
+    // Reproducir sonido de prueba si se activó
+    if (AudioService.instance.soundEnabled) {
+      AudioService.instance.playButtonTap();
+    }
+  }
+
+  void _toggleBackgroundMusic() async {
+    await AudioService.instance.setMusicEnabled(
+      !AudioService.instance.musicEnabled,
+    );
     setState(() {});
   }
 

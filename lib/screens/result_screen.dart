@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import '../widgets/custom_widgets.dart';
 import '../services/theme_service.dart';
 import '../services/ad_service.dart';
+import '../services/audio_service.dart';
 import '../models/crush_result.dart';
 import 'form_screen.dart';
 import 'premium_screen.dart';
@@ -50,6 +51,11 @@ class _ResultScreenState extends State<ResultScreen>
     Future.delayed(const Duration(milliseconds: 500), () {
       _percentageController.forward();
       _heartController.forward();
+
+      // 🎵 Reproducir sonido basado en compatibilidad después de la animación
+      Future.delayed(const Duration(seconds: 2), () {
+        AudioService.instance.playCompatibilityResult(widget.result.percentage);
+      });
 
       // Add haptic feedback for celebration
       if (widget.result.percentage >= 70) {

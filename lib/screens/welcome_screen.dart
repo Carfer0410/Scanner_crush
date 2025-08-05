@@ -4,6 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import '../widgets/custom_widgets.dart';
 import '../services/theme_service.dart';
 import '../services/daily_love_service.dart';
+import '../services/audio_service.dart';
+import '../test_audio_screen.dart';
 import 'form_screen.dart';
 import 'settings_screen.dart';
 import 'celebrity_form_screen.dart';
@@ -67,6 +69,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                         // Daily Love button
                         GestureDetector(
                           onTap: () async {
+                            // 🎵 Sonido de transición
+                            AudioService.instance.playTransition();
+
                             try {
                               // Show loading indicator
                               showDialog(
@@ -162,9 +167,29 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                           ),
                         ),
 
+                        // Test Audio button
+                        IconButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const TestAudioScreen(),
+                              ),
+                            );
+                          },
+                          icon: Icon(
+                            Icons.audiotrack,
+                            color: ThemeService.instance.textColor,
+                            size: 28,
+                          ),
+                        ),
+
                         // Settings button
                         IconButton(
                           onPressed: () {
+                            // 🎵 Sonido de transición
+                            AudioService.instance.playTransition();
+
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -451,6 +476,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   }
 
   void _navigateToRegularScanner(BuildContext context) {
+    // 🎵 Sonido de transición
+    AudioService.instance.playTransition();
+
     Navigator.push(
       context,
       PageRouteBuilder(
@@ -473,6 +501,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   }
 
   void _navigateToCelebrityScanner(BuildContext context) {
+    // 🎵 Sonido de transición
+    AudioService.instance.playTransition();
+
     Navigator.push(
       context,
       PageRouteBuilder(
