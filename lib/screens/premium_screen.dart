@@ -217,9 +217,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                         'Obtén acceso completo a todas las funciones especiales',
                         style: GoogleFonts.poppins(
                           fontSize: 16,
-                          color: ThemeService.instance.textColor.withOpacity(
-                            0.7,
-                          ),
+                          color: ThemeService.instance.subtitleColor,
                         ),
                         textAlign: TextAlign.center,
                       ).animate().fadeIn(delay: 600.ms),
@@ -235,15 +233,13 @@ class _PremiumScreenState extends State<PremiumScreen> {
                           margin: const EdgeInsets.only(bottom: 16),
                           padding: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
-                            color: ThemeService.instance.cardColor,
+                            gradient: ThemeService.instance.cardGradient,
                             borderRadius: BorderRadius.circular(15),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 10,
-                                offset: const Offset(0, 5),
-                              ),
-                            ],
+                            border: Border.all(
+                              color: ThemeService.instance.borderColor,
+                              width: 1,
+                            ),
+                            boxShadow: ThemeService.instance.cardShadow,
                           ),
                           child: Row(
                             children: [

@@ -202,7 +202,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             'Tus escaneos de compatibilidad\naparecerán aquí una vez que\ncomiences a usar la app',
             style: GoogleFonts.poppins(
               fontSize: 16,
-              color: ThemeService.instance.textColor.withOpacity(0.7),
+              color: ThemeService.instance.subtitleColor,
               height: 1.5,
             ),
             textAlign: TextAlign.center,
@@ -237,15 +237,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: ThemeService.instance.cardColor,
+        gradient: ThemeService.instance.cardGradient,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-        ],
+        border: Border.all(
+          color: ThemeService.instance.borderColor,
+          width: 1,
+        ),
+        boxShadow: ThemeService.instance.cardShadow,
       ),
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -271,9 +269,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         _formatDate(result.timestamp),
                         style: GoogleFonts.poppins(
                           fontSize: 12,
-                          color: ThemeService.instance.textColor.withOpacity(
-                            0.6,
-                          ),
+                          color: ThemeService.instance.subtitleColor,
                         ),
                       ),
                     ],

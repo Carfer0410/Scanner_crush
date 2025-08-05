@@ -166,9 +166,7 @@ class _FormScreenState extends State<FormScreen> {
                           'Ingresa tu nombre y el de esa persona especial para descubrir qué dice el corazón sobre su conexión',
                           style: GoogleFonts.poppins(
                             fontSize: 16,
-                            color: ThemeService.instance.textColor.withOpacity(
-                              0.7,
-                            ),
+                            color: ThemeService.instance.subtitleColor,
                             height: 1.4,
                           ),
                           textAlign: TextAlign.center,
@@ -269,8 +267,7 @@ class _FormScreenState extends State<FormScreen> {
                                 'Nuestro algoritmo del amor analiza la compatibilidad entre personas reales, basándose en energías, nombres y conexiones del corazón para revelar secretos románticos.',
                                 style: GoogleFonts.poppins(
                                   fontSize: 14,
-                                  color: ThemeService.instance.textColor
-                                      .withOpacity(0.7),
+                                  color: ThemeService.instance.subtitleColor,
                                   height: 1.4,
                                 ),
                                 textAlign: TextAlign.center,

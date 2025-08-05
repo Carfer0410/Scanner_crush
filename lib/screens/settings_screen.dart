@@ -330,15 +330,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         Container(
           decoration: BoxDecoration(
-            color: ThemeService.instance.cardColor,
+            gradient: ThemeService.instance.cardGradient,
             borderRadius: BorderRadius.circular(15),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 10,
-                offset: const Offset(0, 5),
-              ),
-            ],
+            border: Border.all(
+              color: ThemeService.instance.borderColor,
+              width: 1,
+            ),
+            boxShadow: ThemeService.instance.cardShadow,
           ),
           child: Column(children: items),
         ),
@@ -353,39 +351,66 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required VoidCallback onTap,
     Widget? trailing,
   }) {
-    return ListTile(
-      leading: Container(
-        width: 45,
-        height: 45,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: ThemeService.instance.primaryColor.withOpacity(0.1),
-        ),
-        child: Icon(icon, color: ThemeService.instance.primaryColor, size: 22),
-      ),
-      title: Text(
-        title,
-        style: GoogleFonts.poppins(
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-          color: ThemeService.instance.textColor,
-        ),
-      ),
-      subtitle: Text(
-        subtitle,
-        style: GoogleFonts.poppins(
-          fontSize: 14,
-          color: ThemeService.instance.textColor.withOpacity(0.7),
-        ),
-      ),
-      trailing:
-          trailing ??
-          Icon(
-            Icons.arrow_forward_ios,
-            color: ThemeService.instance.textColor.withOpacity(0.3),
-            size: 16,
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: ThemeService.instance.borderColor.withOpacity(0.5),
+            width: 0.5,
           ),
-      onTap: onTap,
+        ),
+      ),
+      child: ListTile(
+        leading: Container(
+          width: 45,
+          height: 45,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: LinearGradient(
+              colors: [
+                ThemeService.instance.primaryColor.withOpacity(0.1),
+                ThemeService.instance.secondaryColor.withOpacity(0.1),
+              ],
+            ),
+            border: Border.all(
+              color: ThemeService.instance.primaryColor.withOpacity(0.2),
+              width: 1,
+            ),
+          ),
+          child: Icon(
+            icon,
+            color: ThemeService.instance.primaryColor,
+            size: 22,
+          ),
+        ),
+        title: Text(
+          title,
+          style: GoogleFonts.poppins(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: ThemeService.instance.textColor,
+          ),
+        ),
+        subtitle: Text(
+          subtitle,
+          style: GoogleFonts.poppins(
+            fontSize: 14,
+            color: ThemeService.instance.subtitleColor,
+            height: 1.3,
+          ),
+        ),
+        trailing: trailing ??
+            Icon(
+              Icons.arrow_forward_ios,
+              color: ThemeService.instance.subtitleColor,
+              size: 16,
+            ),
+        onTap: onTap,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 8,
+        ),
+      ),
     );
   }
 

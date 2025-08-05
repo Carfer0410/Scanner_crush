@@ -199,44 +199,32 @@ class GradientButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors:
-              backgroundColor != null
-                  ? [backgroundColor!, backgroundColor!.withOpacity(0.8)]
-                  : [
-                    ThemeService.instance.primaryColor,
-                    ThemeService.instance.secondaryColor,
-                  ],
-        ),
+        gradient: backgroundColor != null
+            ? LinearGradient(
+                colors: [backgroundColor!, backgroundColor!.withOpacity(0.8)],
+              )
+            : ThemeService.instance.primaryGradient,
         borderRadius: BorderRadius.circular(25),
-        boxShadow: [
-          BoxShadow(
-            color: ThemeService.instance.primaryColor.withOpacity(0.3),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
+        boxShadow: ThemeService.instance.buttonShadow,
       ),
       child: ElevatedButton.icon(
-        onPressed:
-            isLoading
-                ? null
-                : () {
-                  // 🎵 Reproducir sonido al presionar botón
-                  AudioService.instance.playButtonTap();
-                  onPressed();
-                },
-        icon:
-            isLoading
-                ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  ),
-                )
-                : Icon(icon ?? Icons.favorite, color: Colors.white),
+        onPressed: isLoading
+            ? null
+            : () {
+                // 🎵 Reproducir sonido al presionar botón
+                AudioService.instance.playButtonTap();
+                onPressed();
+              },
+        icon: isLoading
+            ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              )
+            : Icon(icon ?? Icons.favorite, color: Colors.white),
         label: Text(
           text,
           style: const TextStyle(
@@ -274,28 +262,38 @@ class CustomTextField extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
+        boxShadow: ThemeService.instance.cardShadow,
       ),
       child: TextFormField(
         controller: controller,
-        style: TextStyle(color: ThemeService.instance.textColor, fontSize: 16),
+        style: TextStyle(
+          color: ThemeService.instance.textColor,
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+        ),
         decoration: InputDecoration(
           hintText: hintText,
           hintStyle: TextStyle(
-            color: ThemeService.instance.textColor.withOpacity(0.6),
+            color: ThemeService.instance.subtitleColor,
+            fontSize: 16,
           ),
-          prefixIcon: Icon(icon, color: ThemeService.instance.primaryColor),
+          prefixIcon: Icon(
+            icon,
+            color: ThemeService.instance.primaryColor,
+            size: 24,
+          ),
           filled: true,
           fillColor: ThemeService.instance.cardColor,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(20),
             borderSide: BorderSide.none,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20),
+            borderSide: BorderSide(
+              color: ThemeService.instance.borderColor,
+              width: 1,
+            ),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(20),
@@ -304,20 +302,33 @@ class CustomTextField extends StatelessWidget {
               width: 2,
             ),
           ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20),
+            borderSide: BorderSide(
+              color: ThemeService.instance.errorColor,
+              width: 2,
+            ),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20),
+            borderSide: BorderSide(
+              color: ThemeService.instance.errorColor,
+              width: 2,
+            ),
+          ),
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 20,
             vertical: 16,
           ),
         ),
-        validator:
-            isRequired
-                ? (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Este campo es requerido';
-                  }
-                  return null;
+        validator: isRequired
+            ? (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Este campo es requerido';
                 }
-                : null,
+                return null;
+              }
+            : null,
       ),
     ).animate().slideX(delay: 200.ms, duration: 600.ms);
   }
@@ -345,15 +356,13 @@ class ResultCard extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: ThemeService.instance.cardColor,
+          gradient: ThemeService.instance.cardGradient,
           borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 15,
-              offset: const Offset(0, 8),
-            ),
-          ],
+          border: Border.all(
+            color: ThemeService.instance.borderColor,
+            width: 1,
+          ),
+          boxShadow: ThemeService.instance.cardShadow,
         ),
         child: Column(
           children: [
@@ -370,8 +379,10 @@ class ResultCard extends StatelessWidget {
               subtitle,
               style: TextStyle(
                 fontSize: 14,
-                color: ThemeService.instance.textColor.withOpacity(0.7),
+                color: ThemeService.instance.subtitleColor,
+                height: 1.4,
               ),
+              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
             child,

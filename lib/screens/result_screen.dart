@@ -211,15 +211,13 @@ class _ResultScreenState extends State<ResultScreen>
                       Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: ThemeService.instance.cardColor,
+                          gradient: ThemeService.instance.cardGradient,
                           borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 15,
-                              offset: const Offset(0, 8),
-                            ),
-                          ],
+                          border: Border.all(
+                            color: ThemeService.instance.borderColor,
+                            width: 1,
+                          ),
+                          boxShadow: ThemeService.instance.cardShadow,
                         ),
                         child: Row(
                           children: [
