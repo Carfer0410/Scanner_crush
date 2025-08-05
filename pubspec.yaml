@@ -1,0 +1,27 @@
+name: scanner_crush
+description: "Escáner de Crush - ¿Quién te ama en secreto?"
+publish_to: 'none'
+version: 1.0.0
+
+environment:
+  sdk: ^3.7.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  google_fonts: ^6.1.0
+  shared_preferences: ^2.2.2
+  flutter_animate: ^4.2.0+1
+  share_plus: ^7.2.1
+  cupertino_icons: ^1.0.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+  
+  assets:
+    - assets/images/
