@@ -7,7 +7,7 @@ import '../services/daily_love_service.dart';
 import '../services/audio_service.dart';
 import '../services/locale_service.dart';
 import '../services/streak_service.dart';
-import '../generated/l10n/app_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'form_screen.dart';
 import 'settings_screen.dart';
 import 'celebrity_form_screen.dart';

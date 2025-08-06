@@ -10,7 +10,7 @@ import 'services/audio_service.dart';
 import 'services/locale_service.dart';
 import 'services/streak_service.dart';
 import 'services/crush_service.dart';
-import 'generated/l10n/app_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,10 +31,10 @@ void main() async {
   await AudioService.instance.initialize();
   await LocaleService.instance.initialize();
   await StreakService.instance.initialize();
-  
+
   // Fix any invalid compatibility results from previous versions
   await CrushService.instance.fixInvalidResults();
-  
+
   runApp(const ScannerCrushApp());
 }
 
@@ -70,9 +70,10 @@ class _ScannerCrushAppState extends State<ScannerCrushApp> {
           supportedLocales: LocaleService.instance.supportedLocales,
           theme: _buildLightTheme(),
           darkTheme: _buildDarkTheme(),
-          themeMode: ThemeService.instance.isDarkMode 
-              ? ThemeMode.dark 
-              : ThemeMode.light,
+          themeMode:
+              ThemeService.instance.isDarkMode
+                  ? ThemeMode.dark
+                  : ThemeMode.light,
           home: const WelcomeScreen(),
         );
       },
@@ -130,15 +131,11 @@ class _ScannerCrushAppState extends State<ScannerCrushApp> {
         color: ThemeService.instance.cardColor,
         elevation: 8,
         shadowColor: Colors.black.withOpacity(0.1),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
       dialogTheme: DialogTheme(
         backgroundColor: ThemeService.instance.cardColor,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         titleTextStyle: TextStyle(
           color: ThemeService.instance.textColor,
           fontSize: 20,
@@ -159,7 +156,9 @@ class _ScannerCrushAppState extends State<ScannerCrushApp> {
       primaryColor: ThemeService.instance.primaryColor,
       scaffoldBackgroundColor: Colors.transparent,
       visualDensity: VisualDensity.adaptivePlatformDensity,
-      textTheme: GoogleFonts.poppinsTextTheme(ThemeData.dark().textTheme).copyWith(
+      textTheme: GoogleFonts.poppinsTextTheme(
+        ThemeData.dark().textTheme,
+      ).copyWith(
         bodyLarge: TextStyle(color: ThemeService.instance.textColor),
         bodyMedium: TextStyle(color: ThemeService.instance.textColor),
         titleLarge: TextStyle(color: ThemeService.instance.textColor),
@@ -211,15 +210,11 @@ class _ScannerCrushAppState extends State<ScannerCrushApp> {
         color: ThemeService.instance.cardColor,
         elevation: 8,
         shadowColor: Colors.black.withOpacity(0.3),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
       dialogTheme: DialogTheme(
         backgroundColor: ThemeService.instance.cardColor,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         titleTextStyle: TextStyle(
           color: ThemeService.instance.textColor,
           fontSize: 20,
@@ -231,22 +226,22 @@ class _ScannerCrushAppState extends State<ScannerCrushApp> {
         ),
       ),
       switchTheme: SwitchThemeData(
-        thumbColor: MaterialStateProperty.resolveWith<Color>(
-          (Set<MaterialState> states) {
-            if (states.contains(MaterialState.selected)) {
-              return ThemeService.instance.primaryColor;
-            }
-            return ThemeService.instance.subtitleColor;
-          },
-        ),
-        trackColor: MaterialStateProperty.resolveWith<Color>(
-          (Set<MaterialState> states) {
-            if (states.contains(MaterialState.selected)) {
-              return ThemeService.instance.primaryColor.withOpacity(0.5);
-            }
-            return ThemeService.instance.borderColor;
-          },
-        ),
+        thumbColor: MaterialStateProperty.resolveWith<Color>((
+          Set<MaterialState> states,
+        ) {
+          if (states.contains(MaterialState.selected)) {
+            return ThemeService.instance.primaryColor;
+          }
+          return ThemeService.instance.subtitleColor;
+        }),
+        trackColor: MaterialStateProperty.resolveWith<Color>((
+          Set<MaterialState> states,
+        ) {
+          if (states.contains(MaterialState.selected)) {
+            return ThemeService.instance.primaryColor.withOpacity(0.5);
+          }
+          return ThemeService.instance.borderColor;
+        }),
       ),
     );
   }

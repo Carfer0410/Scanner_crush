@@ -7,7 +7,7 @@ import '../services/theme_service.dart';
 import '../services/crush_service.dart';
 import '../services/locale_service.dart';
 import '../models/crush_result.dart';
-import '../generated/l10n/app_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -40,7 +40,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context)!.errorLoadingHistory(e.toString())),
+            content: Text(
+              AppLocalizations.of(context)?.errorLoadingHistory(e.toString()) ??
+                  '',
+            ),
             backgroundColor: Colors.red,
           ),
         );
@@ -54,11 +57,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
     if (difference.inDays == 0) {
       if (difference.inHours == 0) {
-        return '${AppLocalizations.of(context)!.agoTime} ${difference.inMinutes} ${AppLocalizations.of(context)!.minutes}';
+        return '${AppLocalizations.of(context)?.agoTime ?? ''} ${difference.inMinutes} ${AppLocalizations.of(context)?.minutes ?? ''}';
       }
-      return '${AppLocalizations.of(context)!.agoTime} ${difference.inHours}${AppLocalizations.of(context)!.hours}';
+      return '${AppLocalizations.of(context)?.agoTime ?? ''} ${difference.inHours}${AppLocalizations.of(context)?.hours ?? ''}';
     } else if (difference.inDays < 7) {
-      return '${AppLocalizations.of(context)!.agoTime} ${difference.inDays} ${AppLocalizations.of(context)!.days}';
+      return '${AppLocalizations.of(context)?.agoTime ?? ''} ${difference.inDays} ${AppLocalizations.of(context)?.days ?? ''}';
     } else {
       return '${date.day}/${date.month}/${date.year}';
     }
@@ -70,7 +73,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
     } else if (percentage >= 60) {
       return const Color(0xFFFF9800); // Orange - Great compatibility
     } else if (percentage >= 40) {
-      return const Color(0xFF2196F3); // Blue - Good compatibility (better visibility)
+      return const Color(
+        0xFF2196F3,
+      ); // Blue - Good compatibility (better visibility)
     } else {
       return const Color(0xFFE91E63); // Pink - There is potential
     }
@@ -83,7 +88,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context)!.errorSharingResult),
+            content: Text(
+              AppLocalizations.of(context)?.errorSharingResult ?? '',
+            ),
             backgroundColor: Colors.orange,
           ),
         );
@@ -116,7 +123,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         ),
                         const Spacer(),
                         Text(
-                          AppLocalizations.of(context)!.history,
+                          AppLocalizations.of(context)?.history ?? '',
                           style: GoogleFonts.poppins(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -130,28 +137,30 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   ),
 
                   Expanded(
-                    child: _isLoading
-                        ? Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                CircularProgressIndicator(
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    ThemeService.instance.primaryColor,
+                    child:
+                        _isLoading
+                            ? Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      ThemeService.instance.primaryColor,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 20),
-                                Text(
-                                  'Cargando historial...',
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 16,
-                                    color: ThemeService.instance.textColor.withOpacity(0.7),
+                                  const SizedBox(height: 20),
+                                  Text(
+                                    'Cargando historial...',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 16,
+                                      color: ThemeService.instance.textColor
+                                          .withOpacity(0.7),
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          )
-                        : _results.isEmpty
+                                ],
+                              ),
+                            )
+                            : _results.isEmpty
                             ? _buildEmptyState()
                             : _buildHistoryList(),
                   ),
@@ -193,7 +202,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           const SizedBox(height: 30),
 
           Text(
-            AppLocalizations.of(context)!.noHistoryYet,
+            AppLocalizations.of(context)?.noHistoryYet ?? '',
             style: GoogleFonts.poppins(
               fontSize: 24,
               fontWeight: FontWeight.bold,
@@ -204,7 +213,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           const SizedBox(height: 16),
 
           Text(
-            AppLocalizations.of(context)!.noHistoryDescription,
+            AppLocalizations.of(context)?.noHistoryDescription ?? '',
             style: GoogleFonts.poppins(
               fontSize: 16,
               color: ThemeService.instance.subtitleColor,
@@ -216,7 +225,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           const SizedBox(height: 40),
 
           GradientButton(
-            text: AppLocalizations.of(context)!.startScanning,
+            text: AppLocalizations.of(context)?.startScanning ?? '',
             icon: Icons.favorite,
             onPressed: () {
               Navigator.pop(context);
@@ -244,10 +253,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       decoration: BoxDecoration(
         gradient: ThemeService.instance.cardGradient,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: ThemeService.instance.borderColor,
-          width: 1,
-        ),
+        border: Border.all(color: ThemeService.instance.borderColor, width: 1),
         boxShadow: ThemeService.instance.cardShadow,
       ),
       child: Padding(
@@ -288,7 +294,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     color: _getPercentageColor(result.percentage),
                     boxShadow: [
                       BoxShadow(
-                        color: _getPercentageColor(result.percentage).withOpacity(0.3),
+                        color: _getPercentageColor(
+                          result.percentage,
+                        ).withOpacity(0.3),
                         blurRadius: 10,
                         offset: const Offset(0, 5),
                       ),
@@ -372,8 +380,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
         ),
       ),
     ).animate().slideX(
-          delay: Duration(milliseconds: index * 100),
-          duration: 600.ms,
-        );
+      delay: Duration(milliseconds: index * 100),
+      duration: 600.ms,
+    );
   }
 }

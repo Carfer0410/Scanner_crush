@@ -97,12 +97,16 @@ class CrushService {
     // Use absolute value and proper modulo to prevent overflow
     final positiveHash = hash.abs();
     final percentage = 30 + (positiveHash % 71); // 71 = 100 - 30 + 1
-    
+
     // Additional safety check to ensure we're in valid range
     return percentage.clamp(30, 100);
   }
 
-  String _getRandomMessage(int percentage, AppLocalizations localizations, {bool isCelebrity = false}) {
+  String _getRandomMessage(
+    int percentage,
+    AppLocalizations localizations, {
+    bool isCelebrity = false,
+  }) {
     final random = Random();
 
     // Mensajes especiales para celebridades
@@ -123,116 +127,209 @@ class CrushService {
 
   String _getCelebrityMessage(int index, AppLocalizations localizations) {
     switch (index) {
-      case 1: return localizations.celebrityMessage1;
-      case 2: return localizations.celebrityMessage2;
-      case 3: return localizations.celebrityMessage3;
-      case 4: return localizations.celebrityMessage4;
-      case 5: return localizations.celebrityMessage5;
-      case 6: return localizations.celebrityMessage6;
-      case 7: return localizations.celebrityMessage7;
-      case 8: return localizations.celebrityMessage8;
-      case 9: return localizations.celebrityMessage9;
-      case 10: return localizations.celebrityMessage10;
-      case 11: return localizations.celebrityMessage11;
-      case 12: return localizations.celebrityMessage12;
-      case 13: return localizations.celebrityMessage13;
-      case 14: return localizations.celebrityMessage14;
-      case 15: return localizations.celebrityMessage15;
-      default: return localizations.celebrityMessage1;
+      case 1:
+        return localizations.celebrityMessage1;
+      case 2:
+        return localizations.celebrityMessage2;
+      case 3:
+        return localizations.celebrityMessage3;
+      case 4:
+        return localizations.celebrityMessage4;
+      case 5:
+        return localizations.celebrityMessage5;
+      case 6:
+        return localizations.celebrityMessage6;
+      case 7:
+        return localizations.celebrityMessage7;
+      case 8:
+        return localizations.celebrityMessage8;
+      case 9:
+        return localizations.celebrityMessage9;
+      case 10:
+        return localizations.celebrityMessage10;
+      case 11:
+        return localizations.celebrityMessage11;
+      case 12:
+        return localizations.celebrityMessage12;
+      case 13:
+        return localizations.celebrityMessage13;
+      case 14:
+        return localizations.celebrityMessage14;
+      case 15:
+        return localizations.celebrityMessage15;
+      default:
+        return localizations.celebrityMessage1;
     }
   }
 
   String _getRomanticMessage(int index, AppLocalizations localizations) {
     switch (index) {
-      case 1: return localizations.romanticMessage1;
-      case 2: return localizations.romanticMessage2;
-      case 3: return localizations.romanticMessage3;
-      case 4: return localizations.romanticMessage4;
-      case 5: return localizations.romanticMessage5;
-      case 6: return localizations.romanticMessage6;
-      case 7: return localizations.romanticMessage7;
-      case 8: return localizations.romanticMessage8;
-      case 9: return localizations.romanticMessage9;
-      case 10: return localizations.romanticMessage10;
-      case 11: return localizations.romanticMessage11;
-      case 12: return localizations.romanticMessage12;
-      case 13: return localizations.romanticMessage13;
-      case 14: return localizations.romanticMessage14;
-      case 15: return localizations.romanticMessage15;
-      case 16: return localizations.romanticMessage16;
-      case 17: return localizations.romanticMessage17;
-      case 18: return localizations.romanticMessage18;
-      case 19: return localizations.romanticMessage19;
-      case 20: return localizations.romanticMessage20;
-      default: return localizations.romanticMessage1;
+      case 1:
+        return localizations.romanticMessage1;
+      case 2:
+        return localizations.romanticMessage2;
+      case 3:
+        return localizations.romanticMessage3;
+      case 4:
+        return localizations.romanticMessage4;
+      case 5:
+        return localizations.romanticMessage5;
+      case 6:
+        return localizations.romanticMessage6;
+      case 7:
+        return localizations.romanticMessage7;
+      case 8:
+        return localizations.romanticMessage8;
+      case 9:
+        return localizations.romanticMessage9;
+      case 10:
+        return localizations.romanticMessage10;
+      case 11:
+        return localizations.romanticMessage11;
+      case 12:
+        return localizations.romanticMessage12;
+      case 13:
+        return localizations.romanticMessage13;
+      case 14:
+        return localizations.romanticMessage14;
+      case 15:
+        return localizations.romanticMessage15;
+      case 16:
+        return localizations.romanticMessage16;
+      case 17:
+        return localizations.romanticMessage17;
+      case 18:
+        return localizations.romanticMessage18;
+      case 19:
+        return localizations.romanticMessage19;
+      case 20:
+        return localizations.romanticMessage20;
+      default:
+        return localizations.romanticMessage1;
     }
   }
 
   String _getMysteriousMessage(int index, AppLocalizations localizations) {
     switch (index) {
-      case 1: return localizations.mysteriousMessage1;
-      case 2: return localizations.mysteriousMessage2;
-      case 3: return localizations.mysteriousMessage3;
-      case 4: return localizations.mysteriousMessage4;
-      case 5: return localizations.mysteriousMessage5;
-      case 6: return localizations.mysteriousMessage6;
-      case 7: return localizations.mysteriousMessage7;
-      case 8: return localizations.mysteriousMessage8;
-      case 9: return localizations.mysteriousMessage9;
-      case 10: return localizations.mysteriousMessage10;
-      case 11: return localizations.mysteriousMessage11;
-      case 12: return localizations.mysteriousMessage12;
-      case 13: return localizations.mysteriousMessage13;
-      case 14: return localizations.mysteriousMessage14;
-      case 15: return localizations.mysteriousMessage15;
-      case 16: return localizations.mysteriousMessage16;
-      case 17: return localizations.mysteriousMessage17;
-      case 18: return localizations.mysteriousMessage18;
-      case 19: return localizations.mysteriousMessage19;
-      case 20: return localizations.mysteriousMessage20;
-      default: return localizations.mysteriousMessage1;
+      case 1:
+        return localizations.mysteriousMessage1;
+      case 2:
+        return localizations.mysteriousMessage2;
+      case 3:
+        return localizations.mysteriousMessage3;
+      case 4:
+        return localizations.mysteriousMessage4;
+      case 5:
+        return localizations.mysteriousMessage5;
+      case 6:
+        return localizations.mysteriousMessage6;
+      case 7:
+        return localizations.mysteriousMessage7;
+      case 8:
+        return localizations.mysteriousMessage8;
+      case 9:
+        return localizations.mysteriousMessage9;
+      case 10:
+        return localizations.mysteriousMessage10;
+      case 11:
+        return localizations.mysteriousMessage11;
+      case 12:
+        return localizations.mysteriousMessage12;
+      case 13:
+        return localizations.mysteriousMessage13;
+      case 14:
+        return localizations.mysteriousMessage14;
+      case 15:
+        return localizations.mysteriousMessage15;
+      case 16:
+        return localizations.mysteriousMessage16;
+      case 17:
+        return localizations.mysteriousMessage17;
+      case 18:
+        return localizations.mysteriousMessage18;
+      case 19:
+        return localizations.mysteriousMessage19;
+      case 20:
+        return localizations.mysteriousMessage20;
+      default:
+        return localizations.mysteriousMessage1;
     }
   }
 
   String _getFunMessage(int index, AppLocalizations localizations) {
     switch (index) {
-      case 1: return localizations.funMessage1;
-      case 2: return localizations.funMessage2;
-      case 3: return localizations.funMessage3;
-      case 4: return localizations.funMessage4;
-      case 5: return localizations.funMessage5;
-      case 6: return localizations.funMessage6;
-      case 7: return localizations.funMessage7;
-      case 8: return localizations.funMessage8;
-      case 9: return localizations.funMessage9;
-      case 10: return localizations.funMessage10;
-      case 11: return localizations.funMessage11;
-      case 12: return localizations.funMessage12;
-      case 13: return localizations.funMessage13;
-      case 14: return localizations.funMessage14;
-      case 15: return localizations.funMessage15;
-      case 16: return localizations.funMessage16;
-      case 17: return localizations.funMessage17;
-      case 18: return localizations.funMessage18;
-      case 19: return localizations.funMessage19;
-      case 20: return localizations.funMessage20;
-      default: return localizations.funMessage1;
+      case 1:
+        return localizations.funMessage1;
+      case 2:
+        return localizations.funMessage2;
+      case 3:
+        return localizations.funMessage3;
+      case 4:
+        return localizations.funMessage4;
+      case 5:
+        return localizations.funMessage5;
+      case 6:
+        return localizations.funMessage6;
+      case 7:
+        return localizations.funMessage7;
+      case 8:
+        return localizations.funMessage8;
+      case 9:
+        return localizations.funMessage9;
+      case 10:
+        return localizations.funMessage10;
+      case 11:
+        return localizations.funMessage11;
+      case 12:
+        return localizations.funMessage12;
+      case 13:
+        return localizations.funMessage13;
+      case 14:
+        return localizations.funMessage14;
+      case 15:
+        return localizations.funMessage15;
+      case 16:
+        return localizations.funMessage16;
+      case 17:
+        return localizations.funMessage17;
+      case 18:
+        return localizations.funMessage18;
+      case 19:
+        return localizations.funMessage19;
+      case 20:
+        return localizations.funMessage20;
+      default:
+        return localizations.funMessage1;
     }
   }
 
-  String _getLowCompatibilityMessage(int index, AppLocalizations localizations) {
+  String _getLowCompatibilityMessage(
+    int index,
+    AppLocalizations localizations,
+  ) {
     switch (index) {
-      case 1: return localizations.lowCompatibilityMessage1;
-      case 2: return localizations.lowCompatibilityMessage2;
-      case 3: return localizations.lowCompatibilityMessage3;
-      case 4: return localizations.lowCompatibilityMessage4;
-      case 5: return localizations.lowCompatibilityMessage5;
-      case 6: return localizations.lowCompatibilityMessage6;
-      case 7: return localizations.lowCompatibilityMessage7;
-      case 8: return localizations.lowCompatibilityMessage8;
-      case 9: return localizations.lowCompatibilityMessage9;
-      case 10: return localizations.lowCompatibilityMessage10;
-      default: return localizations.lowCompatibilityMessage1;
+      case 1:
+        return localizations.lowCompatibilityMessage1;
+      case 2:
+        return localizations.lowCompatibilityMessage2;
+      case 3:
+        return localizations.lowCompatibilityMessage3;
+      case 4:
+        return localizations.lowCompatibilityMessage4;
+      case 5:
+        return localizations.lowCompatibilityMessage5;
+      case 6:
+        return localizations.lowCompatibilityMessage6;
+      case 7:
+        return localizations.lowCompatibilityMessage7;
+      case 8:
+        return localizations.lowCompatibilityMessage8;
+      case 9:
+        return localizations.lowCompatibilityMessage9;
+      case 10:
+        return localizations.lowCompatibilityMessage10;
+      default:
+        return localizations.lowCompatibilityMessage1;
     }
   }
 
@@ -249,7 +346,11 @@ class CrushService {
     return _emojis[random.nextInt(_emojis.length)];
   }
 
-  Future<CrushResult> generateResult(String userName, String crushName, AppLocalizations localizations) async {
+  Future<CrushResult> generateResult(
+    String userName,
+    String crushName,
+    AppLocalizations localizations,
+  ) async {
     // Check if we already have a result for this combination
     final existingResult = await getSavedResult(userName, crushName);
     if (existingResult != null) {
@@ -261,7 +362,11 @@ class CrushService {
 
     // Generate new result
     final percentage = _generateCompatibilityPercentage(userName, crushName);
-    final message = _getRandomMessage(percentage, localizations, isCelebrity: isCelebrity);
+    final message = _getRandomMessage(
+      percentage,
+      localizations,
+      isCelebrity: isCelebrity,
+    );
     final emoji = _getRandomEmoji();
 
     final result = CrushResult(
@@ -287,7 +392,10 @@ class CrushService {
   }
 
   // Método alternativo para cuando AppLocalizations no está disponible
-  Future<CrushResult> generateSimpleResult(String userName, String crushName) async {
+  Future<CrushResult> generateSimpleResult(
+    String userName,
+    String crushName,
+  ) async {
     // Check if we already have a result for this combination
     final existingResult = await getSavedResult(userName, crushName);
     if (existingResult != null) {
@@ -411,15 +519,15 @@ class CrushService {
         try {
           final json = jsonDecode(jsonString);
           var result = CrushResult.fromJson(json);
-          
+
           // Fix any invalid percentages (outside 30-100 range)
           if (result.percentage < 30 || result.percentage > 100) {
             // Recalculate with fixed algorithm
             final correctedPercentage = _generateCompatibilityPercentage(
-              result.userName, 
-              result.crushName
+              result.userName,
+              result.crushName,
             );
-            
+
             // Create corrected result
             result = CrushResult(
               userName: result.userName,
@@ -430,11 +538,11 @@ class CrushService {
               timestamp: result.timestamp,
               isCelebrity: result.isCelebrity,
             );
-            
+
             // Save corrected result
             await _saveResult(result);
           }
-          
+
           results.add(result);
         } catch (e) {
           // Skip corrupted results
@@ -461,15 +569,15 @@ class CrushService {
         try {
           final json = jsonDecode(jsonString);
           final result = CrushResult.fromJson(json);
-          
+
           // Check if percentage is invalid
           if (result.percentage < 30 || result.percentage > 100) {
             // Recalculate with fixed algorithm
             final correctedPercentage = _generateCompatibilityPercentage(
-              result.userName, 
-              result.crushName
+              result.userName,
+              result.crushName,
             );
-            
+
             // Create corrected result
             final correctedResult = CrushResult(
               userName: result.userName,
@@ -480,7 +588,7 @@ class CrushService {
               timestamp: result.timestamp,
               isCelebrity: result.isCelebrity,
             );
-            
+
             // Save corrected result
             await _saveResult(correctedResult);
           }

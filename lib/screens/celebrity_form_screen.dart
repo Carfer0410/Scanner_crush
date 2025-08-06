@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/services.dart';
 import '../widgets/custom_widgets.dart';
 import '../services/theme_service.dart';
-import '../generated/l10n/app_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'celebrity_screen.dart';
 
 class CelebrityFormScreen extends StatefulWidget {
@@ -56,8 +56,9 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
     return Scaffold(
-          body: AnimatedBackground(
+      body: AnimatedBackground(
         child: SafeArea(
           child: Form(
             key: _formKey,
@@ -78,7 +79,7 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
                       ),
                       const Spacer(),
                       Text(
-                        AppLocalizations.of(context)!.celebrityCrush,
+                        localizations?.celebrityCrush ?? '',
                         style: GoogleFonts.poppins(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -93,7 +94,10 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
 
                 Expanded(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 20,
+                    ),
                     child: Column(
                       children: [
                         const SizedBox(height: 40),
@@ -129,7 +133,7 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
 
                         // Title
                         Text(
-                              AppLocalizations.of(context)!.celebrityCrushTitle,
+                              localizations?.celebrityCrushTitle ?? '',
                               style: GoogleFonts.poppins(
                                 fontSize: 28,
                                 fontWeight: FontWeight.bold,
@@ -144,7 +148,7 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
                         const SizedBox(height: 16),
 
                         Text(
-                          AppLocalizations.of(context)!.celebrityCrushDescription,
+                          localizations?.celebrityCrushDescription ?? '',
                           style: GoogleFonts.poppins(
                             fontSize: 16,
                             color: ThemeService.instance.textColor.withOpacity(
@@ -159,7 +163,7 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
 
                         // User name field
                         CustomTextField(
-                          hintText: AppLocalizations.of(context)!.yourName,
+                          hintText: localizations?.yourName ?? '',
                           icon: Icons.person,
                           controller: _userNameController,
                         ).animate().slideX(delay: 600.ms),
@@ -168,7 +172,7 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
 
                         // Continue button
                         GradientButton(
-                          text: AppLocalizations.of(context)!.chooseMyCommit,
+                          text: localizations?.chooseMyCommit ?? '',
                           onPressed: _goToCelebritySelection,
                           backgroundColor: Colors.purple,
                           icon: Icons.stars,
@@ -196,7 +200,7 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
                                   ),
                                   const SizedBox(height: 12),
                                   Text(
-                                    AppLocalizations.of(context)!.celebrityMode,
+                                    localizations?.celebrityMode ?? '',
                                     style: GoogleFonts.poppins(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
@@ -205,7 +209,8 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
-                                    AppLocalizations.of(context)!.celebrityModeDescription,
+                                    localizations?.celebrityModeDescription ??
+                                        '',
                                     style: GoogleFonts.poppins(
                                       fontSize: 14,
                                       color: ThemeService.instance.textColor
@@ -241,7 +246,7 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
                               child: Column(
                                 children: [
                                   Text(
-                                    AppLocalizations.of(context)!.popularCelebrities,
+                                    localizations?.popularCelebrities ?? '',
                                     style: GoogleFonts.poppins(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
@@ -291,7 +296,7 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
-                                    AppLocalizations.of(context)!.andManyMore,
+                                    localizations?.andManyMore ?? '',
                                     style: GoogleFonts.poppins(
                                       fontSize: 12,
                                       color: ThemeService.instance.textColor

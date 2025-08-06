@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../widgets/custom_widgets.dart';
 import '../services/theme_service.dart';
 import '../services/daily_love_service.dart';
-import '../generated/l10n/app_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class DailyLoveScreen extends StatefulWidget {
   const DailyLoveScreen({super.key});
@@ -57,6 +57,7 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
 
   @override
   Widget build(BuildContext context) {
+    // Removed unused localizations variable; use AppLocalizations.of(context) directly in helper methods
     return Scaffold(
       body: AnimatedBackground(
         child: SafeArea(
@@ -81,7 +82,7 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
           ),
           const SizedBox(height: 20),
           Text(
-            AppLocalizations.of(context)!.preparingLoveDay,
+            AppLocalizations.of(context)?.preparingLoveDay ?? '',
             style: GoogleFonts.poppins(
               fontSize: 16,
               color: ThemeService.instance.textColor,
@@ -102,7 +103,7 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
             const Icon(Icons.error_outline, size: 64, color: Colors.red),
             const SizedBox(height: 20),
             Text(
-              _errorMessage ?? AppLocalizations.of(context)!.unknownError,
+              _errorMessage ?? AppLocalizations.of(context)?.unknownError ?? '',
               style: GoogleFonts.poppins(
                 fontSize: 16,
                 color: ThemeService.instance.textColor,
@@ -112,7 +113,7 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () => Navigator.pop(context),
-              child: Text(AppLocalizations.of(context)!.goBack),
+              child: Text(AppLocalizations.of(context)?.goBack ?? ''),
             ),
           ],
         ),
@@ -121,9 +122,13 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
   }
 
   Widget _buildMainContent() {
-    final horoscope = DailyLoveService.instance.getTodayLoveHoroscopeLocalized(context);
-    final personalizedTip = DailyLoveService.instance.getPersonalizedTipLocalized(context);
-    final achievements = DailyLoveService.instance.getUnlockedAchievementsLocalized(context);
+    final horoscope = DailyLoveService.instance.getTodayLoveHoroscopeLocalized(
+      context,
+    );
+    final personalizedTip = DailyLoveService.instance
+        .getPersonalizedTipLocalized(context);
+    final achievements = DailyLoveService.instance
+        .getUnlockedAchievementsLocalized(context);
 
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
@@ -142,7 +147,7 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
               ),
               Expanded(
                 child: Text(
-                  AppLocalizations.of(context)!.yourLoveUniverse,
+                  AppLocalizations.of(context)?.yourLoveUniverse ?? '',
                   style: GoogleFonts.poppins(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -280,7 +285,7 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
                   const Icon(Icons.psychology, color: Colors.white, size: 24),
                   const SizedBox(width: 10),
                   Text(
-                    AppLocalizations.of(context)!.personalizedTip,
+                    AppLocalizations.of(context)?.personalizedTip ?? '',
                     style: GoogleFonts.poppins(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -311,7 +316,7 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
     return Column(
       children: [
         Text(
-          AppLocalizations.of(context)!.unlockedAchievements,
+          AppLocalizations.of(context)?.unlockedAchievements ?? '',
           style: GoogleFonts.poppins(
             fontSize: 20,
             fontWeight: FontWeight.bold,

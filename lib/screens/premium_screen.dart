@@ -5,7 +5,7 @@ import '../widgets/custom_widgets.dart';
 import '../services/theme_service.dart';
 import '../services/ad_service.dart';
 import '../services/locale_service.dart';
-import '../generated/l10n/app_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class PremiumScreen extends StatefulWidget {
   const PremiumScreen({super.key});
@@ -78,7 +78,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                     Icon(Icons.check_circle, color: Colors.green, size: 50),
                     const SizedBox(height: 16),
                     Text(
-                      AppLocalizations.of(context)!.welcomeToPremium,
+                      AppLocalizations.of(context)?.welcomeToPremium ?? '',
                       style: GoogleFonts.poppins(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -87,7 +87,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                   ],
                 ),
                 content: Text(
-                  AppLocalizations.of(context)!.premiumActivated,
+                  AppLocalizations.of(context)?.premiumActivated ?? '',
                   style: GoogleFonts.poppins(fontSize: 16),
                   textAlign: TextAlign.center,
                 ),
@@ -101,7 +101,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                       ); // Return to previous screen with success
                     },
                     child: Text(
-                      AppLocalizations.of(context)!.great,
+                      AppLocalizations.of(context)?.great ?? '',
                       style: GoogleFonts.poppins(
                         fontWeight: FontWeight.bold,
                         color: ThemeService.instance.primaryColor,
@@ -116,9 +116,11 @@ class _PremiumScreenState extends State<PremiumScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text((LocaleService.instance.currentLocale.languageCode == 'en') 
-                ? 'Purchase error: ${e.toString()}' 
-                : 'Error en la compra: ${e.toString()}'),
+            content: Text(
+              (LocaleService.instance.currentLocale.languageCode == 'en')
+                  ? 'Purchase error: ${e.toString()}'
+                  : 'Error en la compra: ${e.toString()}',
+            ),
             backgroundColor: Colors.red,
           ),
         );
@@ -136,7 +138,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
     // In a real app, implement restore purchases logic
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(AppLocalizations.of(context)!.noPreviousPurchases),
+        content: Text(AppLocalizations.of(context)?.noPreviousPurchases ?? ''),
         backgroundColor: Colors.orange,
       ),
     );
@@ -145,17 +147,17 @@ class _PremiumScreenState extends State<PremiumScreen> {
   String _getFeatureTitle(String key) {
     switch (key) {
       case 'noAdsTitle':
-        return AppLocalizations.of(context)!.noAdsTitle;
+        return AppLocalizations.of(context)?.noAdsTitle ?? key;
       case 'unlimitedScansTitle':
-        return AppLocalizations.of(context)!.unlimitedScansTitle;
+        return AppLocalizations.of(context)?.unlimitedScansTitle ?? key;
       case 'exclusiveResultsTitle':
-        return AppLocalizations.of(context)!.exclusiveResultsTitle;
+        return AppLocalizations.of(context)?.exclusiveResultsTitle ?? key;
       case 'crushHistoryTitle':
-        return AppLocalizations.of(context)!.crushHistoryTitle;
+        return AppLocalizations.of(context)?.crushHistoryTitle ?? key;
       case 'specialThemesTitle':
-        return AppLocalizations.of(context)!.specialThemesTitle;
+        return AppLocalizations.of(context)?.specialThemesTitle ?? key;
       case 'premiumSupportTitle':
-        return AppLocalizations.of(context)!.premiumSupportTitle;
+        return AppLocalizations.of(context)?.premiumSupportTitle ?? key;
       default:
         return key;
     }
@@ -164,17 +166,17 @@ class _PremiumScreenState extends State<PremiumScreen> {
   String _getFeatureDescription(String key) {
     switch (key) {
       case 'noAdsDescription':
-        return AppLocalizations.of(context)!.noAdsDescription;
+        return AppLocalizations.of(context)?.noAdsDescription ?? key;
       case 'unlimitedScansDescription':
-        return AppLocalizations.of(context)!.unlimitedScansDescription;
+        return AppLocalizations.of(context)?.unlimitedScansDescription ?? key;
       case 'exclusiveResultsDescription':
-        return AppLocalizations.of(context)!.exclusiveResultsDescription;
+        return AppLocalizations.of(context)?.exclusiveResultsDescription ?? key;
       case 'crushHistoryDescription':
-        return AppLocalizations.of(context)!.crushHistoryDescription;
+        return AppLocalizations.of(context)?.crushHistoryDescription ?? key;
       case 'specialThemesDescription':
-        return AppLocalizations.of(context)!.specialThemesDescription;
+        return AppLocalizations.of(context)?.specialThemesDescription ?? key;
       case 'premiumSupportDescription':
-        return AppLocalizations.of(context)!.premiumSupportDescription;
+        return AppLocalizations.of(context)?.premiumSupportDescription ?? key;
       default:
         return key;
     }
@@ -202,7 +204,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                     ),
                     const Spacer(),
                     Text(
-                      AppLocalizations.of(context)!.premium,
+                      AppLocalizations.of(context)?.premium ?? '',
                       style: GoogleFonts.poppins(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -243,7 +245,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                       const SizedBox(height: 30),
 
                       Text(
-                        AppLocalizations.of(context)!.premiumSubtitle,
+                        AppLocalizations.of(context)?.premiumSubtitle ?? '',
                         style: GoogleFonts.poppins(
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
@@ -256,7 +258,8 @@ class _PremiumScreenState extends State<PremiumScreen> {
                       const SizedBox(height: 16),
 
                       Text(
-                        AppLocalizations.of(context)?.unlockAllFeatures ?? 'Obtén acceso completo a todas las funciones especiales',
+                        AppLocalizations.of(context)?.unlockAllFeatures ??
+                            'Obtén acceso completo a todas las funciones especiales',
                         style: GoogleFonts.poppins(
                           fontSize: 16,
                           color: ThemeService.instance.subtitleColor,
@@ -313,7 +316,9 @@ class _PremiumScreenState extends State<PremiumScreen> {
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      _getFeatureDescription(feature['description']),
+                                      _getFeatureDescription(
+                                        feature['description'],
+                                      ),
                                       style: GoogleFonts.poppins(
                                         fontSize: 14,
                                         color: ThemeService.instance.textColor
@@ -352,7 +357,13 @@ class _PremiumScreenState extends State<PremiumScreen> {
                         child: Column(
                           children: [
                             Text(
-                              (LocaleService.instance.currentLocale.languageCode == 'en') ? 'Special Offer' : 'Oferta Especial',
+                              (LocaleService
+                                          .instance
+                                          .currentLocale
+                                          .languageCode ==
+                                      'en')
+                                  ? 'Special Offer'
+                                  : 'Oferta Especial',
                               style: GoogleFonts.poppins(
                                 fontSize: 16,
                                 color: Colors.white.withOpacity(0.8),
@@ -382,7 +393,13 @@ class _PremiumScreenState extends State<PremiumScreen> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              (LocaleService.instance.currentLocale.languageCode == 'en') ? 'Cancel anytime' : 'Cancela cuando quieras',
+                              (LocaleService
+                                          .instance
+                                          .currentLocale
+                                          .languageCode ==
+                                      'en')
+                                  ? 'Cancel anytime'
+                                  : 'Cancela cuando quieras',
                               style: GoogleFonts.poppins(
                                 fontSize: 14,
                                 color: Colors.white.withOpacity(0.7),
@@ -396,7 +413,14 @@ class _PremiumScreenState extends State<PremiumScreen> {
 
                       // Purchase button
                       GradientButton(
-                        text: _isLoading ? AppLocalizations.of(context)!.processing : AppLocalizations.of(context)!.purchasePremium,
+                        text:
+                            _isLoading
+                                ? (AppLocalizations.of(context)?.processing ??
+                                    '')
+                                : (AppLocalizations.of(
+                                      context,
+                                    )?.purchasePremium ??
+                                    ''),
                         icon: Icons.credit_card,
                         backgroundColor: Colors.amber,
                         onPressed: _purchasePremium,
@@ -409,7 +433,10 @@ class _PremiumScreenState extends State<PremiumScreen> {
                       TextButton(
                         onPressed: _restorePurchases,
                         child: Text(
-                          AppLocalizations.of(context)!.restorePurchasesButton,
+                          AppLocalizations.of(
+                                context,
+                              )?.restorePurchasesButton ??
+                              '',
                           style: GoogleFonts.poppins(
                             fontSize: 14,
                             color: ThemeService.instance.textColor.withOpacity(

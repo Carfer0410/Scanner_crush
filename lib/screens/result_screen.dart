@@ -8,7 +8,7 @@ import '../services/theme_service.dart';
 import '../services/ad_service.dart';
 import '../services/audio_service.dart';
 import '../models/crush_result.dart';
-import '../generated/l10n/app_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'form_screen.dart';
 import 'celebrity_screen.dart';
 import 'premium_screen.dart';
@@ -125,7 +125,7 @@ class _ResultScreenState extends State<ResultScreen>
 
   void _navigateToForm() {
     Widget destinationScreen;
-    
+
     if (widget.fromScreen == 'celebrity') {
       // Return to celebrity screen with the user name
       destinationScreen = CelebrityScreen(userName: widget.result.userName);
@@ -133,7 +133,7 @@ class _ResultScreenState extends State<ResultScreen>
       // Return to personal form screen
       destinationScreen = const FormScreen();
     }
-    
+
     Navigator.pushReplacement(
       context,
       PageRouteBuilder(
@@ -161,7 +161,9 @@ class _ResultScreenState extends State<ResultScreen>
     } else if (percentage >= 60) {
       return const Color(0xFFFF9800); // Orange - Great compatibility
     } else if (percentage >= 40) {
-      return const Color(0xFF2196F3); // Blue - Good compatibility (better visibility)
+      return const Color(
+        0xFF2196F3,
+      ); // Blue - Good compatibility (better visibility)
     } else {
       return const Color(0xFFE91E63); // Pink - There is potential
     }
@@ -413,7 +415,8 @@ class _ResultScreenState extends State<ResultScreen>
                           const SizedBox(width: 16),
                           Expanded(
                             child: GradientButton(
-                              text: AppLocalizations.of(context)!.scanAgainButton,
+                              text:
+                                  AppLocalizations.of(context)!.scanAgainButton,
                               icon: Icons.refresh,
                               onPressed: _scanAgain,
                             ),
