@@ -49,340 +49,372 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: AnimatedBackground(
-        child: SafeArea(
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-            child: Column(
-              children: [
-                // Header with buttons
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Daily Love button
-                      GestureDetector(
-                        onTap: () async {
-                          // 🎵 Sonido de transición
-                          AudioService.instance.playTransition();
+      body: ListenableBuilder(
+        listenable: ThemeService.instance,
+        builder: (context, child) {
+          return AnimatedBackground(
+            child: SafeArea(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 20,
+                  horizontal: 16,
+                ),
+                child: Column(
+                  children: [
+                    // Header with buttons
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // Daily Love button
+                          GestureDetector(
+                            onTap: () async {
+                              // 🎵 Sonido de transición
+                              AudioService.instance.playTransition();
 
-                          try {
-                            // Show loading indicator
-                            showDialog(
-                              context: context,
-                              barrierDismissible: false,
-                              builder:
-                                  (context) => Center(
-                                    child: CircularProgressIndicator(
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                        ThemeService.instance.primaryColor,
+                              try {
+                                // Show loading indicator
+                                showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder:
+                                      (context) => Center(
+                                        child: CircularProgressIndicator(
+                                          valueColor: AlwaysStoppedAnimation<
+                                            Color
+                                          >(ThemeService.instance.primaryColor),
+                                        ),
                                       ),
+                                );
+                                await DailyLoveService.instance.updateStreak();
+
+                                // Dismiss loading
+                                if (mounted) Navigator.pop(context);
+
+                                if (mounted) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) => const DailyLoveScreen(),
                                     ),
-                                  ),
-                            );
-                            await DailyLoveService.instance.updateStreak();
+                                  );
+                                }
+                              } catch (e) {
+                                // Dismiss loading
+                                if (mounted) Navigator.pop(context);
 
-                            // Dismiss loading
-                            if (mounted) Navigator.pop(context);
-
-                            if (mounted) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const DailyLoveScreen(),
-                                ),
-                              );
-                            }
-                          } catch (e) {
-                            // Dismiss loading
-                            if (mounted) Navigator.pop(context);
-
-                            // Show error dialog
-                            if (mounted) {
-                              showDialog(
-                                context: context,
-                                builder:
-                                    (context) => AlertDialog(
-                                      backgroundColor:
-                                          ThemeService.instance.cardColor,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
-                                      title: Text(
-                                        'Error',
-                                        style: TextStyle(
-                                          color:
-                                              ThemeService.instance.textColor,
-                                        ),
-                                      ),
-                                      content: Text(
-                                        'No se pudo cargar tu día del amor: $e',
-                                        style: TextStyle(
-                                          color:
-                                              ThemeService
-                                                  .instance
-                                                  .subtitleColor,
-                                        ),
-                                      ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed:
-                                              () => Navigator.pop(context),
-                                          child: Text(
-                                            'OK',
+                                // Show error dialog
+                                if (mounted) {
+                                  showDialog(
+                                    context: context,
+                                    builder:
+                                        (context) => AlertDialog(
+                                          backgroundColor:
+                                              ThemeService.instance.cardColor,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              20,
+                                            ),
+                                          ),
+                                          title: Text(
+                                            'Error',
                                             style: TextStyle(
                                               color:
                                                   ThemeService
                                                       .instance
-                                                      .primaryColor,
+                                                      .textColor,
                                             ),
                                           ),
+                                          content: Text(
+                                            'No se pudo cargar tu día del amor: $e',
+                                            style: TextStyle(
+                                              color:
+                                                  ThemeService
+                                                      .instance
+                                                      .subtitleColor,
+                                            ),
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed:
+                                                  () => Navigator.pop(context),
+                                              child: Text(
+                                                'OK',
+                                                style: TextStyle(
+                                                  color:
+                                                      ThemeService
+                                                          .instance
+                                                          .primaryColor,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                  );
+                                }
+                              }
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 10,
+                              ),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Colors.purple.withOpacity(0.8),
+                                    Colors.deepPurple.withOpacity(0.8),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.purple.withOpacity(0.3),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Text(
+                                    '✨',
+                                    style: TextStyle(fontSize: 16),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    AppLocalizations.of(context)?.dailyLove ??
+                                        'Tu Día',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+
+                          // Settings button
+                          IconButton(
+                            onPressed: () {
+                              // 🎵 Sonido de transición
+                              AudioService.instance.playTransition();
+
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const SettingsScreen(),
+                                ),
+                              );
+                            },
+                            icon: Icon(
+                              Icons.settings,
+                              color: ThemeService.instance.textColor,
+                              size: 28,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Streak card
+                    _buildStreakCard(),
+
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          // Animated heart logo
+                          AnimatedBuilder(
+                            animation: _heartController,
+                            builder: (context, child) {
+                              return Transform.scale(
+                                scale: 1.0 + (_heartController.value * 0.1),
+                                child: Container(
+                                  width: 120,
+                                  height: 120,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        ThemeService.instance.primaryColor,
+                                        ThemeService.instance.secondaryColor,
+                                      ],
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: ThemeService
+                                            .instance
+                                            .primaryColor
+                                            .withOpacity(0.4),
+                                        blurRadius: 20,
+                                        offset: const Offset(0, 10),
+                                      ),
+                                    ],
+                                  ),
+                                  child: const Icon(
+                                    Icons.favorite,
+                                    color: Colors.white,
+                                    size: 60,
+                                  ),
+                                ),
+                              );
+                            },
+                          ).animate().scale(delay: 200.ms, duration: 800.ms),
+
+                          // Title Section
+                          FadeTransition(
+                            opacity: _titleController,
+                            child: SlideTransition(
+                              position: Tween<Offset>(
+                                begin: const Offset(0, 0.3),
+                                end: Offset.zero,
+                              ).animate(
+                                CurvedAnimation(
+                                  parent: _titleController,
+                                  curve: Curves.easeOutBack,
+                                ),
+                              ),
+                              child: Column(
+                                children: [
+                                  Text(
+                                    AppLocalizations.of(context)!.appTitle,
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 32,
+                                      fontWeight: FontWeight.bold,
+                                      color: ThemeService.instance.textColor,
+                                      shadows: [
+                                        Shadow(
+                                          color: Colors.black.withOpacity(0.2),
+                                          offset: const Offset(0, 2),
+                                          blurRadius: 4,
                                         ),
                                       ],
                                     ),
-                              );
-                            }
-                          }
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 10,
-                          ),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                Colors.purple.withOpacity(0.8),
-                                Colors.deepPurple.withOpacity(0.8),
-                              ],
-                            ),
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.purple.withOpacity(0.3),
-                                blurRadius: 8,
-                                offset: const Offset(0, 4),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                        '💘',
+                                        style: const TextStyle(fontSize: 40),
+                                      )
+                                      .animate(
+                                        onPlay:
+                                            (controller) => controller.repeat(),
+                                      )
+                                      .rotate(duration: 2.seconds),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    AppLocalizations.of(context)!.welcomeTitle,
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 18,
+                                      color: ThemeService.instance.textColor
+                                          .withOpacity(0.8),
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Text('✨', style: TextStyle(fontSize: 16)),
-                              const SizedBox(width: 6),
-                              Text(
-                                AppLocalizations.of(context)?.dailyLove ??
-                                    'Tu Día',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-
-                      // Settings button
-                      IconButton(
-                        onPressed: () {
-                          // 🎵 Sonido de transición
-                          AudioService.instance.playTransition();
-
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const SettingsScreen(),
                             ),
-                          );
-                        },
-                        icon: Icon(
-                          Icons.settings,
-                          color: ThemeService.instance.textColor,
-                          size: 28,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                          ),
 
-                // Streak card
-                _buildStreakCard(),
+                          // Description
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Text(
+                              AppLocalizations.of(context)!.welcomeSubtitle,
+                              style: GoogleFonts.poppins(
+                                fontSize: 16,
+                                color: ThemeService.instance.textColor
+                                    .withOpacity(0.7),
+                                height: 1.5,
+                              ),
+                              textAlign: TextAlign.center,
+                            ).animate().fadeIn(
+                              delay: 1.seconds,
+                              duration: 800.ms,
+                            ),
+                          ),
 
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      // Animated heart logo
-                      AnimatedBuilder(
-                        animation: _heartController,
-                        builder: (context, child) {
-                          return Transform.scale(
-                            scale: 1.0 + (_heartController.value * 0.1),
-                            child: Container(
-                              width: 120,
-                              height: 120,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                gradient: LinearGradient(
+                          // Two scan options
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            child: Column(
+                              children: [
+                                // Regular Crush Scanner
+                                _buildScanOption(
+                                  context: context,
+                                  title:
+                                      AppLocalizations.of(context)!.startScan,
+                                  subtitle:
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.regularScanSubtitle,
+                                  icon: Icons.favorite,
                                   colors: [
                                     ThemeService.instance.primaryColor,
                                     ThemeService.instance.secondaryColor,
                                   ],
+                                  onTap:
+                                      () => _navigateToRegularScanner(context),
+                                  delay: 1200,
                                 ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: ThemeService.instance.primaryColor
-                                        .withOpacity(0.4),
-                                    blurRadius: 20,
-                                    offset: const Offset(0, 10),
-                                  ),
-                                ],
-                              ),
-                              child: const Icon(
-                                Icons.favorite,
-                                color: Colors.white,
-                                size: 60,
-                              ),
-                            ),
-                          );
-                        },
-                      ).animate().scale(delay: 200.ms, duration: 800.ms),
 
-                      // Title Section
-                      FadeTransition(
-                        opacity: _titleController,
-                        child: SlideTransition(
-                          position: Tween<Offset>(
-                            begin: const Offset(0, 0.3),
-                            end: Offset.zero,
-                          ).animate(
-                            CurvedAnimation(
-                              parent: _titleController,
-                              curve: Curves.easeOutBack,
-                            ),
-                          ),
-                          child: Column(
-                            children: [
-                              Text(
-                                AppLocalizations.of(context)!.appTitle,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 32,
-                                  fontWeight: FontWeight.bold,
-                                  color: ThemeService.instance.textColor,
-                                  shadows: [
-                                    Shadow(
-                                      color: Colors.black.withOpacity(0.2),
-                                      offset: const Offset(0, 2),
-                                      blurRadius: 4,
-                                    ),
-                                  ],
+                                const SizedBox(height: 20),
+
+                                // Celebrity Crush Scanner
+                                _buildScanOption(
+                                  context: context,
+                                  title:
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.celebrityScan,
+                                  subtitle:
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.celebrityScanSubtitle,
+                                  icon: Icons.star,
+                                  colors: [Colors.purple, Colors.deepPurple],
+                                  onTap:
+                                      () =>
+                                          _navigateToCelebrityScanner(context),
+                                  delay: 1400,
                                 ),
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(height: 8),
-                              Text('💘', style: const TextStyle(fontSize: 40))
-                                  .animate(
-                                    onPlay: (controller) => controller.repeat(),
-                                  )
-                                  .rotate(duration: 2.seconds),
-                              const SizedBox(height: 16),
-                              Text(
-                                AppLocalizations.of(context)!.welcomeTitle,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 18,
-                                  color: ThemeService.instance.textColor
-                                      .withOpacity(0.8),
-                                  fontWeight: FontWeight.w500,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-
-                      // Description
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: Text(
-                          AppLocalizations.of(context)!.welcomeSubtitle,
-                          style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            color: ThemeService.instance.textColor.withOpacity(
-                              0.7,
-                            ),
-                            height: 1.5,
-                          ),
-                          textAlign: TextAlign.center,
-                        ).animate().fadeIn(delay: 1.seconds, duration: 800.ms),
-                      ),
-
-                      // Two scan options
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Column(
-                          children: [
-                            // Regular Crush Scanner
-                            _buildScanOption(
-                              context: context,
-                              title: AppLocalizations.of(context)!.startScan,
-                              subtitle:
-                                  AppLocalizations.of(
-                                    context,
-                                  )!.regularScanSubtitle,
-                              icon: Icons.favorite,
-                              colors: [
-                                ThemeService.instance.primaryColor,
-                                ThemeService.instance.secondaryColor,
                               ],
-                              onTap: () => _navigateToRegularScanner(context),
-                              delay: 1200,
                             ),
-
-                            const SizedBox(height: 20),
-
-                            // Celebrity Crush Scanner
-                            _buildScanOption(
-                              context: context,
-                              title:
-                                  AppLocalizations.of(context)!.celebrityScan,
-                              subtitle:
-                                  AppLocalizations.of(
-                                    context,
-                                  )!.celebrityScanSubtitle,
-                              icon: Icons.star,
-                              colors: [Colors.purple, Colors.deepPurple],
-                              onTap: () => _navigateToCelebrityScanner(context),
-                              delay: 1400,
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
-
-                // Footer
-                Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Text(
-                    AppLocalizations.of(context)!.madeWithLove,
-                    style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      color: ThemeService.instance.textColor.withOpacity(0.5),
                     ),
-                    textAlign: TextAlign.center,
-                  ).animate().fadeIn(delay: 1.5.seconds),
+
+                    // Footer
+                    Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Text(
+                        AppLocalizations.of(context)!.madeWithLove,
+                        style: GoogleFonts.poppins(
+                          fontSize: 12,
+                          color: ThemeService.instance.textColor.withOpacity(
+                            0.5,
+                          ),
+                        ),
+                        textAlign: TextAlign.center,
+                      ).animate().fadeIn(delay: 1.5.seconds),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }

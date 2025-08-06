@@ -14,7 +14,8 @@ class AudioService with WidgetsBindingObserver {
   bool _musicEnabled = true;
   double _volume = 0.7;
   bool _isBackgroundMusicPlaying = false;
-  bool _wasPlayingBeforePause = false; // Para recordar si estaba reproduciendo antes de minimizar
+  bool _wasPlayingBeforePause =
+      false; // Para recordar si estaba reproduciendo antes de minimizar
 
   bool get soundEnabled => _soundEnabled;
   bool get musicEnabled => _musicEnabled;
@@ -24,9 +25,9 @@ class AudioService with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    
+
     print('🔄 App lifecycle changed to: $state');
-    
+
     switch (state) {
       case AppLifecycleState.paused:
       case AppLifecycleState.inactive:
@@ -54,25 +55,33 @@ class AudioService with WidgetsBindingObserver {
 
   // Pausar música cuando se minimiza la app
   void _handleAppPaused() {
-    print('🎵 Handling app pause - Current state: playing=$_isBackgroundMusicPlaying, enabled=$_musicEnabled');
+    print(
+      '🎵 Handling app pause - Current state: playing=$_isBackgroundMusicPlaying, enabled=$_musicEnabled',
+    );
     if (_isBackgroundMusicPlaying && _musicEnabled) {
       _wasPlayingBeforePause = true;
       _pauseBackgroundMusic();
       print('🎵 App paused - Background music paused (wasPlaying set to true)');
     } else {
-      print('🎵 App paused - No music to pause (playing=$_isBackgroundMusicPlaying, enabled=$_musicEnabled)');
+      print(
+        '🎵 App paused - No music to pause (playing=$_isBackgroundMusicPlaying, enabled=$_musicEnabled)',
+      );
     }
   }
 
   // Reanudar música cuando se vuelve a la app
   void _handleAppResumed() {
-    print('🎵 Handling app resume - wasPlaying=$_wasPlayingBeforePause, enabled=$_musicEnabled, currentlyPlaying=$_isBackgroundMusicPlaying');
+    print(
+      '🎵 Handling app resume - wasPlaying=$_wasPlayingBeforePause, enabled=$_musicEnabled, currentlyPlaying=$_isBackgroundMusicPlaying',
+    );
     if (_wasPlayingBeforePause && _musicEnabled) {
       _resumeBackgroundMusic();
       _wasPlayingBeforePause = false;
       print('🎵 App resumed - Background music resumed');
     } else {
-      print('🎵 App resumed - No music to resume (wasPlaying=$_wasPlayingBeforePause, enabled=$_musicEnabled)');
+      print(
+        '🎵 App resumed - No music to resume (wasPlaying=$_wasPlayingBeforePause, enabled=$_musicEnabled)',
+      );
     }
   }
 
@@ -88,7 +97,9 @@ class AudioService with WidgetsBindingObserver {
     _musicEnabled = prefs.getBool('music_enabled') ?? true;
     _volume = prefs.getDouble('volume') ?? 0.7;
 
-    print('🔧 AudioService initializing - Sound: $_soundEnabled, Music: $_musicEnabled, Volume: $_volume');
+    print(
+      '🔧 AudioService initializing - Sound: $_soundEnabled, Music: $_musicEnabled, Volume: $_volume',
+    );
 
     await _effectPlayer.setVolume(_volume);
     await _backgroundPlayer.setVolume(_volume * 0.3); // Background más suave
@@ -199,11 +210,12 @@ class AudioService with WidgetsBindingObserver {
     }
   }
 
-  // Pausar música de fondo (sin detenerla completamente)
+  // Pausar música de fondo (marca estado para correcta reanudación)
   Future<void> _pauseBackgroundMusic() async {
     try {
       await _backgroundPlayer.pause();
-      // NO cambiar _isBackgroundMusicPlaying aquí, para poder reanudar
+      // Actualizar estado para reflejar que la música está pausada
+      _isBackgroundMusicPlaying = false;
       print('🎵 Background music paused');
     } catch (e) {
       print('❌ Error pausing background music: $e');
@@ -262,9 +274,9 @@ class AudioService with WidgetsBindingObserver {
     _musicEnabled = enabled;
 
     if (!enabled) {
-      // Solo pausar, no detener completamente, para que continúe desde donde estaba
-      await _pauseBackgroundMusic();
-      print('🎵 Music disabled - paused (will resume from same position)');
+      // Detener completamente cuando se deshabilita la música de fondo
+      await stopBackgroundMusic();
+      print('🎵 Music disabled - stopped');
     } else {
       // Si había música pausada, reanudarla desde donde estaba
       if (_isBackgroundMusicPlaying) {

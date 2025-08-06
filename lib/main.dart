@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'screens/welcome_screen.dart';
+import 'screens/splash_screen.dart';
 import 'services/ad_service.dart';
 import 'services/theme_service.dart';
 import 'services/daily_love_service.dart';
@@ -11,8 +11,6 @@ import 'services/locale_service.dart';
 import 'services/streak_service.dart';
 import 'services/crush_service.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'screens/onboarding_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,21 +35,11 @@ void main() async {
   // Fix any invalid compatibility results from previous versions
   await CrushService.instance.fixInvalidResults();
 
-  // Compute whether to show onboarding, defaulting to false on error
-  bool showOnboarding;
-  try {
-    final prefs = await SharedPreferences.getInstance();
-    final bool seen = prefs.getBool('seenOnboarding') ?? false;
-    showOnboarding = !seen;
-  } catch (_) {
-    showOnboarding = false;
-  }
-  runApp(ScannerCrushApp(showOnboarding: showOnboarding));
+  runApp(const ScannerCrushApp());
 }
 
 class ScannerCrushApp extends StatefulWidget {
-  final bool showOnboarding;
-  const ScannerCrushApp({super.key, required this.showOnboarding});
+  const ScannerCrushApp({super.key});
 
   @override
   State<ScannerCrushApp> createState() => _ScannerCrushAppState();
@@ -86,11 +74,8 @@ class _ScannerCrushAppState extends State<ScannerCrushApp> {
               ThemeService.instance.isDarkMode
                   ? ThemeMode.dark
                   : ThemeMode.light,
-          // Show onboarding or welcome
-          home:
-              widget.showOnboarding
-                  ? const OnboardingScreen()
-                  : const WelcomeScreen(),
+          // Show splash screen as home
+          home: const SplashScreen(),
         );
       },
     );
