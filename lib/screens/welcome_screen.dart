@@ -56,319 +56,336 @@ class _WelcomeScreenState extends State<WelcomeScreen>
             padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
             child: Column(
               children: [
-                  // Header with buttons
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        // Daily Love button
-                        GestureDetector(
-                          onTap: () async {
-                            // 🎵 Sonido de transición
-                            AudioService.instance.playTransition();
+                // Header with buttons
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Daily Love button
+                      GestureDetector(
+                        onTap: () async {
+                          // 🎵 Sonido de transición
+                          AudioService.instance.playTransition();
 
-                            try {
-                              // Show loading indicator
+                          try {
+                            // Show loading indicator
+                            showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              builder:
+                                  (context) => Center(
+                                    child: CircularProgressIndicator(
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        ThemeService.instance.primaryColor,
+                                      ),
+                                    ),
+                                  ),
+                            );
+                            await DailyLoveService.instance.updateStreak();
+
+                            // Dismiss loading
+                            if (mounted) Navigator.pop(context);
+
+                            if (mounted) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const DailyLoveScreen(),
+                                ),
+                              );
+                            }
+                          } catch (e) {
+                            // Dismiss loading
+                            if (mounted) Navigator.pop(context);
+
+                            // Show error dialog
+                            if (mounted) {
                               showDialog(
                                 context: context,
-                                barrierDismissible: false,
                                 builder:
-                                    (context) => const Center(
-                                      child: CircularProgressIndicator(
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                              Colors.pink,
-                                            ),
+                                    (context) => AlertDialog(
+                                      backgroundColor:
+                                          ThemeService.instance.cardColor,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(20),
                                       ),
+                                      title: Text(
+                                        'Error',
+                                        style: TextStyle(
+                                          color:
+                                              ThemeService.instance.textColor,
+                                        ),
+                                      ),
+                                      content: Text(
+                                        'No se pudo cargar tu día del amor: $e',
+                                        style: TextStyle(
+                                          color:
+                                              ThemeService
+                                                  .instance
+                                                  .subtitleColor,
+                                        ),
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed:
+                                              () => Navigator.pop(context),
+                                          child: Text(
+                                            'OK',
+                                            style: TextStyle(
+                                              color:
+                                                  ThemeService
+                                                      .instance
+                                                      .primaryColor,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
                               );
-
-                              await DailyLoveService.instance.updateStreak();
-
-                              // Dismiss loading
-                              if (mounted) Navigator.pop(context);
-
-                              if (mounted) {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder:
-                                        (context) => const DailyLoveScreen(),
-                                  ),
-                                );
-                              }
-                            } catch (e) {
-                              // Dismiss loading
-                              if (mounted) Navigator.pop(context);
-
-                              // Show error dialog
-                              if (mounted) {
-                                showDialog(
-                                  context: context,
-                                  builder:
-                                      (context) => AlertDialog(
-                                        title: const Text('Error'),
-                                        content: Text(
-                                          'No se pudo cargar tu día del amor: $e',
-                                        ),
-                                        actions: [
-                                          TextButton(
-                                            onPressed:
-                                                () => Navigator.pop(context),
-                                            child: const Text('OK'),
-                                          ),
-                                        ],
-                                      ),
-                                );
-                              }
                             }
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 10,
-                            ),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  Colors.purple.withOpacity(0.8),
-                                  Colors.deepPurple.withOpacity(0.8),
-                                ],
-                              ),
-                              borderRadius: BorderRadius.circular(20),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.purple.withOpacity(0.3),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 4),
-                                ),
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 10,
+                          ),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.purple.withOpacity(0.8),
+                                Colors.deepPurple.withOpacity(0.8),
                               ],
                             ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Text('✨', style: TextStyle(fontSize: 16)),
-                                const SizedBox(width: 6),
-                                Text(
-                                  AppLocalizations.of(context)?.dailyLove ?? 'Tu Día',
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                        // Settings button
-                        IconButton(
-                          onPressed: () {
-                            // 🎵 Sonido de transición
-                            AudioService.instance.playTransition();
-
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const SettingsScreen(),
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.purple.withOpacity(0.3),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
                               ),
-                            );
-                          },
-                          icon: Icon(
-                            Icons.settings,
-                            color: ThemeService.instance.textColor,
-                            size: 28,
+                            ],
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // Streak card
-                  _buildStreakCard(),
-
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        // Animated heart logo
-                        AnimatedBuilder(
-                          animation: _heartController,
-                          builder: (context, child) {
-                            return Transform.scale(
-                              scale: 1.0 + (_heartController.value * 0.1),
-                              child: Container(
-                                width: 120,
-                                height: 120,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      ThemeService.instance.primaryColor,
-                                      ThemeService.instance.secondaryColor,
-                                    ],
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: ThemeService
-                                          .instance
-                                          .primaryColor
-                                          .withOpacity(0.4),
-                                      blurRadius: 20,
-                                      offset: const Offset(0, 10),
-                                    ),
-                                  ],
-                                ),
-                                child: const Icon(
-                                  Icons.favorite,
-                                  color: Colors.white,
-                                  size: 60,
-                                ),
-                              ),
-                            );
-                          },
-                        ).animate().scale(delay: 200.ms, duration: 800.ms),
-
-                        // Title Section
-                        FadeTransition(
-                          opacity: _titleController,
-                          child: SlideTransition(
-                            position: Tween<Offset>(
-                              begin: const Offset(0, 0.3),
-                              end: Offset.zero,
-                            ).animate(
-                              CurvedAnimation(
-                                parent: _titleController,
-                                curve: Curves.easeOutBack,
-                              ),
-                            ),
-                            child: Column(
-                              children: [
-                                Text(
-                                  AppLocalizations.of(context)!.appTitle,
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 32,
-                                    fontWeight: FontWeight.bold,
-                                    color: ThemeService.instance.textColor,
-                                    shadows: [
-                                      Shadow(
-                                        color: Colors.black.withOpacity(0.2),
-                                        offset: const Offset(0, 2),
-                                        blurRadius: 4,
-                                      ),
-                                    ],
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                      '💘',
-                                      style: const TextStyle(fontSize: 40),
-                                    )
-                                    .animate(
-                                      onPlay:
-                                          (controller) => controller.repeat(),
-                                    )
-                                    .rotate(duration: 2.seconds),
-                                const SizedBox(height: 16),
-                                Text(
-                                  AppLocalizations.of(context)!.welcomeTitle,
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 18,
-                                    color: ThemeService.instance.textColor
-                                        .withOpacity(0.8),
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                        // Description
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: Text(
-                            AppLocalizations.of(context)!.welcomeSubtitle,
-                            style: GoogleFonts.poppins(
-                              fontSize: 16,
-                              color: ThemeService.instance.textColor
-                                  .withOpacity(0.7),
-                              height: 1.5,
-                            ),
-                            textAlign: TextAlign.center,
-                          ).animate().fadeIn(
-                            delay: 1.seconds,
-                            duration: 800.ms,
-                          ),
-                        ),
-
-                        // Two scan options
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          child: Column(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              // Regular Crush Scanner
-                              _buildScanOption(
-                                context: context,
-                                title: AppLocalizations.of(context)!.startScan,
-                                subtitle:
-                                    AppLocalizations.of(context)!.regularScanSubtitle,
-                                icon: Icons.favorite,
-                                colors: [
-                                  ThemeService.instance.primaryColor,
-                                  ThemeService.instance.secondaryColor,
-                                ],
-                                onTap:
-                                    () => _navigateToRegularScanner(context),
-                                delay: 1200,
-                              ),
-
-                              const SizedBox(height: 20),
-
-                              // Celebrity Crush Scanner
-                              _buildScanOption(
-                                context: context,
-                                title: AppLocalizations.of(context)!.celebrityScan,
-                                subtitle:
-                                    AppLocalizations.of(context)!.celebrityScanSubtitle,
-                                icon: Icons.star,
-                                colors: [Colors.purple, Colors.deepPurple],
-                                onTap:
-                                    () =>
-                                        _navigateToCelebrityScanner(context),
-                                delay: 1400,
+                              const Text('✨', style: TextStyle(fontSize: 16)),
+                              const SizedBox(width: 6),
+                              Text(
+                                AppLocalizations.of(context)?.dailyLove ??
+                                    'Tu Día',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
                               ),
                             ],
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-
-                  // Footer
-                  Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Text(
-                      AppLocalizations.of(context)!.madeWithLove,
-                      style: GoogleFonts.poppins(
-                        fontSize: 12,
-                        color: ThemeService.instance.textColor.withOpacity(0.5),
                       ),
-                      textAlign: TextAlign.center,
-                    ).animate().fadeIn(delay: 1.5.seconds),
+
+                      // Settings button
+                      IconButton(
+                        onPressed: () {
+                          // 🎵 Sonido de transición
+                          AudioService.instance.playTransition();
+
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const SettingsScreen(),
+                            ),
+                          );
+                        },
+                        icon: Icon(
+                          Icons.settings,
+                          color: ThemeService.instance.textColor,
+                          size: 28,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+
+                // Streak card
+                _buildStreakCard(),
+
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      // Animated heart logo
+                      AnimatedBuilder(
+                        animation: _heartController,
+                        builder: (context, child) {
+                          return Transform.scale(
+                            scale: 1.0 + (_heartController.value * 0.1),
+                            child: Container(
+                              width: 120,
+                              height: 120,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                gradient: LinearGradient(
+                                  colors: [
+                                    ThemeService.instance.primaryColor,
+                                    ThemeService.instance.secondaryColor,
+                                  ],
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: ThemeService.instance.primaryColor
+                                        .withOpacity(0.4),
+                                    blurRadius: 20,
+                                    offset: const Offset(0, 10),
+                                  ),
+                                ],
+                              ),
+                              child: const Icon(
+                                Icons.favorite,
+                                color: Colors.white,
+                                size: 60,
+                              ),
+                            ),
+                          );
+                        },
+                      ).animate().scale(delay: 200.ms, duration: 800.ms),
+
+                      // Title Section
+                      FadeTransition(
+                        opacity: _titleController,
+                        child: SlideTransition(
+                          position: Tween<Offset>(
+                            begin: const Offset(0, 0.3),
+                            end: Offset.zero,
+                          ).animate(
+                            CurvedAnimation(
+                              parent: _titleController,
+                              curve: Curves.easeOutBack,
+                            ),
+                          ),
+                          child: Column(
+                            children: [
+                              Text(
+                                AppLocalizations.of(context)!.appTitle,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.bold,
+                                  color: ThemeService.instance.textColor,
+                                  shadows: [
+                                    Shadow(
+                                      color: Colors.black.withOpacity(0.2),
+                                      offset: const Offset(0, 2),
+                                      blurRadius: 4,
+                                    ),
+                                  ],
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 8),
+                              Text('💘', style: const TextStyle(fontSize: 40))
+                                  .animate(
+                                    onPlay: (controller) => controller.repeat(),
+                                  )
+                                  .rotate(duration: 2.seconds),
+                              const SizedBox(height: 16),
+                              Text(
+                                AppLocalizations.of(context)!.welcomeTitle,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 18,
+                                  color: ThemeService.instance.textColor
+                                      .withOpacity(0.8),
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      // Description
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Text(
+                          AppLocalizations.of(context)!.welcomeSubtitle,
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            color: ThemeService.instance.textColor.withOpacity(
+                              0.7,
+                            ),
+                            height: 1.5,
+                          ),
+                          textAlign: TextAlign.center,
+                        ).animate().fadeIn(delay: 1.seconds, duration: 800.ms),
+                      ),
+
+                      // Two scan options
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Column(
+                          children: [
+                            // Regular Crush Scanner
+                            _buildScanOption(
+                              context: context,
+                              title: AppLocalizations.of(context)!.startScan,
+                              subtitle:
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.regularScanSubtitle,
+                              icon: Icons.favorite,
+                              colors: [
+                                ThemeService.instance.primaryColor,
+                                ThemeService.instance.secondaryColor,
+                              ],
+                              onTap: () => _navigateToRegularScanner(context),
+                              delay: 1200,
+                            ),
+
+                            const SizedBox(height: 20),
+
+                            // Celebrity Crush Scanner
+                            _buildScanOption(
+                              context: context,
+                              title:
+                                  AppLocalizations.of(context)!.celebrityScan,
+                              subtitle:
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.celebrityScanSubtitle,
+                              icon: Icons.star,
+                              colors: [Colors.purple, Colors.deepPurple],
+                              onTap: () => _navigateToCelebrityScanner(context),
+                              delay: 1400,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Footer
+                Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Text(
+                    AppLocalizations.of(context)!.madeWithLove,
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      color: ThemeService.instance.textColor.withOpacity(0.5),
+                    ),
+                    textAlign: TextAlign.center,
+                  ).animate().fadeIn(delay: 1.5.seconds),
+                ),
+              ],
             ),
           ),
         ),
-      );
-    }
+      ),
+    );
+  }
 
   Widget _buildScanOption({
     required BuildContext context,
@@ -380,75 +397,75 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     required int delay,
   }) {
     return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: double.infinity,
-              constraints: const BoxConstraints(minHeight: 80, maxHeight: 120),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: colors,
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+          onTap: onTap,
+          child: Container(
+            width: double.infinity,
+            constraints: const BoxConstraints(minHeight: 80, maxHeight: 120),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: colors,
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: colors.first.withOpacity(0.4),
+                  blurRadius: 15,
+                  offset: const Offset(0, 8),
                 ),
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: colors.first.withOpacity(0.4),
-                    blurRadius: 15,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 50,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white.withOpacity(0.2),
-                    ),
-                    child: Icon(icon, size: 24, color: Colors.white),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          title,
-                          style: GoogleFonts.poppins(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          subtitle,
-                          style: GoogleFonts.poppins(
-                            fontSize: 13,
-                            color: Colors.white.withOpacity(0.9),
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                  Icon(Icons.arrow_forward_ios, color: Colors.white, size: 18),
-                ],
-              ),
+              ],
             ),
-          )
-          .animate()
-          .fadeIn(delay: Duration(milliseconds: delay))
-          .slideX(begin: 0.3, duration: 600.ms);
+            child: Row(
+              children: [
+                Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withOpacity(0.2),
+                  ),
+                  child: Icon(icon, size: 24, color: Colors.white),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        title,
+                        style: GoogleFonts.poppins(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        subtitle,
+                        style: GoogleFonts.poppins(
+                          fontSize: 13,
+                          color: Colors.white.withOpacity(0.9),
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(Icons.arrow_forward_ios, color: Colors.white, size: 18),
+              ],
+            ),
+          ),
+        )
+        .animate()
+        .fadeIn(delay: Duration(milliseconds: delay))
+        .slideX(begin: 0.3, duration: 600.ms);
   }
 
   void _navigateToRegularScanner(BuildContext context) {
@@ -532,88 +549,103 @@ class _WelcomeScreenState extends State<WelcomeScreen>
             ),
           ],
         ),
-      child: ListenableBuilder(
-        listenable: StreakService.instance,
-        builder: (context, _) {
-          final streakService = StreakService.instance;
-          final currentStreak = streakService.currentStreak;
-          
-          return Row(
-            children: [
-              // Streak icon
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: currentStreak > 0 
-                    ? Colors.orange 
-                    : ThemeService.instance.subtitleColor.withOpacity(0.3),
+        child: ListenableBuilder(
+          listenable: StreakService.instance,
+          builder: (context, _) {
+            final streakService = StreakService.instance;
+            final currentStreak = streakService.currentStreak;
+
+            return Row(
+              children: [
+                // Streak icon
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color:
+                        currentStreak > 0
+                            ? Colors.orange
+                            : ThemeService.instance.subtitleColor.withOpacity(
+                              0.3,
+                            ),
+                  ),
+                  child: Icon(
+                    currentStreak > 0
+                        ? Icons.local_fire_department
+                        : Icons.favorite_outline,
+                    color: Colors.white,
+                    size: 20,
+                  ),
                 ),
-                child: Icon(
-                  currentStreak > 0 ? Icons.local_fire_department : Icons.favorite_outline,
-                  color: Colors.white,
-                  size: 20,
+
+                const SizedBox(width: 12),
+
+                // Streak info
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        (LocaleService.instance.currentLocale.languageCode ==
+                                'en')
+                            ? 'Daily Streak'
+                            : 'Racha Diaria',
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: ThemeService.instance.textColor,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        currentStreak > 0
+                            ? '🔥 $currentStreak ${_getDaysText(currentStreak)}'
+                            : (LocaleService
+                                    .instance
+                                    .currentLocale
+                                    .languageCode ==
+                                'en')
+                            ? 'Start your love streak today!'
+                            : '¡Comienza tu racha hoy!',
+                        style: GoogleFonts.poppins(
+                          fontSize: 12,
+                          color: ThemeService.instance.subtitleColor,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              
-              const SizedBox(width: 12),
-              
-              // Streak info
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      (LocaleService.instance.currentLocale.languageCode == 'en') ? 'Daily Streak' : 'Racha Diaria',
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: ThemeService.instance.textColor,
+
+                // Best streak
+                if (streakService.bestStreak > 0)
+                  Column(
+                    children: [
+                      Text(
+                        '${streakService.bestStreak}',
+                        style: GoogleFonts.poppins(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.amber,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      currentStreak > 0 
-                        ? '🔥 $currentStreak ${_getDaysText(currentStreak)}'
-                        : (LocaleService.instance.currentLocale.languageCode == 'en') 
-                          ? 'Start your love streak today!' 
-                          : '¡Comienza tu racha hoy!',
-                      style: GoogleFonts.poppins(
-                        fontSize: 12,
-                        color: ThemeService.instance.subtitleColor,
+                      Text(
+                        (LocaleService.instance.currentLocale.languageCode ==
+                                'en')
+                            ? 'Best'
+                            : 'Mejor',
+                        style: GoogleFonts.poppins(
+                          fontSize: 10,
+                          color: ThemeService.instance.subtitleColor,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-              
-              // Best streak
-              if (streakService.bestStreak > 0)
-                Column(
-                  children: [
-                    Text(
-                      '${streakService.bestStreak}',
-                      style: GoogleFonts.poppins(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.amber,
-                      ),
-                    ),
-                    Text(
-                      (LocaleService.instance.currentLocale.languageCode == 'en') ? 'Best' : 'Mejor',
-                      style: GoogleFonts.poppins(
-                        fontSize: 10,
-                        color: ThemeService.instance.subtitleColor,
-                      ),
-                    ),
-                  ],
-                ),
-            ],
-          );
-        },
+                    ],
+                  ),
+              ],
+            );
+          },
+        ),
       ),
-    ),
     ).animate().fadeIn(delay: 300.ms).slideX(begin: 0.3);
   }
 
@@ -622,84 +654,110 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   void _showStreakDetails() {
     showDialog(
       context: context,
-      builder: (context) => ListenableBuilder(
-        listenable: StreakService.instance,
-        builder: (context, _) {
-          final streakService = StreakService.instance;
-          
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            title: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    (LocaleService.instance.currentLocale.languageCode == 'en') ? '🔥 Streak Stats' : '🔥 Estadísticas de Racha',
-                    style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+      builder:
+          (context) => ListenableBuilder(
+            listenable: StreakService.instance,
+            builder: (context, _) {
+              final streakService = StreakService.instance;
+
+              return AlertDialog(
+                backgroundColor: ThemeService.instance.cardColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                title: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        (LocaleService.instance.currentLocale.languageCode ==
+                                'en')
+                            ? '🔥 Streak Stats'
+                            : '🔥 Estadísticas de Racha',
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.bold,
+                          color: ThemeService.instance.textColor,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        Icons.info_outline,
+                        color: ThemeService.instance.primaryColor,
+                        size: 20,
+                      ),
+                      onPressed: () => _showStreakInfoDialog(),
+                      tooltip:
+                          (LocaleService.instance.currentLocale.languageCode ==
+                                  'en')
+                              ? 'Learn about stats'
+                              : 'Aprende sobre las estadísticas',
+                    ),
+                  ],
+                ),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildStatRow(
+                      (LocaleService.instance.currentLocale.languageCode ==
+                              'en')
+                          ? 'Current Streak'
+                          : 'Racha Actual',
+                      '${streakService.currentStreak} ${_getDaysText(streakService.currentStreak)}',
+                      Icons.local_fire_department,
+                      Colors.orange,
+                    ),
+                    const SizedBox(height: 12),
+                    _buildStatRow(
+                      (LocaleService.instance.currentLocale.languageCode ==
+                              'en')
+                          ? 'Best Streak'
+                          : 'Mejor Racha',
+                      '${streakService.bestStreak} ${_getDaysText(streakService.bestStreak)}',
+                      Icons.emoji_events,
+                      Colors.amber,
+                    ),
+                    const SizedBox(height: 12),
+                    _buildStatRow(
+                      (LocaleService.instance.currentLocale.languageCode ==
+                              'en')
+                          ? 'Total Scans'
+                          : 'Escaneos Totales',
+                      '${streakService.totalScans}',
+                      Icons.favorite,
+                      Colors.pink,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      streakService.getMotivationalMessage(
+                        LocaleService.instance.currentLocale.languageCode,
+                      ),
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        fontStyle: FontStyle.italic,
+                        color: ThemeService.instance.subtitleColor,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text(
+                      (LocaleService.instance.currentLocale.languageCode ==
+                              'en')
+                          ? 'Close'
+                          : 'Cerrar',
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.bold,
+                        color: ThemeService.instance.primaryColor,
+                      ),
+                    ),
                   ),
-                ),
-                IconButton(
-                  icon: Icon(
-                    Icons.info_outline,
-                    color: ThemeService.instance.primaryColor,
-                    size: 20,
-                  ),
-                  onPressed: () => _showStreakInfoDialog(),
-                  tooltip: (LocaleService.instance.currentLocale.languageCode == 'en') ? 'Learn about stats' : 'Aprende sobre las estadísticas',
-                ),
-              ],
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _buildStatRow(
-                  (LocaleService.instance.currentLocale.languageCode == 'en') ? 'Current Streak' : 'Racha Actual',
-                  '${streakService.currentStreak} ${_getDaysText(streakService.currentStreak)}',
-                  Icons.local_fire_department,
-                  Colors.orange,
-                ),
-                const SizedBox(height: 12),
-                _buildStatRow(
-                  (LocaleService.instance.currentLocale.languageCode == 'en') ? 'Best Streak' : 'Mejor Racha',
-                  '${streakService.bestStreak} ${_getDaysText(streakService.bestStreak)}',
-                  Icons.emoji_events,
-                  Colors.amber,
-                ),
-                const SizedBox(height: 12),
-                _buildStatRow(
-                  (LocaleService.instance.currentLocale.languageCode == 'en') ? 'Total Scans' : 'Escaneos Totales',
-                  '${streakService.totalScans}',
-                  Icons.favorite,
-                  Colors.pink,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  streakService.getMotivationalMessage(LocaleService.instance.currentLocale.languageCode),
-                  style: GoogleFonts.poppins(
-                    fontSize: 14,
-                    fontStyle: FontStyle.italic,
-                    color: ThemeService.instance.subtitleColor,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(
-                  (LocaleService.instance.currentLocale.languageCode == 'en') ? 'Close' : 'Cerrar',
-                  style: GoogleFonts.poppins(
-                    fontWeight: FontWeight.bold,
-                    color: ThemeService.instance.primaryColor,
-                  ),
-                ),
-              ),
-            ],
-          );
-        },
-      ),
+                ],
+              );
+            },
+          ),
     );
   }
 
@@ -707,117 +765,132 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   /// Mostrar diálogo de información de racha explicando qué significa cada estadística
   void _showStreakInfoDialog() {
     final isEnglish = LocaleService.instance.currentLocale.languageCode == 'en';
-    
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        title: Row(
-          children: [
-            Icon(
-              Icons.help_outline,
-              color: ThemeService.instance.primaryColor,
-              size: 24,
+      builder:
+          (context) => AlertDialog(
+            backgroundColor: ThemeService.instance.cardColor,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
             ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                isEnglish ? 'What do these stats mean?' : '¿Qué significan estas estadísticas?',
-                style: GoogleFonts.poppins(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
+            title: Row(
+              children: [
+                Icon(
+                  Icons.help_outline,
+                  color: ThemeService.instance.primaryColor,
+                  size: 24,
                 ),
-              ),
-            ),
-          ],
-        ),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Current Streak explanation
-              _buildInfoSection(
-                icon: Icons.local_fire_department,
-                color: Colors.orange,
-                title: isEnglish ? 'Current Streak' : 'Racha Actual',
-                description: isEnglish 
-                  ? 'How many consecutive days you\'ve used the app without missing a day.'
-                  : 'Cuántos días consecutivos has usado la app sin faltar ni un día.',
-                example: isEnglish
-                  ? 'Example: If you used it yesterday and today, your current streak is 2 days.'
-                  : 'Ejemplo: Si la usaste ayer y hoy, tu racha actual es de 2 días.',
-              ),
-              const SizedBox(height: 20),
-              
-              // Best Streak explanation
-              _buildInfoSection(
-                icon: Icons.emoji_events,
-                color: Colors.amber,
-                title: isEnglish ? 'Best Streak' : 'Mejor Racha',
-                description: isEnglish 
-                  ? 'Your personal record - the longest streak you\'ve ever achieved. It\'s always equal or greater than your current streak.'
-                  : 'Tu récord personal: la racha más larga que hayas logrado jamás. Siempre es igual o mayor que tu racha actual.',
-                example: isEnglish
-                  ? 'Example: If your current streak is 2 days, your best streak is at least 2 days (or higher if you had a longer streak before).'
-                  : 'Ejemplo: Si tu racha actual son 2 días, tu mejor racha es de al menos 2 días (o mayor si tuviste una racha más larga antes).',
-              ),
-              const SizedBox(height: 20),
-              
-              // Total Scans explanation
-              _buildInfoSection(
-                icon: Icons.favorite,
-                color: Colors.pink,
-                title: isEnglish ? 'Total Scans' : 'Escaneos Totales',
-                description: isEnglish 
-                  ? 'The total number of love scans you\'ve performed since you started using the app.'
-                  : 'El número total de escaneos de amor que has realizado desde que empezaste a usar la app.',
-                example: isEnglish
-                  ? 'Example: Every time you scan your crush compatibility, this number goes up.'
-                  : 'Ejemplo: Cada vez que escaneas la compatibilidad con tu crush, este número aumenta.',
-              ),
-              
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: ThemeService.instance.primaryColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: ThemeService.instance.primaryColor.withOpacity(0.3),
-                    width: 1,
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    isEnglish
+                        ? 'What do these stats mean?'
+                        : '¿Qué significan estas estadísticas?',
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: ThemeService.instance.textColor,
+                    ),
                   ),
                 ),
+              ],
+            ),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Current Streak explanation
+                  _buildInfoSection(
+                    icon: Icons.local_fire_department,
+                    color: Colors.orange,
+                    title: isEnglish ? 'Current Streak' : 'Racha Actual',
+                    description:
+                        isEnglish
+                            ? 'How many consecutive days you\'ve used the app without missing a day.'
+                            : 'Cuántos días consecutivos has usado la app sin faltar ni un día.',
+                    example:
+                        isEnglish
+                            ? 'Example: If you used it yesterday and today, your current streak is 2 days.'
+                            : 'Ejemplo: Si la usaste ayer y hoy, tu racha actual es de 2 días.',
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Best Streak explanation
+                  _buildInfoSection(
+                    icon: Icons.emoji_events,
+                    color: Colors.amber,
+                    title: isEnglish ? 'Best Streak' : 'Mejor Racha',
+                    description:
+                        isEnglish
+                            ? 'Your personal record - the longest streak you\'ve ever achieved. It\'s always equal or greater than your current streak.'
+                            : 'Tu récord personal: la racha más larga que hayas logrado jamás. Siempre es igual o mayor que tu racha actual.',
+                    example:
+                        isEnglish
+                            ? 'Example: If your current streak is 2 days, your best streak is at least 2 days (or higher if you had a longer streak before).'
+                            : 'Ejemplo: Si tu racha actual son 2 días, tu mejor racha es de al menos 2 días (o mayor si tuviste una racha más larga antes).',
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Total Scans explanation
+                  _buildInfoSection(
+                    icon: Icons.favorite,
+                    color: Colors.pink,
+                    title: isEnglish ? 'Total Scans' : 'Escaneos Totales',
+                    description:
+                        isEnglish
+                            ? 'The total number of love scans you\'ve performed since you started using the app.'
+                            : 'El número total de escaneos de amor que has realizado desde que empezaste a usar la app.',
+                    example:
+                        isEnglish
+                            ? 'Example: Every time you scan your crush compatibility, this number goes up.'
+                            : 'Ejemplo: Cada vez que escaneas la compatibilidad con tu crush, este número aumenta.',
+                  ),
+
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: ThemeService.instance.primaryColor.withOpacity(
+                        0.1,
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: ThemeService.instance.primaryColor.withOpacity(
+                          0.3,
+                        ),
+                        width: 1,
+                      ),
+                    ),
+                    child: Text(
+                      isEnglish
+                          ? '💡 Tip: Keep using the app daily to build your streak and discover your love compatibility!'
+                          : '💡 Consejo: ¡Sigue usando la app a diario para construir tu racha y descubrir tu compatibilidad amorosa!',
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        fontStyle: FontStyle.italic,
+                        color: ThemeService.instance.textColor,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
                 child: Text(
-                  isEnglish
-                    ? '💡 Tip: Keep using the app daily to build your streak and discover your love compatibility!'
-                    : '💡 Consejo: ¡Sigue usando la app a diario para construir tu racha y descubrir tu compatibilidad amorosa!',
+                  isEnglish ? 'Got it!' : '¡Entendido!',
                   style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    fontStyle: FontStyle.italic,
-                    color: ThemeService.instance.textColor,
+                    fontWeight: FontWeight.bold,
+                    color: ThemeService.instance.primaryColor,
                   ),
-                  textAlign: TextAlign.center,
                 ),
               ),
             ],
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              isEnglish ? 'Got it!' : '¡Entendido!',
-              style: GoogleFonts.poppins(
-                fontWeight: FontWeight.bold,
-                color: ThemeService.instance.primaryColor,
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -930,7 +1003,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   }
 
   /// Get days text based on current locale
-  /// Obtener texto de días basado en el idioma actual  
+  /// Obtener texto de días basado en el idioma actual
   String _getDaysText(int count) {
     final isEnglish = LocaleService.instance.currentLocale.languageCode == 'en';
     if (isEnglish) {
