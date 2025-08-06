@@ -161,9 +161,12 @@ class _FormScreenState extends State<FormScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final localizations = AppLocalizations.of(context);
+    return ListenableBuilder(
+      listenable: LocaleService.instance,
+      builder: (context, child) {
+        final localizations = AppLocalizations.of(context);
 
-    return Scaffold(
+        return Scaffold(
       body: AnimatedBackground(
         child: SafeArea(
           child: Form(
@@ -343,6 +346,8 @@ class _FormScreenState extends State<FormScreen> {
           ),
         ),
       ),
+      );
+    },
     );
   }
 }

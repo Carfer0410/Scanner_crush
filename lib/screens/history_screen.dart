@@ -5,6 +5,7 @@ import 'package:share_plus/share_plus.dart';
 import '../widgets/custom_widgets.dart';
 import '../services/theme_service.dart';
 import '../services/crush_service.dart';
+import '../services/locale_service.dart';
 import '../models/crush_result.dart';
 import '../generated/l10n/app_localizations.dart';
 
@@ -92,71 +93,74 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: AnimatedBackground(
-        child: SafeArea(
-          child: Column(
-            children: [
-              // App bar
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  children: [
-                    IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: Icon(
-                        Icons.arrow_back_ios,
-                        color: ThemeService.instance.textColor,
-                        size: 24,
-                      ),
-                    ),
-                    const Spacer(),
-                    Text(
-                      AppLocalizations.of(context)!.history,
-                      style: GoogleFonts.poppins(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: ThemeService.instance.textColor,
-                      ),
-                    ),
-                    const Spacer(),
-                    const SizedBox(width: 48),
-                  ],
-                ),
-              ),
-
-              Expanded(
-                child:
-                    _isLoading
-                        ? Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              CircularProgressIndicator(
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  ThemeService.instance.primaryColor,
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-                              Text(
-                                'Cargando historial...',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 16,
-                                  color: ThemeService.instance.textColor
-                                      .withOpacity(0.7),
-                                ),
-                              ),
-                            ],
+    return ListenableBuilder(
+      listenable: LocaleService.instance,
+      builder: (context, child) {
+        return Scaffold(
+          body: AnimatedBackground(
+            child: SafeArea(
+              child: Column(
+                children: [
+                  // App bar
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Row(
+                      children: [
+                        IconButton(
+                          onPressed: () => Navigator.pop(context),
+                          icon: Icon(
+                            Icons.arrow_back_ios,
+                            color: ThemeService.instance.textColor,
+                            size: 24,
                           ),
-                        )
+                        ),
+                        const Spacer(),
+                        Text(
+                          AppLocalizations.of(context)!.history,
+                          style: GoogleFonts.poppins(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: ThemeService.instance.textColor,
+                          ),
+                        ),
+                        const Spacer(),
+                        const SizedBox(width: 48),
+                      ],
+                    ),
+                  ),
+
+                  Expanded(
+                    child: _isLoading
+                        ? Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    ThemeService.instance.primaryColor,
+                                  ),
+                                ),
+                                const SizedBox(height: 20),
+                                Text(
+                                  'Cargando historial...',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 16,
+                                    color: ThemeService.instance.textColor.withOpacity(0.7),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
                         : _results.isEmpty
-                        ? _buildEmptyState()
-                        : _buildHistoryList(),
+                            ? _buildEmptyState()
+                            : _buildHistoryList(),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -284,9 +288,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     color: _getPercentageColor(result.percentage),
                     boxShadow: [
                       BoxShadow(
-                        color: _getPercentageColor(
-                          result.percentage,
-                        ).withOpacity(0.3),
+                        color: _getPercentageColor(result.percentage).withOpacity(0.3),
                         blurRadius: 10,
                         offset: const Offset(0, 5),
                       ),
@@ -370,8 +372,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
         ),
       ),
     ).animate().slideX(
-      delay: Duration(milliseconds: index * 100),
-      duration: 600.ms,
-    );
+          delay: Duration(milliseconds: index * 100),
+          duration: 600.ms,
+        );
   }
 }

@@ -57,7 +57,7 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: AnimatedBackground(
+          body: AnimatedBackground(
         child: SafeArea(
           child: Form(
             key: _formKey,
