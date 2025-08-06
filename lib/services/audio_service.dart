@@ -19,8 +19,6 @@ class AudioService with WidgetsBindingObserver {
   bool get soundEnabled => _soundEnabled;
   bool get musicEnabled => _musicEnabled;
   double get volume => _volume;
-  bool get isBackgroundMusicPlaying => _isBackgroundMusicPlaying;
-  bool get wasPlayingBeforePause => _wasPlayingBeforePause;
 
   // Método para manejar cambios en el ciclo de vida de la aplicación
   @override

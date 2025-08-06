@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'screens/welcome_screen.dart';
 import 'services/ad_service.dart';
 import 'services/theme_service.dart';
 import 'services/daily_love_service.dart';
 import 'services/audio_service.dart';
+import 'services/locale_service.dart';
+import 'generated/l10n/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,6 +27,7 @@ void main() async {
   await ThemeService.instance.initialize();
   await DailyLoveService.instance.initialize();
   await AudioService.instance.initialize();
+  await LocaleService.instance.initialize();
   runApp(const ScannerCrushApp());
 }
 
@@ -38,13 +42,24 @@ class _ScannerCrushAppState extends State<ScannerCrushApp> {
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable: ThemeService.instance,
+      listenable: Listenable.merge([
+        ThemeService.instance,
+        LocaleService.instance,
+      ]),
       builder: (context, child) {
         return MaterialApp(
           title: 'Escáner de Crush 💘',
           debugShowCheckedModeBanner: false,
           showPerformanceOverlay: false,
           showSemanticsDebugger: false,
+          locale: LocaleService.instance.currentLocale,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: LocaleService.instance.supportedLocales,
           theme: _buildLightTheme(),
           darkTheme: _buildDarkTheme(),
           themeMode: ThemeService.instance.isDarkMode 

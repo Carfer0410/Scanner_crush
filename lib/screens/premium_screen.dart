@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../widgets/custom_widgets.dart';
 import '../services/theme_service.dart';
 import '../services/ad_service.dart';
+import '../generated/l10n/app_localizations.dart';
 
 class PremiumScreen extends StatefulWidget {
   const PremiumScreen({super.key});
@@ -18,33 +19,33 @@ class _PremiumScreenState extends State<PremiumScreen> {
   final List<Map<String, dynamic>> _features = [
     {
       'icon': Icons.block,
-      'title': 'Sin Anuncios',
-      'description': 'Disfruta de la experiencia completa sin interrupciones',
+      'title': 'noAdsTitle',
+      'description': 'noAdsDescription',
     },
     {
       'icon': Icons.all_inclusive,
-      'title': 'Escaneos Ilimitados',
-      'description': 'Escanea cuantas veces quieras sin restricciones',
+      'title': 'unlimitedScansTitle',
+      'description': 'unlimitedScansDescription',
     },
     {
       'icon': Icons.star,
-      'title': 'Resultados Exclusivos',
-      'description': 'Accede a mensajes y predicciones especiales',
+      'title': 'exclusiveResultsTitle',
+      'description': 'exclusiveResultsDescription',
     },
     {
       'icon': Icons.favorite_border,
-      'title': 'Historial de Crushes',
-      'description': 'Guarda y revisa todos tus escaneos anteriores',
+      'title': 'crushHistoryTitle',
+      'description': 'crushHistoryDescription',
     },
     {
       'icon': Icons.palette,
-      'title': 'Temas Especiales',
-      'description': 'Personaliza la app con temas únicos y exclusivos',
+      'title': 'specialThemesTitle',
+      'description': 'specialThemesDescription',
     },
     {
       'icon': Icons.support_agent,
-      'title': 'Soporte Premium',
-      'description': 'Atención prioritaria y soporte técnico avanzado',
+      'title': 'premiumSupportTitle',
+      'description': 'premiumSupportDescription',
     },
   ];
 
@@ -76,7 +77,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                     Icon(Icons.check_circle, color: Colors.green, size: 50),
                     const SizedBox(height: 16),
                     Text(
-                      '¡Bienvenido a Premium!',
+                      AppLocalizations.of(context)!.welcomeToPremium,
                       style: GoogleFonts.poppins(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -85,7 +86,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                   ],
                 ),
                 content: Text(
-                  'Ahora puedes disfrutar de todas las funciones premium sin límites.',
+                  AppLocalizations.of(context)!.premiumActivated,
                   style: GoogleFonts.poppins(fontSize: 16),
                   textAlign: TextAlign.center,
                 ),
@@ -99,7 +100,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                       ); // Return to previous screen with success
                     },
                     child: Text(
-                      'Comenzar',
+                      AppLocalizations.of(context)!.great,
                       style: GoogleFonts.poppins(
                         fontWeight: FontWeight.bold,
                         color: ThemeService.instance.primaryColor,
@@ -131,11 +132,49 @@ class _PremiumScreenState extends State<PremiumScreen> {
   void _restorePurchases() async {
     // In a real app, implement restore purchases logic
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('No se encontraron compras anteriores'),
+      SnackBar(
+        content: Text(AppLocalizations.of(context)!.noPreviousPurchases),
         backgroundColor: Colors.orange,
       ),
     );
+  }
+
+  String _getFeatureTitle(String key) {
+    switch (key) {
+      case 'noAdsTitle':
+        return AppLocalizations.of(context)!.noAdsTitle;
+      case 'unlimitedScansTitle':
+        return AppLocalizations.of(context)!.unlimitedScansTitle;
+      case 'exclusiveResultsTitle':
+        return AppLocalizations.of(context)!.exclusiveResultsTitle;
+      case 'crushHistoryTitle':
+        return AppLocalizations.of(context)!.crushHistoryTitle;
+      case 'specialThemesTitle':
+        return AppLocalizations.of(context)!.specialThemesTitle;
+      case 'premiumSupportTitle':
+        return AppLocalizations.of(context)!.premiumSupportTitle;
+      default:
+        return key;
+    }
+  }
+
+  String _getFeatureDescription(String key) {
+    switch (key) {
+      case 'noAdsDescription':
+        return AppLocalizations.of(context)!.noAdsDescription;
+      case 'unlimitedScansDescription':
+        return AppLocalizations.of(context)!.unlimitedScansDescription;
+      case 'exclusiveResultsDescription':
+        return AppLocalizations.of(context)!.exclusiveResultsDescription;
+      case 'crushHistoryDescription':
+        return AppLocalizations.of(context)!.crushHistoryDescription;
+      case 'specialThemesDescription':
+        return AppLocalizations.of(context)!.specialThemesDescription;
+      case 'premiumSupportDescription':
+        return AppLocalizations.of(context)!.premiumSupportDescription;
+      default:
+        return key;
+    }
   }
 
   @override
@@ -160,7 +199,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                     ),
                     const Spacer(),
                     Text(
-                      'Premium',
+                      AppLocalizations.of(context)!.premium,
                       style: GoogleFonts.poppins(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -201,7 +240,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                       const SizedBox(height: 30),
 
                       Text(
-                        'Desbloquea el Poder\ndel Amor Premium',
+                        AppLocalizations.of(context)!.premiumSubtitle,
                         style: GoogleFonts.poppins(
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
@@ -262,7 +301,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      feature['title'],
+                                      _getFeatureTitle(feature['title']),
                                       style: GoogleFonts.poppins(
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold,
@@ -271,7 +310,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      feature['description'],
+                                      _getFeatureDescription(feature['description']),
                                       style: GoogleFonts.poppins(
                                         fontSize: 14,
                                         color: ThemeService.instance.textColor
@@ -354,7 +393,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
 
                       // Purchase button
                       GradientButton(
-                        text: _isLoading ? 'Procesando...' : 'Obtener Premium',
+                        text: _isLoading ? AppLocalizations.of(context)!.processing : AppLocalizations.of(context)!.purchasePremium,
                         icon: Icons.credit_card,
                         backgroundColor: Colors.amber,
                         onPressed: _purchasePremium,
@@ -367,7 +406,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                       TextButton(
                         onPressed: _restorePurchases,
                         child: Text(
-                          'Restaurar compras',
+                          AppLocalizations.of(context)!.restorePurchasesButton,
                           style: GoogleFonts.poppins(
                             fontSize: 14,
                             color: ThemeService.instance.textColor.withOpacity(

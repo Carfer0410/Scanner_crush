@@ -6,6 +6,7 @@ import '../widgets/custom_widgets.dart';
 import '../services/theme_service.dart';
 import '../services/crush_service.dart';
 import '../services/audio_service.dart';
+import '../generated/l10n/app_localizations.dart';
 import 'result_screen.dart';
 
 class FormScreen extends StatefulWidget {
@@ -126,7 +127,7 @@ class _FormScreenState extends State<FormScreen> {
                       ),
                       const Spacer(),
                       Text(
-                        'Escáner Personal',
+                        AppLocalizations.of(context)!.personalScannerTitle,
                         style: GoogleFonts.poppins(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -148,7 +149,7 @@ class _FormScreenState extends State<FormScreen> {
 
                         // Title with heart animation
                         Text(
-                              '💕 Tu Compatibilidad Personal 💕',
+                              AppLocalizations.of(context)!.personalCompatibilityTitle,
                               style: GoogleFonts.poppins(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
@@ -163,7 +164,7 @@ class _FormScreenState extends State<FormScreen> {
                         const SizedBox(height: 16),
 
                         Text(
-                          'Ingresa tu nombre y el de esa persona especial para descubrir qué dice el corazón sobre su conexión',
+                          AppLocalizations.of(context)!.formInstructions,
                           style: GoogleFonts.poppins(
                             fontSize: 16,
                             color: ThemeService.instance.subtitleColor,
@@ -176,7 +177,7 @@ class _FormScreenState extends State<FormScreen> {
 
                         // User name field
                         CustomTextField(
-                          hintText: 'Tu nombre',
+                          hintText: AppLocalizations.of(context)!.enterYourName,
                           icon: Icons.person,
                           controller: _userNameController,
                         ),
@@ -214,7 +215,7 @@ class _FormScreenState extends State<FormScreen> {
 
                         // Crush name field
                         CustomTextField(
-                          hintText: 'Nombre de tu crush',
+                          hintText: AppLocalizations.of(context)!.enterCrushName,
                           icon: Icons.favorite,
                           controller: _crushNameController,
                         ),
@@ -224,7 +225,7 @@ class _FormScreenState extends State<FormScreen> {
                         // Scan button
                         GradientButton(
                           text:
-                              _isLoading ? 'Escaneando...' : 'Escanear Amor ❤️',
+                              _isLoading ? AppLocalizations.of(context)!.scanning : AppLocalizations.of(context)!.scanLoveButton,
                           onPressed: _scanLove,
                           isLoading: _isLoading,
                           icon: _isLoading ? null : Icons.search,
@@ -255,7 +256,7 @@ class _FormScreenState extends State<FormScreen> {
                               ),
                               const SizedBox(height: 12),
                               Text(
-                                '✨ Algoritmo Personal ✨',
+                                AppLocalizations.of(context)!.personalAlgorithm,
                                 style: GoogleFonts.poppins(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -264,7 +265,7 @@ class _FormScreenState extends State<FormScreen> {
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                'Nuestro algoritmo del amor analiza la compatibilidad entre personas reales, basándose en energías, nombres y conexiones del corazón para revelar secretos románticos.',
+                                AppLocalizations.of(context)!.algorithmDescription,
                                 style: GoogleFonts.poppins(
                                   fontSize: 14,
                                   color: ThemeService.instance.subtitleColor,

@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../widgets/custom_widgets.dart';
 import '../services/theme_service.dart';
 import '../services/daily_love_service.dart';
+import '../generated/l10n/app_localizations.dart';
 
 class DailyLoveScreen extends StatefulWidget {
   const DailyLoveScreen({super.key});
@@ -80,7 +81,7 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
           ),
           const SizedBox(height: 20),
           Text(
-            'Preparando tu día del amor...',
+            AppLocalizations.of(context)!.preparingLoveDay,
             style: GoogleFonts.poppins(
               fontSize: 16,
               color: ThemeService.instance.textColor,
@@ -101,7 +102,7 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
             const Icon(Icons.error_outline, size: 64, color: Colors.red),
             const SizedBox(height: 20),
             Text(
-              _errorMessage ?? 'Error desconocido',
+              _errorMessage ?? AppLocalizations.of(context)!.unknownError,
               style: GoogleFonts.poppins(
                 fontSize: 16,
                 color: ThemeService.instance.textColor,
@@ -111,7 +112,7 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Volver'),
+              child: Text(AppLocalizations.of(context)!.goBack),
             ),
           ],
         ),
@@ -120,13 +121,13 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
   }
 
   Widget _buildMainContent() {
-    final horoscope = DailyLoveService.instance.getTodayLoveHoroscope();
+    final horoscope = DailyLoveService.instance.getTodayLoveHoroscopeLocalized(context);
     final streak = DailyLoveService.instance.getCurrentStreak();
     final totalScans = DailyLoveService.instance.getTotalScans();
     final avgCompatibility =
         DailyLoveService.instance.getAverageCompatibility();
-    final personalizedTip = DailyLoveService.instance.getPersonalizedTip();
-    final achievements = DailyLoveService.instance.getUnlockedAchievements();
+    final personalizedTip = DailyLoveService.instance.getPersonalizedTipLocalized(context);
+    final achievements = DailyLoveService.instance.getUnlockedAchievementsLocalized(context);
 
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
@@ -145,7 +146,7 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
               ),
               Expanded(
                 child: Text(
-                  'Tu Universo del Amor',
+                  AppLocalizations.of(context)!.yourLoveUniverse,
                   style: GoogleFonts.poppins(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -273,7 +274,7 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
           child: _buildStatCard(
             '🔥',
             streak.toString(),
-            'Días seguidos',
+            AppLocalizations.of(context)!.consecutiveDays,
             Colors.deepOrange,
           ),
         ),
@@ -282,7 +283,7 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
           child: _buildStatCard(
             '💘',
             totalScans.toString(),
-            'Escaneos totales',
+            AppLocalizations.of(context)!.totalScans,
             Colors.pink,
           ),
         ),
@@ -291,7 +292,7 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
           child: _buildStatCard(
             '⭐',
             '${avgCompatibility.toInt()}%',
-            'Promedio',
+            AppLocalizations.of(context)!.average,
             Colors.purple,
           ),
         ),
@@ -369,7 +370,7 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
                   const Icon(Icons.psychology, color: Colors.white, size: 24),
                   const SizedBox(width: 10),
                   Text(
-                    'Consejo Personalizado',
+                    AppLocalizations.of(context)!.personalizedTip,
                     style: GoogleFonts.poppins(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -400,7 +401,7 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
     return Column(
       children: [
         Text(
-          '🏆 Logros Desbloqueados',
+          AppLocalizations.of(context)!.unlockedAchievements,
           style: GoogleFonts.poppins(
             fontSize: 20,
             fontWeight: FontWeight.bold,

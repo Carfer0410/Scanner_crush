@@ -4,8 +4,9 @@ import 'package:google_fonts/google_fonts.dart';
 import '../widgets/custom_widgets.dart';
 import '../services/theme_service.dart';
 import '../services/ad_service.dart';
-import '../services/crush_service.dart';
 import '../services/audio_service.dart';
+import '../services/locale_service.dart';
+import '../generated/l10n/app_localizations.dart';
 import 'premium_screen.dart';
 import 'history_screen.dart';
 
@@ -39,7 +40,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     const Spacer(),
                     Text(
-                      'Configuración',
+                      AppLocalizations.of(context)!.settings,
                       style: GoogleFonts.poppins(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -72,9 +73,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       items: [
                         _buildSettingsItem(
                           icon: Icons.history,
-                          title: 'Historial de Escaneos',
+                          title: AppLocalizations.of(context)!.history,
                           subtitle: 'Ver todos tus escaneos anteriores',
                           onTap: () => _navigateToHistory(),
+                        ),
+                        _buildSettingsItem(
+                          icon: Icons.language,
+                          title: AppLocalizations.of(context)!.language,
+                          subtitle: _getCurrentLanguageName(),
+                          onTap: () => _showLanguageSelector(),
                         ),
                         _buildSettingsItem(
                           icon:
@@ -100,8 +107,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               AudioService.instance.soundEnabled
                                   ? Icons.volume_up
                                   : Icons.volume_off,
-                          title: 'Efectos de Sonido',
-                          subtitle: 'Sonidos en botones y acciones',
+                          title: AppLocalizations.of(context)!.soundEffects,
+                          subtitle: AppLocalizations.of(context)!.soundEffectsSubtitle,
                           onTap: () => _toggleSoundEffects(),
                           trailing: Switch(
                             value: AudioService.instance.soundEnabled,
@@ -114,8 +121,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               AudioService.instance.musicEnabled
                                   ? Icons.music_note
                                   : Icons.music_off,
-                          title: 'Música de Fondo',
-                          subtitle: 'Música ambiente relajante',
+                          title: AppLocalizations.of(context)!.backgroundMusic,
+                          subtitle: AppLocalizations.of(context)!.backgroundMusicSubtitle,
                           onTap: () => _toggleBackgroundMusic(),
                           trailing: Switch(
                             value: AudioService.instance.musicEnabled,
@@ -451,6 +458,73 @@ class _SettingsScreenState extends State<SettingsScreen> {
       !AudioService.instance.musicEnabled,
     );
     setState(() {});
+  }
+
+  String _getCurrentLanguageName() {
+    switch (LocaleService.instance.currentLocale.languageCode) {
+      case 'es':
+        return AppLocalizations.of(context)!.spanish;
+      case 'en':
+        return AppLocalizations.of(context)!.english;
+      default:
+        return AppLocalizations.of(context)!.spanish;
+    }
+  }
+
+  void _showLanguageSelector() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        title: Text(
+          AppLocalizations.of(context)!.language,
+          style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Text('🇪🇸'),
+              title: Text(AppLocalizations.of(context)!.spanish),
+              trailing: LocaleService.instance.currentLocale.languageCode == 'es'
+                  ? Icon(Icons.check, color: ThemeService.instance.primaryColor)
+                  : null,
+              onTap: () {
+                LocaleService.instance.setLocale('es');
+                Navigator.pop(context);
+                setState(() {});
+              },
+            ),
+            ListTile(
+              leading: const Text('🇺🇸'),
+              title: Text(AppLocalizations.of(context)!.english),
+              trailing: LocaleService.instance.currentLocale.languageCode == 'en'
+                  ? Icon(Icons.check, color: ThemeService.instance.primaryColor)
+                  : null,
+              onTap: () {
+                LocaleService.instance.setLocale('en');
+                Navigator.pop(context);
+                setState(() {});
+              },
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              AppLocalizations.of(context)!.cancel,
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.bold,
+                color: ThemeService.instance.primaryColor,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showHelpDialog() {

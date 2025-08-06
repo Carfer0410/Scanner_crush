@@ -6,6 +6,7 @@ import '../widgets/custom_widgets.dart';
 import '../services/theme_service.dart';
 import '../services/crush_service.dart';
 import '../models/crush_result.dart';
+import '../generated/l10n/app_localizations.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -38,7 +39,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error al cargar el historial: ${e.toString()}'),
+            content: Text(AppLocalizations.of(context)!.errorLoadingHistory(e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -52,11 +53,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
     if (difference.inDays == 0) {
       if (difference.inHours == 0) {
-        return 'Hace ${difference.inMinutes} min';
+        return '${AppLocalizations.of(context)!.agoTime} ${difference.inMinutes} ${AppLocalizations.of(context)!.minutes}';
       }
-      return 'Hace ${difference.inHours}h';
+      return '${AppLocalizations.of(context)!.agoTime} ${difference.inHours}${AppLocalizations.of(context)!.hours}';
     } else if (difference.inDays < 7) {
-      return 'Hace ${difference.inDays} días';
+      return '${AppLocalizations.of(context)!.agoTime} ${difference.inDays} ${AppLocalizations.of(context)!.days}';
     } else {
       return '${date.day}/${date.month}/${date.year}';
     }
@@ -64,13 +65,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   Color _getPercentageColor(int percentage) {
     if (percentage >= 80) {
-      return const Color(0xFF4CAF50); // Green
+      return const Color(0xFF4CAF50); // Green - Perfect compatibility
     } else if (percentage >= 60) {
-      return const Color(0xFFFF9800); // Orange
+      return const Color(0xFFFF9800); // Orange - Great compatibility
     } else if (percentage >= 40) {
-      return const Color(0xFFFFC107); // Amber
+      return const Color(0xFF2196F3); // Blue - Good compatibility (better visibility)
     } else {
-      return const Color(0xFFE91E63); // Pink
+      return const Color(0xFFE91E63); // Pink - There is potential
     }
   }
 
@@ -80,8 +81,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Error al compartir. Inténtalo de nuevo.'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.errorSharingResult),
             backgroundColor: Colors.orange,
           ),
         );
@@ -111,7 +112,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     ),
                     const Spacer(),
                     Text(
-                      'Historial',
+                      AppLocalizations.of(context)!.history,
                       style: GoogleFonts.poppins(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -188,7 +189,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           const SizedBox(height: 30),
 
           Text(
-            'No hay escaneos aún',
+            AppLocalizations.of(context)!.noHistoryYet,
             style: GoogleFonts.poppins(
               fontSize: 24,
               fontWeight: FontWeight.bold,
@@ -199,7 +200,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           const SizedBox(height: 16),
 
           Text(
-            'Tus escaneos de compatibilidad\naparecerán aquí una vez que\ncomiences a usar la app',
+            AppLocalizations.of(context)!.noHistoryDescription,
             style: GoogleFonts.poppins(
               fontSize: 16,
               color: ThemeService.instance.subtitleColor,
@@ -211,7 +212,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           const SizedBox(height: 40),
 
           GradientButton(
-            text: 'Hacer mi primer escaneo',
+            text: AppLocalizations.of(context)!.startScanning,
             icon: Icons.favorite,
             onPressed: () {
               Navigator.pop(context);

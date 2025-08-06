@@ -1,4 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../generated/l10n/app_localizations.dart';
 
 class DailyLoveService {
   static final DailyLoveService _instance = DailyLoveService._internal();
@@ -85,8 +87,69 @@ class DailyLoveService {
   Map<String, dynamic> getTodayLoveHoroscope() {
     final today = DateTime.now();
     final dayOfYear = today.difference(DateTime(today.year, 1, 1)).inDays;
-    final index = dayOfYear % _loveHoroscopes.length;
-    return _loveHoroscopes[index];
+    final index = dayOfYear % 7; // Usando 7 horóscopos diferentes
+    return {'index': index}; // Devolvemos solo el índice
+  }
+
+  // Obtener horóscopo localizado del día
+  Map<String, dynamic> getTodayLoveHoroscopeLocalized(BuildContext context) {
+    final today = DateTime.now();
+    final dayOfYear = today.difference(DateTime(today.year, 1, 1)).inDays;
+    final index = dayOfYear % 7; // 7 horóscopos diferentes
+    final l10n = AppLocalizations.of(context)!;
+    
+    switch (index) {
+      case 0:
+        return {
+          'title': l10n.magneticConnection,
+          'message': l10n.magneticConnectionMessage,
+          'advice': l10n.magneticConnectionAdvice,
+          'color': 0xFFE91E63,
+        };
+      case 1:
+        return {
+          'title': l10n.dayOfRevelations,
+          'message': l10n.dayOfRevelationsMessage,
+          'advice': l10n.dayOfRevelationsAdvice,
+          'color': 0xFF9C27B0,
+        };
+      case 2:
+        return {
+          'title': l10n.romanceInTheAir,
+          'message': l10n.romanceInTheAirMessage,
+          'advice': l10n.romanceInTheAirAdvice,
+          'color': 0xFFD32F2F,
+        };
+      case 3:
+        return {
+          'title': l10n.destinyAligned,
+          'message': l10n.destinyAlignedMessage,
+          'advice': l10n.destinyAlignedAdvice,
+          'color': 0xFF673AB7,
+        };
+      case 4:
+        return {
+          'title': l10n.butterfliesInStomach,
+          'message': l10n.butterfliesInStomachMessage,
+          'advice': l10n.butterfliesInStomachAdvice,
+          'color': 0xFFE91E63,
+        };
+      case 5:
+        return {
+          'title': l10n.burningPassion,
+          'message': l10n.burningPassionMessage,
+          'advice': l10n.burningPassionAdvice,
+          'color': 0xFFBF360C,
+        };
+      case 6:
+      default:
+        return {
+          'title': l10n.authenticLove,
+          'message': l10n.authenticLoveMessage,
+          'advice': l10n.authenticLoveAdvice,
+          'color': 0xFF3F51B5,
+        };
+    }
   }
 
   // Racha de días consecutivos
@@ -166,6 +229,26 @@ class DailyLoveService {
     }
   }
 
+  // Consejos personalizados localizados
+  String getPersonalizedTipLocalized(BuildContext context) {
+    final streak = getCurrentStreak();
+    final avgCompatibility = getAverageCompatibility();
+    final totalScans = getTotalScans();
+    final l10n = AppLocalizations.of(context)!;
+
+    if (streak >= 7) {
+      return l10n.personalizedTipStreak(streak);
+    } else if (avgCompatibility >= 80) {
+      return l10n.personalizedTipCompatibility(avgCompatibility.toInt());
+    } else if (totalScans >= 10) {
+      return l10n.personalizedTipScans(totalScans);
+    } else if (avgCompatibility >= 60) {
+      return l10n.personalizedTipGoodCompatibility;
+    } else {
+      return l10n.personalizedTipEncouragement;
+    }
+  }
+
   // Logros desbloqueados
   List<Map<String, dynamic>> getUnlockedAchievements() {
     final achievements = <Map<String, dynamic>>[];
@@ -201,6 +284,49 @@ class DailyLoveService {
       achievements.add({
         'title': '👑 Gurú del Romance',
         'description': 'Experto en el amor',
+        'icon': '👑',
+      });
+    }
+
+    return achievements;
+  }
+
+  // Logros desbloqueados localizados
+  List<Map<String, dynamic>> getUnlockedAchievementsLocalized(BuildContext context) {
+    final achievements = <Map<String, dynamic>>[];
+    final streak = getCurrentStreak();
+    final totalScans = getTotalScans();
+    final avgCompatibility = getAverageCompatibility();
+    final l10n = AppLocalizations.of(context)!;
+
+    if (streak >= 3) {
+      achievements.add({
+        'title': l10n.fireStreak,
+        'description': l10n.fireStreakDescription(streak),
+        'icon': '🔥',
+      });
+    }
+
+    if (totalScans >= 5) {
+      achievements.add({
+        'title': l10n.loveExplorer,
+        'description': l10n.loveExplorerDescription(totalScans),
+        'icon': '🎯',
+      });
+    }
+
+    if (avgCompatibility >= 75) {
+      achievements.add({
+        'title': l10n.compatibilityMaster,
+        'description': l10n.compatibilityMasterDescription(avgCompatibility.toInt()),
+        'icon': '⭐',
+      });
+    }
+
+    if (totalScans >= 20) {
+      achievements.add({
+        'title': l10n.romanceGuru,
+        'description': l10n.romanceGuruDescription,
         'icon': '👑',
       });
     }

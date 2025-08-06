@@ -5,7 +5,7 @@ import '../widgets/custom_widgets.dart';
 import '../services/theme_service.dart';
 import '../services/daily_love_service.dart';
 import '../services/audio_service.dart';
-import '../test_audio_screen.dart';
+import '../generated/l10n/app_localizations.dart';
 import 'form_screen.dart';
 import 'settings_screen.dart';
 import 'celebrity_form_screen.dart';
@@ -167,23 +167,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                           ),
                         ),
 
-                        // Test Audio button
-                        IconButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const TestAudioScreen(),
-                              ),
-                            );
-                          },
-                          icon: Icon(
-                            Icons.audiotrack,
-                            color: ThemeService.instance.textColor,
-                            size: 28,
-                          ),
-                        ),
-
                         // Settings button
                         IconButton(
                           onPressed: () {
@@ -267,7 +250,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                               child: Column(
                                 children: [
                                   Text(
-                                    'Escáner de Crush',
+                                    AppLocalizations.of(context)!.appTitle,
                                     style: GoogleFonts.poppins(
                                       fontSize: 32,
                                       fontWeight: FontWeight.bold,
@@ -294,7 +277,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                       .rotate(duration: 2.seconds),
                                   const SizedBox(height: 16),
                                   Text(
-                                    '¿Quién te ama en secreto?',
+                                    AppLocalizations.of(context)!.welcomeTitle,
                                     style: GoogleFonts.poppins(
                                       fontSize: 18,
                                       color: ThemeService.instance.textColor
@@ -312,7 +295,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 20),
                             child: Text(
-                              'Descubre tu compatibilidad amorosa y las señales secretas del corazón',
+                              AppLocalizations.of(context)!.welcomeSubtitle,
                               style: GoogleFonts.poppins(
                                 fontSize: 16,
                                 color: ThemeService.instance.textColor
@@ -334,9 +317,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                 // Regular Crush Scanner
                                 _buildScanOption(
                                   context: context,
-                                  title: 'Escáner de Crush',
+                                  title: AppLocalizations.of(context)!.startScan,
                                   subtitle:
-                                      'Descubre tu compatibilidad con alguien especial',
+                                      AppLocalizations.of(context)!.regularScanSubtitle,
                                   icon: Icons.favorite,
                                   colors: [
                                     ThemeService.instance.primaryColor,
@@ -352,9 +335,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                 // Celebrity Crush Scanner
                                 _buildScanOption(
                                   context: context,
-                                  title: 'Celebrity Crush',
+                                  title: AppLocalizations.of(context)!.celebrityScan,
                                   subtitle:
-                                      'Tu compatibilidad con las estrellas',
+                                      AppLocalizations.of(context)!.celebrityScanSubtitle,
                                   icon: Icons.star,
                                   colors: [Colors.purple, Colors.deepPurple],
                                   onTap:
@@ -374,7 +357,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                   Padding(
                     padding: const EdgeInsets.all(20),
                     child: Text(
-                      'Hecho con 💕 para descubrir el amor',
+                      AppLocalizations.of(context)!.madeWithLove,
                       style: GoogleFonts.poppins(
                         fontSize: 12,
                         color: ThemeService.instance.textColor.withOpacity(0.5),

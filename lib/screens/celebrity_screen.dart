@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../widgets/custom_widgets.dart';
 import '../services/theme_service.dart';
 import '../services/crush_service.dart';
+import '../generated/l10n/app_localizations.dart';
 import 'result_screen.dart';
 
 class CelebrityScreen extends StatefulWidget {
@@ -71,8 +72,8 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Error al generar resultado. Inténtalo de nuevo.'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.errorGeneratingResult),
             backgroundColor: Colors.red,
           ),
         );
@@ -102,7 +103,7 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
                     ),
                     const Spacer(),
                     Text(
-                      'Celebrity Crush',
+                      AppLocalizations.of(context)!.celebrityCrush,
                       style: GoogleFonts.poppins(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -129,7 +130,7 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
                     ),
                     const SizedBox(height: 20),
                     Text(
-                          '¡Hola ${widget.userName}!',
+                          AppLocalizations.of(context)!.helloCelebrity(widget.userName),
                           style: GoogleFonts.poppins(
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
@@ -145,7 +146,7 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
                         ),
                     const SizedBox(height: 10),
                     Text(
-                          'Elige tu celebrity crush y descubre tu compatibilidad',
+                          AppLocalizations.of(context)!.chooseCelebrityDescription,
                           style: GoogleFonts.poppins(
                             fontSize: 16,
                             color: ThemeService.instance.textColor.withOpacity(
@@ -173,7 +174,7 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
                       controller: _searchController,
                       onChanged: _filterCelebrities,
                       decoration: InputDecoration(
-                        hintText: 'Buscar celebridad...',
+                        hintText: AppLocalizations.of(context)!.searchCelebrity,
                         hintStyle: GoogleFonts.poppins(color: Colors.grey[600]),
                         prefixIcon: const Icon(
                           Icons.search,

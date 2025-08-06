@@ -8,6 +8,7 @@ import '../services/theme_service.dart';
 import '../services/ad_service.dart';
 import '../services/audio_service.dart';
 import '../models/crush_result.dart';
+import '../generated/l10n/app_localizations.dart';
 import 'form_screen.dart';
 import 'premium_screen.dart';
 
@@ -88,8 +89,8 @@ class _ResultScreenState extends State<ResultScreen>
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Error al compartir. Inténtalo de nuevo.'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.shareError),
             backgroundColor: Colors.orange,
           ),
         );
@@ -144,13 +145,13 @@ class _ResultScreenState extends State<ResultScreen>
 
   Color _getPercentageColor(int percentage) {
     if (percentage >= 80) {
-      return const Color(0xFF4CAF50); // Green
+      return const Color(0xFF4CAF50); // Green - Perfect compatibility
     } else if (percentage >= 60) {
-      return const Color(0xFFFF9800); // Orange
+      return const Color(0xFFFF9800); // Orange - Great compatibility
     } else if (percentage >= 40) {
-      return const Color(0xFFFFC107); // Amber
+      return const Color(0xFF2196F3); // Blue - Good compatibility (better visibility)
     } else {
-      return const Color(0xFFE91E63); // Pink
+      return const Color(0xFFE91E63); // Pink - There is potential
     }
   }
 
@@ -180,7 +181,7 @@ class _ResultScreenState extends State<ResultScreen>
                     ),
                     const Spacer(),
                     Text(
-                      'Resultado',
+                      AppLocalizations.of(context)!.resultTitle,
                       style: GoogleFonts.poppins(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -338,12 +339,12 @@ class _ResultScreenState extends State<ResultScreen>
                       // Compatibility level
                       Text(
                         widget.result.percentage >= 80
-                            ? '¡Compatibilidad Perfecta!'
+                            ? AppLocalizations.of(context)!.perfectCompatibility
                             : widget.result.percentage >= 60
-                            ? '¡Gran Compatibilidad!'
+                            ? AppLocalizations.of(context)!.greatCompatibility
                             : widget.result.percentage >= 40
-                            ? 'Buena Compatibilidad'
-                            : 'Hay Potencial',
+                            ? AppLocalizations.of(context)!.goodCompatibility
+                            : AppLocalizations.of(context)!.thereIsPotential,
                         style: GoogleFonts.poppins(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -391,7 +392,7 @@ class _ResultScreenState extends State<ResultScreen>
                         children: [
                           Expanded(
                             child: GradientButton(
-                              text: 'Compartir',
+                              text: AppLocalizations.of(context)!.shareButton,
                               icon: Icons.share,
                               backgroundColor: Colors.blue,
                               onPressed: _shareResult,
@@ -400,7 +401,7 @@ class _ResultScreenState extends State<ResultScreen>
                           const SizedBox(width: 16),
                           Expanded(
                             child: GradientButton(
-                              text: 'Escanear Otra Vez',
+                              text: AppLocalizations.of(context)!.scanAgainButton,
                               icon: Icons.refresh,
                               onPressed: _scanAgain,
                             ),

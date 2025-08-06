@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/services.dart';
 import '../widgets/custom_widgets.dart';
 import '../services/theme_service.dart';
+import '../generated/l10n/app_localizations.dart';
 import 'celebrity_screen.dart';
 
 class CelebrityFormScreen extends StatefulWidget {
@@ -77,7 +78,7 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
                       ),
                       const Spacer(),
                       Text(
-                        'Celebrity Crush',
+                        AppLocalizations.of(context)!.celebrityCrush,
                         style: GoogleFonts.poppins(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -128,7 +129,7 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
 
                         // Title
                         Text(
-                              '🌟 Celebrity Crush 🌟',
+                              AppLocalizations.of(context)!.celebrityCrushTitle,
                               style: GoogleFonts.poppins(
                                 fontSize: 28,
                                 fontWeight: FontWeight.bold,
@@ -143,7 +144,7 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
                         const SizedBox(height: 16),
 
                         Text(
-                          'Descubre tu compatibilidad con las estrellas más brillantes de Hollywood y el mundo del entretenimiento',
+                          AppLocalizations.of(context)!.celebrityCrushDescription,
                           style: GoogleFonts.poppins(
                             fontSize: 16,
                             color: ThemeService.instance.textColor.withOpacity(
@@ -158,7 +159,7 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
 
                         // User name field
                         CustomTextField(
-                          hintText: 'Tu nombre',
+                          hintText: AppLocalizations.of(context)!.yourName,
                           icon: Icons.person,
                           controller: _userNameController,
                         ).animate().slideX(delay: 600.ms),
@@ -167,7 +168,7 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
 
                         // Continue button
                         GradientButton(
-                          text: 'Elegir Mi Celebrity Crush ✨',
+                          text: AppLocalizations.of(context)!.chooseMyCommit,
                           onPressed: _goToCelebritySelection,
                           backgroundColor: Colors.purple,
                           icon: Icons.stars,
@@ -198,7 +199,7 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
                                   ),
                                   const SizedBox(height: 12),
                                   Text(
-                                    '✨ Celebrity Mode ✨',
+                                    AppLocalizations.of(context)!.celebrityMode,
                                     style: GoogleFonts.poppins(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
@@ -207,7 +208,7 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
-                                    'Nuestro algoritmo estelar analiza tu nombre y la energía cósmica de las celebridades para revelarte conexiones únicas del mundo del entretenimiento.',
+                                    AppLocalizations.of(context)!.celebrityModeDescription,
                                     style: GoogleFonts.poppins(
                                       fontSize: 14,
                                       color: ThemeService.instance.textColor
@@ -246,7 +247,7 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
                               child: Column(
                                 children: [
                                   Text(
-                                    '🎬 Celebridades Populares',
+                                    AppLocalizations.of(context)!.popularCelebrities,
                                     style: GoogleFonts.poppins(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
@@ -296,7 +297,7 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
-                                    'Y muchos más...',
+                                    AppLocalizations.of(context)!.andManyMore,
                                     style: GoogleFonts.poppins(
                                       fontSize: 12,
                                       color: ThemeService.instance.textColor
