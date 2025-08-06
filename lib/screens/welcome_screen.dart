@@ -438,12 +438,12 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                       Text(
                         title,
                         style: GoogleFonts.poppins(
-                          fontSize: 18,
+                          fontSize: 14,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                        maxLines: 2,
+                        overflow: TextOverflow.visible,
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -610,7 +610,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                             : '¡Comienza tu racha hoy!',
                         style: GoogleFonts.poppins(
                           fontSize: 12,
-                          color: ThemeService.instance.subtitleColor,
+                          color: Colors.black,
                         ),
                       ),
                     ],
@@ -626,7 +626,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                         style: GoogleFonts.poppins(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.amber,
+                          color: Colors.black,
                         ),
                       ),
                       Text(
@@ -636,7 +636,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                             : 'Mejor',
                         style: GoogleFonts.poppins(
                           fontSize: 10,
-                          color: ThemeService.instance.subtitleColor,
+                          color: Colors.black,
                         ),
                       ),
                     ],
