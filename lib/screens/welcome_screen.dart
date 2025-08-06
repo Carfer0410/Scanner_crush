@@ -155,7 +155,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                 const Text('✨', style: TextStyle(fontSize: 16)),
                                 const SizedBox(width: 6),
                                 Text(
-                                  'Tu Día',
+                                  AppLocalizations.of(context)?.dailyLove ?? 'Tu Día',
                                   style: GoogleFonts.poppins(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,

@@ -6,7 +6,7 @@ import '../widgets/custom_widgets.dart';
 import '../services/theme_service.dart';
 import '../services/crush_service.dart';
 import '../services/audio_service.dart';
-import '../generated/l10n/app_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'result_screen.dart';
 
 class FormScreen extends StatefulWidget {
@@ -50,10 +50,20 @@ class _FormScreenState extends State<FormScreen> {
       // Simulate scanning process
       await Future.delayed(const Duration(seconds: 2));
 
-      final result = await CrushService.instance.generateResult(
-        _userNameController.text.trim(),
-        _crushNameController.text.trim(),
-      );
+      // Get localizations safely
+      final localizations = AppLocalizations.of(context);
+      
+      // Generate result with proper null handling
+      final result = localizations != null 
+          ? await CrushService.instance.generateResult(
+              _userNameController.text.trim(),
+              _crushNameController.text.trim(),
+              localizations,
+            )
+          : await CrushService.instance.generateSimpleResult(
+              _userNameController.text.trim(),
+              _crushNameController.text.trim(),
+            );
 
       if (mounted) {
         Navigator.push(
@@ -61,7 +71,7 @@ class _FormScreenState extends State<FormScreen> {
           PageRouteBuilder(
             pageBuilder:
                 (context, animation, secondaryAnimation) =>
-                    ResultScreen(result: result),
+                    ResultScreen(result: result), // Personal scanner - no fromScreen needed
             transitionsBuilder: (
               context,
               animation,
@@ -105,6 +115,8 @@ class _FormScreenState extends State<FormScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
+
     return Scaffold(
       body: AnimatedBackground(
         child: SafeArea(
@@ -127,7 +139,7 @@ class _FormScreenState extends State<FormScreen> {
                       ),
                       const Spacer(),
                       Text(
-                        AppLocalizations.of(context)!.personalScannerTitle,
+                        localizations?.personalScannerTitle ?? 'Personal Scanner',
                         style: GoogleFonts.poppins(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -149,7 +161,7 @@ class _FormScreenState extends State<FormScreen> {
 
                         // Title with heart animation
                         Text(
-                              AppLocalizations.of(context)!.personalCompatibilityTitle,
+                              localizations?.personalCompatibilityTitle ?? 'Personal Compatibility',
                               style: GoogleFonts.poppins(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
@@ -164,7 +176,7 @@ class _FormScreenState extends State<FormScreen> {
                         const SizedBox(height: 16),
 
                         Text(
-                          AppLocalizations.of(context)!.formInstructions,
+                          localizations?.formInstructions ?? 'Enter your name and your crush\'s name to discover your compatibility!',
                           style: GoogleFonts.poppins(
                             fontSize: 16,
                             color: ThemeService.instance.subtitleColor,
@@ -177,7 +189,7 @@ class _FormScreenState extends State<FormScreen> {
 
                         // User name field
                         CustomTextField(
-                          hintText: AppLocalizations.of(context)!.enterYourName,
+                          hintText: localizations?.enterYourName ?? 'Enter your name',
                           icon: Icons.person,
                           controller: _userNameController,
                         ),
@@ -215,7 +227,7 @@ class _FormScreenState extends State<FormScreen> {
 
                         // Crush name field
                         CustomTextField(
-                          hintText: AppLocalizations.of(context)!.enterCrushName,
+                          hintText: localizations?.enterCrushName ?? 'Enter crush name',
                           icon: Icons.favorite,
                           controller: _crushNameController,
                         ),
@@ -225,7 +237,7 @@ class _FormScreenState extends State<FormScreen> {
                         // Scan button
                         GradientButton(
                           text:
-                              _isLoading ? AppLocalizations.of(context)!.scanning : AppLocalizations.of(context)!.scanLoveButton,
+                              _isLoading ? (localizations?.scanning ?? 'Scanning...') : (localizations?.scanLoveButton ?? 'Scan Love'),
                           onPressed: _scanLove,
                           isLoading: _isLoading,
                           icon: _isLoading ? null : Icons.search,
@@ -256,7 +268,7 @@ class _FormScreenState extends State<FormScreen> {
                               ),
                               const SizedBox(height: 12),
                               Text(
-                                AppLocalizations.of(context)!.personalAlgorithm,
+                                localizations?.personalAlgorithm ?? 'Personal Algorithm',
                                 style: GoogleFonts.poppins(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -265,7 +277,7 @@ class _FormScreenState extends State<FormScreen> {
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                AppLocalizations.of(context)!.algorithmDescription,
+                                localizations?.algorithmDescription ?? 'Our advanced algorithm analyzes name compatibility using numerology and cosmic vibrations.',
                                 style: GoogleFonts.poppins(
                                   fontSize: 14,
                                   color: ThemeService.instance.subtitleColor,

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/crush_result.dart';
 import 'daily_love_service.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CrushService {
   static final CrushService _instance = CrushService._internal();
@@ -61,106 +62,6 @@ class CrushService {
 
   List<String> get celebrities => _celebrities;
 
-  final List<String> _celebrityMessages = [
-    "¡OMG! Tu compatibilidad con una celebridad es increíble 🌟",
-    "Las estrellas de Hollywood aprueban esta combinación ⭐",
-    "¡Tu crush celebrity podría ser tu alma gemela! 💫",
-    "Hollywood está hablando de esta compatibilidad 🎬",
-    "¡Plot twist! Tienes química con una superestrella 🎭",
-    "Tu nivel de compatibilidad celebrity es off the charts! 📈",
-    "¡Breaking news! Eres compatible con una estrella 📺",
-    "El red carpet del amor te está esperando 🌹",
-    "¡Paparazzi alert! Tienes una conexión especial 📸",
-    "Tu historia de amor podría ser una película de éxito 🍿",
-    "¡Award-winning compatibility detected! 🏆",
-    "Las revistas de chismes estarían hablando de ustedes 📰",
-    "Tu crush celebrity aprueba esta combinación 💕",
-    "¡Lights, camera, amor! Tienes potencial de celebrity couple 🎥",
-    "El universo celebrity conspira a tu favor ✨",
-  ];
-
-  final List<String> _romanticMessages = [
-    "¡Tu corazón y el suyo laten al mismo ritmo! 💕",
-    "Las estrellas se alinean perfectamente para ustedes ✨",
-    "Hay una conexión especial esperando a ser descubierta 🌙",
-    "El destino ha tejido sus hilos entre ustedes dos 💫",
-    "Sus almas parecen hablar el mismo idioma del amor 💝",
-    "La magia del amor está flotando en el aire 🎭",
-    "Existe una química innegable entre ustedes 🔥",
-    "El universo conspira a favor de su amor 🌟",
-    "Sus energías se complementan de manera perfecta 🌸",
-    "Hay algo más que amistad esperando florecer 🌺",
-    "La compatibilidad entre ustedes es sorprendente 💖",
-    "El amor verdadero podría estar más cerca de lo que piensas 💘",
-    "Sus corazones vibran en la misma frecuencia 🎵",
-    "La atracción entre ustedes es magnética ⚡",
-    "El cupido ya tiene sus flechas apuntando hacia ustedes 🏹",
-    "Sus caminos están destinados a cruzarse una y otra vez 🛤️",
-    "La llama del amor arde con intensidad entre ustedes 🕯️",
-    "Existe una conexión cósmica que los une 🌌",
-    "El amor está escribiendo su propia historia 📖",
-    "Sus corazones hablan un idioma que solo ustedes entienden 💬",
-  ];
-
-  final List<String> _mysteriousMessages = [
-    "Los secretos del corazón están por revelarse... 🔮",
-    "Alguien piensa en ti más de lo que imaginas 👁️",
-    "Las señales del universo están tratando de decirte algo 🌠",
-    "Hay sentimientos ocultos que pronto saldrán a la luz 🌅",
-    "El misterio del amor está a punto de desvelarse 🎭",
-    "Fuerzas invisibles están trabajando en su favor 👻",
-    "Los susurros del corazón están llegando a ti 🍃",
-    "Hay una historia de amor esperando ser contada 📚",
-    "Los hilos del destino se están entrelazando 🕸️",
-    "Algo mágico está por suceder en el amor 🎪",
-    "Las cartas del tarot del amor están mezclándose 🃏",
-    "Un secreto romántico está flotando en el aire 💨",
-    "La luna llena trae revelaciones del corazón 🌕",
-    "Hay miradas que dicen más que mil palabras 👀",
-    "El eco de un corazón enamorado resuena cerca 🔊",
-    "Algo hermoso está gestándose en silencio 🤫",
-    "Las estrellas susurran secretos de amor 🌟",
-    "Un mensaje del corazón está esperando ser enviado 💌",
-    "La magia del amor está creando conexiones invisibles ✨",
-    "Hay una sorpresa romántica en el horizonte 🎁",
-  ];
-
-  final List<String> _funMessages = [
-    "¡Houston, tenemos una conexión! 🚀",
-    "Tu crush-o-metro está por las nubes 📈",
-    "¡Alerta de corazones! Peligro de enamoramiento 🚨",
-    "El detector de amor está sonando fuertemente 📢",
-    "¡Bingo! Has encontrado una coincidencia perfecta 🎯",
-    "Tu nivel de compatibilidad está off the charts! 📊",
-    "¡Ding ding ding! Tenemos un ganador del amor 🛎️",
-    "El GPS del amor te está guiando hacia algo especial 🗺️",
-    "¡Jackpot emocional! Has dado en el clavo 🎰",
-    "Tu corazón acaba de hacer *match* perfecto 💕",
-    "¡Eureka! La fórmula del amor ha sido descifrada 🧪",
-    "El termómetro del romance está a punto de explotar 🌡️",
-    "¡Breaking news! Se detecta química entre ustedes 📺",
-    "Tu radar del amor está captando señales fuertes 📡",
-    "¡Plot twist! Tu crush podría estar pensando en ti 🎬",
-    "El algoritmo del amor dice que son compatibles 💻",
-    "¡Spoiler alert! Hay romance en tu futuro 📱",
-    "Tu aplicación de amor acaba de enviar una notificación 📲",
-    "¡Achievement unlocked! Has encontrado tu match 🏆",
-    "El bluetooth del corazón se ha conectado exitosamente 📶",
-  ];
-
-  final List<String> _lowCompatibilityMessages = [
-    "A veces las diferencias crean la chispa perfecta ⚡",
-    "El amor verdadero supera cualquier porcentaje 💪",
-    "Los opuestos se atraen y crean magia 🧲",
-    "No todos los grandes amores empiezan con 100% 📈",
-    "Dale tiempo al tiempo, el amor crece paso a paso 🌱",
-    "La compatibilidad se construye día a día 🏗️",
-    "Quizás necesiten conocerse un poco más 🤔",
-    "El amor real no siempre sigue las estadísticas 📊",
-    "Hay espacio para que crezca algo hermoso 🌻",
-    "Los mejores romances empiezan como amistad 👫",
-  ];
-
   final List<String> _emojis = [
     "💕",
     "💖",
@@ -197,24 +98,137 @@ class CrushService {
     return percentage;
   }
 
-  String _getRandomMessage(int percentage, {bool isCelebrity = false}) {
+  String _getRandomMessage(int percentage, AppLocalizations localizations, {bool isCelebrity = false}) {
     final random = Random();
 
     // Mensajes especiales para celebridades
     if (isCelebrity) {
-      return _celebrityMessages[random.nextInt(_celebrityMessages.length)];
+      return _getCelebrityMessage(random.nextInt(15) + 1, localizations);
     }
 
     if (percentage >= 80) {
-      return _romanticMessages[random.nextInt(_romanticMessages.length)];
+      return _getRomanticMessage(random.nextInt(20) + 1, localizations);
     } else if (percentage >= 60) {
-      return _mysteriousMessages[random.nextInt(_mysteriousMessages.length)];
+      return _getMysteriousMessage(random.nextInt(20) + 1, localizations);
     } else if (percentage >= 45) {
-      return _funMessages[random.nextInt(_funMessages.length)];
+      return _getFunMessage(random.nextInt(20) + 1, localizations);
     } else {
-      return _lowCompatibilityMessages[random.nextInt(
-        _lowCompatibilityMessages.length,
-      )];
+      return _getLowCompatibilityMessage(random.nextInt(10) + 1, localizations);
+    }
+  }
+
+  String _getCelebrityMessage(int index, AppLocalizations localizations) {
+    switch (index) {
+      case 1: return localizations.celebrityMessage1;
+      case 2: return localizations.celebrityMessage2;
+      case 3: return localizations.celebrityMessage3;
+      case 4: return localizations.celebrityMessage4;
+      case 5: return localizations.celebrityMessage5;
+      case 6: return localizations.celebrityMessage6;
+      case 7: return localizations.celebrityMessage7;
+      case 8: return localizations.celebrityMessage8;
+      case 9: return localizations.celebrityMessage9;
+      case 10: return localizations.celebrityMessage10;
+      case 11: return localizations.celebrityMessage11;
+      case 12: return localizations.celebrityMessage12;
+      case 13: return localizations.celebrityMessage13;
+      case 14: return localizations.celebrityMessage14;
+      case 15: return localizations.celebrityMessage15;
+      default: return localizations.celebrityMessage1;
+    }
+  }
+
+  String _getRomanticMessage(int index, AppLocalizations localizations) {
+    switch (index) {
+      case 1: return localizations.romanticMessage1;
+      case 2: return localizations.romanticMessage2;
+      case 3: return localizations.romanticMessage3;
+      case 4: return localizations.romanticMessage4;
+      case 5: return localizations.romanticMessage5;
+      case 6: return localizations.romanticMessage6;
+      case 7: return localizations.romanticMessage7;
+      case 8: return localizations.romanticMessage8;
+      case 9: return localizations.romanticMessage9;
+      case 10: return localizations.romanticMessage10;
+      case 11: return localizations.romanticMessage11;
+      case 12: return localizations.romanticMessage12;
+      case 13: return localizations.romanticMessage13;
+      case 14: return localizations.romanticMessage14;
+      case 15: return localizations.romanticMessage15;
+      case 16: return localizations.romanticMessage16;
+      case 17: return localizations.romanticMessage17;
+      case 18: return localizations.romanticMessage18;
+      case 19: return localizations.romanticMessage19;
+      case 20: return localizations.romanticMessage20;
+      default: return localizations.romanticMessage1;
+    }
+  }
+
+  String _getMysteriousMessage(int index, AppLocalizations localizations) {
+    switch (index) {
+      case 1: return localizations.mysteriousMessage1;
+      case 2: return localizations.mysteriousMessage2;
+      case 3: return localizations.mysteriousMessage3;
+      case 4: return localizations.mysteriousMessage4;
+      case 5: return localizations.mysteriousMessage5;
+      case 6: return localizations.mysteriousMessage6;
+      case 7: return localizations.mysteriousMessage7;
+      case 8: return localizations.mysteriousMessage8;
+      case 9: return localizations.mysteriousMessage9;
+      case 10: return localizations.mysteriousMessage10;
+      case 11: return localizations.mysteriousMessage11;
+      case 12: return localizations.mysteriousMessage12;
+      case 13: return localizations.mysteriousMessage13;
+      case 14: return localizations.mysteriousMessage14;
+      case 15: return localizations.mysteriousMessage15;
+      case 16: return localizations.mysteriousMessage16;
+      case 17: return localizations.mysteriousMessage17;
+      case 18: return localizations.mysteriousMessage18;
+      case 19: return localizations.mysteriousMessage19;
+      case 20: return localizations.mysteriousMessage20;
+      default: return localizations.mysteriousMessage1;
+    }
+  }
+
+  String _getFunMessage(int index, AppLocalizations localizations) {
+    switch (index) {
+      case 1: return localizations.funMessage1;
+      case 2: return localizations.funMessage2;
+      case 3: return localizations.funMessage3;
+      case 4: return localizations.funMessage4;
+      case 5: return localizations.funMessage5;
+      case 6: return localizations.funMessage6;
+      case 7: return localizations.funMessage7;
+      case 8: return localizations.funMessage8;
+      case 9: return localizations.funMessage9;
+      case 10: return localizations.funMessage10;
+      case 11: return localizations.funMessage11;
+      case 12: return localizations.funMessage12;
+      case 13: return localizations.funMessage13;
+      case 14: return localizations.funMessage14;
+      case 15: return localizations.funMessage15;
+      case 16: return localizations.funMessage16;
+      case 17: return localizations.funMessage17;
+      case 18: return localizations.funMessage18;
+      case 19: return localizations.funMessage19;
+      case 20: return localizations.funMessage20;
+      default: return localizations.funMessage1;
+    }
+  }
+
+  String _getLowCompatibilityMessage(int index, AppLocalizations localizations) {
+    switch (index) {
+      case 1: return localizations.lowCompatibilityMessage1;
+      case 2: return localizations.lowCompatibilityMessage2;
+      case 3: return localizations.lowCompatibilityMessage3;
+      case 4: return localizations.lowCompatibilityMessage4;
+      case 5: return localizations.lowCompatibilityMessage5;
+      case 6: return localizations.lowCompatibilityMessage6;
+      case 7: return localizations.lowCompatibilityMessage7;
+      case 8: return localizations.lowCompatibilityMessage8;
+      case 9: return localizations.lowCompatibilityMessage9;
+      case 10: return localizations.lowCompatibilityMessage10;
+      default: return localizations.lowCompatibilityMessage1;
     }
   }
 
@@ -231,7 +245,7 @@ class CrushService {
     return _emojis[random.nextInt(_emojis.length)];
   }
 
-  Future<CrushResult> generateResult(String userName, String crushName) async {
+  Future<CrushResult> generateResult(String userName, String crushName, AppLocalizations localizations) async {
     // Check if we already have a result for this combination
     final existingResult = await getSavedResult(userName, crushName);
     if (existingResult != null) {
@@ -243,7 +257,7 @@ class CrushService {
 
     // Generate new result
     final percentage = _generateCompatibilityPercentage(userName, crushName);
-    final message = _getRandomMessage(percentage, isCelebrity: isCelebrity);
+    final message = _getRandomMessage(percentage, localizations, isCelebrity: isCelebrity);
     final emoji = _getRandomEmoji();
 
     final result = CrushResult(
@@ -266,6 +280,98 @@ class CrushService {
     await _saveResult(result);
 
     return result;
+  }
+
+  // Método alternativo para cuando AppLocalizations no está disponible
+  Future<CrushResult> generateSimpleResult(String userName, String crushName) async {
+    // Check if we already have a result for this combination
+    final existingResult = await getSavedResult(userName, crushName);
+    if (existingResult != null) {
+      return existingResult;
+    }
+
+    // Check if crush is a celebrity
+    final isCelebrity = _isCelebrity(crushName);
+
+    // Generate new result with default English messages
+    final percentage = _generateCompatibilityPercentage(userName, crushName);
+    final message = _getSimpleMessage(percentage, isCelebrity: isCelebrity);
+    final emoji = _getRandomEmoji();
+
+    final result = CrushResult(
+      userName: userName,
+      crushName: crushName,
+      percentage: percentage,
+      message: message,
+      emoji: emoji,
+      timestamp: DateTime.now(),
+      isCelebrity: isCelebrity,
+    );
+
+    // Update statistics
+    await DailyLoveService.instance.incrementTotalScans();
+    await DailyLoveService.instance.addCompatibilityScore(
+      percentage.toDouble(),
+    );
+
+    // Save result
+    await _saveResult(result);
+
+    return result;
+  }
+
+  // Método para obtener mensajes simples sin localización
+  String _getSimpleMessage(int percentage, {bool isCelebrity = false}) {
+    final random = Random();
+
+    if (isCelebrity) {
+      final messages = [
+        "You have great taste in celebrities! ⭐",
+        "This celebrity crush makes perfect sense! 💫",
+        "Your celebrity match has potential! 🌟",
+        "This is a classic celebrity crush! ✨",
+        "You and this star could be perfect together! 🎬",
+      ];
+      return messages[random.nextInt(messages.length)];
+    }
+
+    if (percentage >= 80) {
+      final messages = [
+        "This could be your perfect match! 💕",
+        "The stars are perfectly aligned! ✨",
+        "You two are meant to be together! 💖",
+        "This is true love material! 💘",
+        "Your hearts beat as one! 💓",
+      ];
+      return messages[random.nextInt(messages.length)];
+    } else if (percentage >= 60) {
+      final messages = [
+        "There's definitely something special here! 💫",
+        "The chemistry is undeniable! ⚡",
+        "This connection has real potential! 🌟",
+        "Your energies complement each other! 💜",
+        "Something beautiful could blossom here! 🌸",
+      ];
+      return messages[random.nextInt(messages.length)];
+    } else if (percentage >= 45) {
+      final messages = [
+        "A fun adventure awaits! 🎉",
+        "This could be an interesting journey! 🚀",
+        "You bring out each other's playful side! 😄",
+        "Great friendship with romantic potential! 💛",
+        "Your connection is full of surprises! 🎈",
+      ];
+      return messages[random.nextInt(messages.length)];
+    } else {
+      final messages = [
+        "Sometimes opposites attract! 🧲",
+        "Friendship might be the perfect foundation! 👫",
+        "Every connection teaches us something! 📚",
+        "The universe has interesting plans! 🌌",
+        "Compatibility comes in many forms! 💫",
+      ];
+      return messages[random.nextInt(messages.length)];
+    }
   }
 
   Future<void> _saveResult(CrushResult result) async {

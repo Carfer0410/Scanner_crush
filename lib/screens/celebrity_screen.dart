@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../widgets/custom_widgets.dart';
 import '../services/theme_service.dart';
 import '../services/crush_service.dart';
-import '../generated/l10n/app_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'result_screen.dart';
 
 class CelebrityScreen extends StatefulWidget {
@@ -46,10 +46,20 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
 
   Future<void> _selectCelebrity(String celebrity) async {
     try {
-      final result = await CrushService.instance.generateResult(
-        widget.userName,
-        celebrity,
-      );
+      // Get localizations with null safety
+      final localizations = AppLocalizations.of(context);
+      
+      // Generate result with proper null handling
+      final result = localizations != null 
+          ? await CrushService.instance.generateResult(
+              widget.userName,
+              celebrity,
+              localizations,
+            )
+          : await CrushService.instance.generateSimpleResult(
+              widget.userName,
+              celebrity,
+            );
 
       if (mounted) {
         Navigator.pushReplacement(
@@ -57,7 +67,7 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
           PageRouteBuilder(
             pageBuilder:
                 (context, animation, secondaryAnimation) =>
-                    ResultScreen(result: result),
+                    ResultScreen(result: result, fromScreen: 'celebrity'),
             transitionsBuilder: (
               context,
               animation,
@@ -73,7 +83,7 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context)!.errorGeneratingResult),
+            content: Text(AppLocalizations.of(context)?.errorGeneratingResult ?? 'Error generating result'),
             backgroundColor: Colors.red,
           ),
         );
@@ -103,7 +113,7 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
                     ),
                     const Spacer(),
                     Text(
-                      AppLocalizations.of(context)!.celebrityCrush,
+                      AppLocalizations.of(context)?.celebrityCrush ?? 'Celebrity Crush',
                       style: GoogleFonts.poppins(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -130,7 +140,7 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
                     ),
                     const SizedBox(height: 20),
                     Text(
-                          AppLocalizations.of(context)!.helloCelebrity(widget.userName),
+                          AppLocalizations.of(context)?.helloCelebrity(widget.userName) ?? 'Hello ${widget.userName}!',
                           style: GoogleFonts.poppins(
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
@@ -146,7 +156,7 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
                         ),
                     const SizedBox(height: 10),
                     Text(
-                          AppLocalizations.of(context)!.chooseCelebrityDescription,
+                          AppLocalizations.of(context)?.chooseCelebrityDescription ?? 'Choose your favorite celebrity to see your compatibility!',
                           style: GoogleFonts.poppins(
                             fontSize: 16,
                             color: ThemeService.instance.textColor.withOpacity(
@@ -174,7 +184,7 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
                       controller: _searchController,
                       onChanged: _filterCelebrities,
                       decoration: InputDecoration(
-                        hintText: AppLocalizations.of(context)!.searchCelebrity,
+                        hintText: AppLocalizations.of(context)?.searchCelebrity ?? 'Search celebrity...',
                         hintStyle: GoogleFonts.poppins(color: Colors.grey[600]),
                         prefixIcon: const Icon(
                           Icons.search,

@@ -10,12 +10,14 @@ import '../services/audio_service.dart';
 import '../models/crush_result.dart';
 import '../generated/l10n/app_localizations.dart';
 import 'form_screen.dart';
+import 'celebrity_screen.dart';
 import 'premium_screen.dart';
 
 class ResultScreen extends StatefulWidget {
   final CrushResult result;
+  final String? fromScreen; // 'celebrity' or null for personal
 
-  const ResultScreen({super.key, required this.result});
+  const ResultScreen({super.key, required this.result, this.fromScreen});
 
   @override
   State<ResultScreen> createState() => _ResultScreenState();
@@ -122,11 +124,21 @@ class _ResultScreenState extends State<ResultScreen>
   }
 
   void _navigateToForm() {
+    Widget destinationScreen;
+    
+    if (widget.fromScreen == 'celebrity') {
+      // Return to celebrity screen with the user name
+      destinationScreen = CelebrityScreen(userName: widget.result.userName);
+    } else {
+      // Return to personal form screen
+      destinationScreen = const FormScreen();
+    }
+    
     Navigator.pushReplacement(
       context,
       PageRouteBuilder(
         pageBuilder:
-            (context, animation, secondaryAnimation) => const FormScreen(),
+            (context, animation, secondaryAnimation) => destinationScreen,
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return FadeTransition(
             opacity: animation,
