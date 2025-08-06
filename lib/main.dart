@@ -11,6 +11,8 @@ import 'services/locale_service.dart';
 import 'services/streak_service.dart';
 import 'services/crush_service.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'screens/onboarding_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,11 +37,21 @@ void main() async {
   // Fix any invalid compatibility results from previous versions
   await CrushService.instance.fixInvalidResults();
 
-  runApp(const ScannerCrushApp());
+  // Compute whether to show onboarding, defaulting to false on error
+  bool showOnboarding;
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final bool seen = prefs.getBool('seenOnboarding') ?? false;
+    showOnboarding = !seen;
+  } catch (_) {
+    showOnboarding = false;
+  }
+  runApp(ScannerCrushApp(showOnboarding: showOnboarding));
 }
 
 class ScannerCrushApp extends StatefulWidget {
-  const ScannerCrushApp({super.key});
+  final bool showOnboarding;
+  const ScannerCrushApp({super.key, required this.showOnboarding});
 
   @override
   State<ScannerCrushApp> createState() => _ScannerCrushAppState();
@@ -74,7 +86,11 @@ class _ScannerCrushAppState extends State<ScannerCrushApp> {
               ThemeService.instance.isDarkMode
                   ? ThemeMode.dark
                   : ThemeMode.light,
-          home: const WelcomeScreen(),
+          // Show onboarding or welcome
+          home:
+              widget.showOnboarding
+                  ? const OnboardingScreen()
+                  : const WelcomeScreen(),
         );
       },
     );
@@ -92,6 +108,11 @@ class _ScannerCrushAppState extends State<ScannerCrushApp> {
         titleLarge: TextStyle(color: ThemeService.instance.textColor),
         titleMedium: TextStyle(color: ThemeService.instance.textColor),
         titleSmall: TextStyle(color: ThemeService.instance.textColor),
+      ),
+      // Consistent iconography
+      iconTheme: IconThemeData(
+        color: ThemeService.instance.primaryColor,
+        size: 24,
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -164,6 +185,11 @@ class _ScannerCrushAppState extends State<ScannerCrushApp> {
         titleLarge: TextStyle(color: ThemeService.instance.textColor),
         titleMedium: TextStyle(color: ThemeService.instance.textColor),
         titleSmall: TextStyle(color: ThemeService.instance.textColor),
+      ),
+      // Consistent iconography
+      iconTheme: IconThemeData(
+        color: ThemeService.instance.primaryColor,
+        size: 24,
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
