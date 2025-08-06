@@ -74,7 +74,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         _buildSettingsItem(
                           icon: Icons.history,
                           title: AppLocalizations.of(context)!.history,
-                          subtitle: 'Ver todos tus escaneos anteriores',
+                          subtitle: AppLocalizations.of(context)?.crushHistoryDescription ?? 'Ver todos tus escaneos anteriores',
                           onTap: () => _navigateToHistory(),
                         ),
                         _buildSettingsItem(
@@ -88,9 +88,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ThemeService.instance.isDarkMode
                                   ? Icons.light_mode
                                   : Icons.dark_mode,
-                          title:
-                              'Tema ${ThemeService.instance.isDarkMode ? "Claro" : "Oscuro"}',
-                          subtitle: 'Cambiar el tema de la aplicación',
+                          title: ThemeService.instance.isDarkMode 
+                              ? (AppLocalizations.of(context)?.darkMode ?? 'Modo Oscuro').replaceAll('Mode', 'Theme').replaceAll('Modo', 'Tema')
+                              : (AppLocalizations.of(context)?.darkMode ?? 'Modo Oscuro').replaceAll('Dark', 'Light').replaceAll('Mode', 'Theme').replaceAll('Modo Oscuro', 'Tema Claro').replaceAll('Oscuro', 'Claro'),
+                          subtitle: AppLocalizations.of(context)?.specialThemesDescription ?? 'Cambiar el tema de la aplicación',
                           onTap: () => _toggleTheme(),
                         ),
                       ],
@@ -136,13 +137,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     const SizedBox(height: 30),
 
                     _buildSettingsSection(
-                      title: 'Premium',
+                      title: AppLocalizations.of(context)?.premium ?? 'Premium',
                       items: [
                         if (!AdService.instance.isPremiumUser)
                           _buildSettingsItem(
                             icon: Icons.star,
-                            title: 'Actualizar a Premium',
-                            subtitle: 'Desbloquea todas las funciones',
+                            title: AppLocalizations.of(context)?.upgradeSettings ?? 'Actualizar a Premium',
+                            subtitle: AppLocalizations.of(context)?.unlockAllFeaturesSettings ?? 'Desbloquea todas las funciones',
                             onTap: () => _navigateToPremium(),
                             trailing: Container(
                               padding: const EdgeInsets.symmetric(
@@ -169,24 +170,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     const SizedBox(height: 30),
 
                     _buildSettingsSection(
-                      title: 'Soporte',
+                      title: (LocaleService.instance.currentLocale.languageCode == 'en') ? 'Support' : 'Soporte',
                       items: [
                         _buildSettingsItem(
                           icon: Icons.help_outline,
-                          title: 'Ayuda y Preguntas',
-                          subtitle: 'Obtén ayuda sobre cómo usar la app',
+                          title: (LocaleService.instance.currentLocale.languageCode == 'en') ? 'Help & Questions' : 'Ayuda y Preguntas',
+                          subtitle: (LocaleService.instance.currentLocale.languageCode == 'en') ? 'Get help on how to use the app' : 'Obtén ayuda sobre cómo usar la app',
                           onTap: () => _showHelpDialog(),
                         ),
                         _buildSettingsItem(
                           icon: Icons.info_outline,
-                          title: 'Acerca de',
-                          subtitle: 'Información sobre la aplicación',
+                          title: (LocaleService.instance.currentLocale.languageCode == 'en') ? 'About' : 'Acerca de',
+                          subtitle: (LocaleService.instance.currentLocale.languageCode == 'en') ? 'Information about the application' : 'Información sobre la aplicación',
                           onTap: () => _showAboutDialog(),
                         ),
                         _buildSettingsItem(
                           icon: Icons.privacy_tip_outlined,
-                          title: 'Privacidad',
-                          subtitle: 'Política de privacidad y términos',
+                          title: (LocaleService.instance.currentLocale.languageCode == 'en') ? 'Privacy' : 'Privacidad',
+                          subtitle: (LocaleService.instance.currentLocale.languageCode == 'en') ? 'Privacy policy and terms' : 'Política de privacidad y términos',
                           onTap: () => _showPrivacyDialog(),
                         ),
                       ],
@@ -197,7 +198,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     // App version
                     Center(
                       child: Text(
-                        'Escáner de Crush v1.0.0\nHecho con 💕 para el amor',
+                        (LocaleService.instance.currentLocale.languageCode == 'en') 
+                          ? 'Crush Scanner v1.0.0\nMade with 💕 for love'
+                          : 'Escáner de Crush v1.0.0\nHecho con 💕 para el amor',
                         style: GoogleFonts.poppins(
                           fontSize: 12,
                           color: ThemeService.instance.textColor.withOpacity(
@@ -536,23 +539,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
               borderRadius: BorderRadius.circular(20),
             ),
             title: Text(
-              '💕 Ayuda',
+              (LocaleService.instance.currentLocale.languageCode == 'en') ? '💕 Help' : '💕 Ayuda',
               style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
             ),
             content: Text(
-              'Escáner de Crush es una app divertida que calcula la compatibilidad entre dos personas basándose en sus nombres.\n\n'
-              '• Ingresa tu nombre y el de tu crush\n'
-              '• Presiona "Escanear Amor"\n'
-              '• Descubre tu compatibilidad\n'
-              '• Comparte el resultado\n\n'
-              '¡Es solo por diversión! 😄',
+              (LocaleService.instance.currentLocale.languageCode == 'en') 
+                ? 'Crush Scanner is a fun app that calculates compatibility between two people based on their names.\n\n'
+                  '• Enter your name and your crush\'s name\n'
+                  '• Press "Scan Love"\n'
+                  '• Discover your compatibility\n'
+                  '• Share the result\n\n'
+                  'It\'s just for fun! 😄'
+                : 'Escáner de Crush es una app divertida que calcula la compatibilidad entre dos personas basándose en sus nombres.\n\n'
+                  '• Ingresa tu nombre y el de tu crush\n'
+                  '• Presiona "Escanear Amor"\n'
+                  '• Descubre tu compatibilidad\n'
+                  '• Comparte el resultado\n\n'
+                  '¡Es solo por diversión! 😄',
               style: GoogleFonts.poppins(fontSize: 14),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
                 child: Text(
-                  'Entendido',
+                  (LocaleService.instance.currentLocale.languageCode == 'en') ? 'Got it' : 'Entendido',
                   style: GoogleFonts.poppins(
                     fontWeight: FontWeight.bold,
                     color: ThemeService.instance.primaryColor,
@@ -573,21 +583,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
               borderRadius: BorderRadius.circular(20),
             ),
             title: Text(
-              '💘 Acerca de',
+              (LocaleService.instance.currentLocale.languageCode == 'en') ? '💘 About' : '💘 Acerca de',
               style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
             ),
             content: Text(
-              'Escáner de Crush v1.0.0\n\n'
-              'Una aplicación divertida para descubrir la compatibilidad amorosa.\n\n'
-              'Desarrollada con Flutter y mucho amor 💕\n\n'
-              '© 2024 Escáner de Crush',
+              (LocaleService.instance.currentLocale.languageCode == 'en') 
+                ? 'Crush Scanner v1.0.0\n\n'
+                  'A fun app to discover love compatibility.\n\n'
+                  'Developed with Flutter and lots of love 💕\n\n'
+                  '© 2025 Crush Scanner'
+                : 'Escáner de Crush v1.0.0\n\n'
+                  'Una aplicación divertida para descubrir la compatibilidad amorosa.\n\n'
+                  'Desarrollada con Flutter y mucho amor 💕\n\n'
+                  '© 2024 Escáner de Crush',
               style: GoogleFonts.poppins(fontSize: 14),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
                 child: Text(
-                  'Cerrar',
+                  (LocaleService.instance.currentLocale.languageCode == 'en') ? 'Close' : 'Cerrar',
                   style: GoogleFonts.poppins(
                     fontWeight: FontWeight.bold,
                     color: ThemeService.instance.primaryColor,
@@ -608,23 +623,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
               borderRadius: BorderRadius.circular(20),
             ),
             title: Text(
-              '🔒 Privacidad',
+              (LocaleService.instance.currentLocale.languageCode == 'en') ? '🔒 Privacy' : '🔒 Privacidad',
               style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
             ),
             content: Text(
-              'Tu privacidad es importante para nosotros.\n\n'
-              '• Los nombres se almacenan solo localmente\n'
-              '• No compartimos información personal\n'
-              '• Los resultados son generados aleatoriamente\n'
-              '• Puedes borrar tu historial en cualquier momento\n\n'
-              'Esta app es solo para entretenimiento.',
+              (LocaleService.instance.currentLocale.languageCode == 'en')
+                ? 'Your privacy is important to us.\n\n'
+                  '• Names are stored only locally\n'
+                  '• We don\'t share personal information\n'
+                  '• Results are generated randomly\n'
+                  '• You can delete your history anytime\n\n'
+                  'This app is for entertainment only.'
+                : 'Tu privacidad es importante para nosotros.\n\n'
+                  '• Los nombres se almacenan solo localmente\n'
+                  '• No compartimos información personal\n'
+                  '• Los resultados son generados aleatoriamente\n'
+                  '• Puedes borrar tu historial en cualquier momento\n\n'
+                  'Esta app es solo para entretenimiento.',
               style: GoogleFonts.poppins(fontSize: 14),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
                 child: Text(
-                  'Entendido',
+                  (LocaleService.instance.currentLocale.languageCode == 'en') ? 'Got it' : 'Entendido',
                   style: GoogleFonts.poppins(
                     fontWeight: FontWeight.bold,
                     color: ThemeService.instance.primaryColor,

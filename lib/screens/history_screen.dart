@@ -349,7 +349,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 onPressed: () => _shareResult(result),
                 icon: const Icon(Icons.share, size: 18),
                 label: Text(
-                  'Compartir',
+                  AppLocalizations.of(context)?.share ?? 'Compartir',
                   style: GoogleFonts.poppins(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,

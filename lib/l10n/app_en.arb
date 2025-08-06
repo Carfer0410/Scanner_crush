@@ -1033,5 +1033,100 @@
   "lowCompatibilityMessage7": "Maybe you need to get to know each other better 🤔",
   "lowCompatibilityMessage8": "Real love doesn't always follow statistics 📊",
   "lowCompatibilityMessage9": "There's room for something beautiful to grow 🌻",
-  "lowCompatibilityMessage10": "The best romances start as friendship 👫"
+  "lowCompatibilityMessage10": "The best romances start as friendship 👫",
+
+  "changeAppTheme": "Change the app theme",
+  "@changeAppTheme": {
+    "description": "Theme toggle description in settings"
+  },
+  
+  "lightTheme": "Light Theme",
+  "@lightTheme": {
+    "description": "Light theme option"
+  },
+  
+  "darkTheme": "Dark Theme",
+  "@darkTheme": {
+    "description": "Dark theme option"
+  },
+  
+  "youArePremium": "You are Premium!",
+  "@youArePremium": {
+    "description": "Premium user status message"
+  },
+  
+  "enjoyAllFeatures": "Enjoy all features without limits",
+  "@enjoyAllFeatures": {
+    "description": "Premium user benefits description"
+  },
+  
+  "purchaseError": "Purchase error: {error}",
+  "@purchaseError": {
+    "description": "Purchase error message",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "getFullAccess": "Get full access to all special features",
+  "@getFullAccess": {
+    "description": "Premium description text"
+  },
+  
+  "specialOffer": "Special Offer",
+  "@specialOffer": {
+    "description": "Special offer label"
+  },
+  
+  "cancelAnytime": "Cancel anytime",
+  "@cancelAnytime": {
+    "description": "Cancel subscription anytime text"
+  },
+  
+  "support": "Support",
+  "@support": {
+    "description": "Support section title"
+  },
+  
+  "helpAndQuestions": "Help & Questions",
+  "@helpAndQuestions": {
+    "description": "Help and questions menu item"
+  },
+  
+  "getHelpOnApp": "Get help on how to use the app",
+  "@getHelpOnApp": {
+    "description": "Help subtitle description"
+  },
+  
+  "helpDialogTitle": "💕 Help",
+  "@helpDialogTitle": {
+    "description": "Help dialog title"
+  },
+  
+  "helpDialogContent": "Crush Scanner is a fun app that calculates compatibility between two people based on their names.\\n\\n• Enter your name and your crush's name\\n• Press \\\"Scan Love\\\"\\n• Discover your compatibility\\n• Share the result\\n\\nIt's just for fun! 😄",
+  "@helpDialogContent": {
+    "description": "Help dialog content text"
+  },
+  
+  "understood": "Got it",
+  "@understood": {
+    "description": "Understood button text"
+  },
+  
+  "aboutDialogTitle": "💘 About",
+  "@aboutDialogTitle": {
+    "description": "About dialog title"
+  },
+  
+  "aboutDialogContent": "Crush Scanner v1.0.0\\n\\nA fun application to discover love compatibility.\\n\\nDeveloped with Flutter and lots of love 💕\\n\\n© 2025 Crush Scanner",
+  "@aboutDialogContent": {
+    "description": "About dialog content text"
+  },
+  
+  "close": "Close",
+  "@close": {
+    "description": "Close button text"
+  }
 }

@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../widgets/custom_widgets.dart';
 import '../services/theme_service.dart';
 import '../services/ad_service.dart';
+import '../services/locale_service.dart';
 import '../generated/l10n/app_localizations.dart';
 
 class PremiumScreen extends StatefulWidget {
@@ -115,7 +116,9 @@ class _PremiumScreenState extends State<PremiumScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error en la compra: ${e.toString()}'),
+            content: Text((LocaleService.instance.currentLocale.languageCode == 'en') 
+                ? 'Purchase error: ${e.toString()}' 
+                : 'Error en la compra: ${e.toString()}'),
             backgroundColor: Colors.red,
           ),
         );
@@ -253,7 +256,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                       const SizedBox(height: 16),
 
                       Text(
-                        'Obtén acceso completo a todas las funciones especiales',
+                        AppLocalizations.of(context)?.unlockAllFeatures ?? 'Obtén acceso completo a todas las funciones especiales',
                         style: GoogleFonts.poppins(
                           fontSize: 16,
                           color: ThemeService.instance.subtitleColor,
@@ -349,7 +352,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                         child: Column(
                           children: [
                             Text(
-                              'Oferta Especial',
+                              (LocaleService.instance.currentLocale.languageCode == 'en') ? 'Special Offer' : 'Oferta Especial',
                               style: GoogleFonts.poppins(
                                 fontSize: 16,
                                 color: Colors.white.withOpacity(0.8),
@@ -379,7 +382,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Cancela cuando quieras',
+                              (LocaleService.instance.currentLocale.languageCode == 'en') ? 'Cancel anytime' : 'Cancela cuando quieras',
                               style: GoogleFonts.poppins(
                                 fontSize: 14,
                                 color: Colors.white.withOpacity(0.7),

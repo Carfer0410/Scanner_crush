@@ -302,5 +302,26 @@
   "lowCompatibilityMessage7": "Tal vez necesitan conocerse mejor 🤔",
   "lowCompatibilityMessage8": "El amor real no siempre sigue las estadísticas 📊",
   "lowCompatibilityMessage9": "Hay espacio para que algo hermoso crezca 🌻",
-  "lowCompatibilityMessage10": "Los mejores romances empiezan como amistad 👫"
+  "lowCompatibilityMessage10": "Los mejores romances empiezan como amistad 👫",
+  
+  "lightTheme": "Tema Claro",
+  "darkTheme": "Tema Oscuro",
+  
+  "youArePremium": "¡Eres Premium!",
+  "enjoyAllFeatures": "Disfruta de todas las funciones sin límites",
+  
+  "purchaseError": "Error en la compra: {error}",
+  "getFullAccess": "Obtén acceso completo a todas las funciones especiales",
+  "specialOffer": "Oferta Especial",
+  "cancelAnytime": "Cancela cuando quieras",
+  
+  "support": "Soporte",
+  "helpAndQuestions": "Ayuda y Preguntas",
+  "getHelpOnApp": "Obtén ayuda sobre cómo usar la app",
+  "helpDialogTitle": "💕 Ayuda",
+  "helpDialogContent": "Escáner de Crush es una app divertida que calcula la compatibilidad entre dos personas basándose en sus nombres.\\n\\n• Ingresa tu nombre y el de tu crush\\n• Presiona \\\"Escanear Amor\\\"\\n• Descubre tu compatibilidad\\n• Comparte el resultado\\n\\n¡Es solo por diversión! 😄",
+  "understood": "Entendido",
+  "aboutDialogTitle": "💘 Acerca de", 
+  "aboutDialogContent": "Escáner de Crush v1.0.0\\n\\nUna aplicación divertida para descubrir la compatibilidad amorosa.\\n\\nDesarrollada con Flutter y mucho amor 💕\\n\\n© 2024 Escáner de Crush",
+  "close": "Cerrar"
 }
