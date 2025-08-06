@@ -93,7 +93,7 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
 
                 Expanded(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
                     child: Column(
                       children: [
                         const SizedBox(height: 40),
@@ -178,9 +178,6 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
 
                         // Info card
                         Container(
-                              margin: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                              ),
                               padding: const EdgeInsets.all(20),
                               decoration: BoxDecoration(
                                 color: ThemeService.instance.cardColor
@@ -228,9 +225,6 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
 
                         // Popular celebrities preview
                         Container(
-                              margin: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                              ),
                               padding: const EdgeInsets.all(20),
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(

@@ -323,5 +323,16 @@
   "understood": "Entendido",
   "aboutDialogTitle": "💘 Acerca de", 
   "aboutDialogContent": "Escáner de Crush v1.0.0\\n\\nUna aplicación divertida para descubrir la compatibilidad amorosa.\\n\\nDesarrollada con Flutter y mucho amor 💕\\n\\n© 2024 Escáner de Crush",
-  "close": "Cerrar"
+  "close": "Cerrar",
+  "streakTitle": "Racha Diaria",
+  "currentStreak": "Racha Actual",
+  "bestStreak": "Mejor Racha",
+  "totalScans": "Escaneos Totales",
+  "daysStreak": "{count, plural, =0{0 días} =1{1 día} other{{count} días}}",
+  "streakMaintain": "¡No rompas tu racha!",
+  "streakAtRisk": "¡Racha en riesgo! Escanea ahora para mantenerla 🔥",
+  "firstScanStreak": "🎉 ¡Bienvenido! ¡Tu aventura de amor comienza ahora!",
+  "streakBroken": "💔 Racha rota, ¡pero regresaste! Nueva racha iniciada",
+  "newStreakRecord": "🏆 ¡NUEVO RÉCORD! ¡{days} días de racha! ¡Eres imparable!",
+  "streakContinues": "🔥 ¡La racha continúa! ¡{days} días escaneando amor!"
 }

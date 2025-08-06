@@ -94,8 +94,12 @@ class CrushService {
     }
 
     // Ensure percentage is between 30-100 for more optimistic results
-    final percentage = 30 + (hash.abs() % 71);
-    return percentage;
+    // Use absolute value and proper modulo to prevent overflow
+    final positiveHash = hash.abs();
+    final percentage = 30 + (positiveHash % 71); // 71 = 100 - 30 + 1
+    
+    // Additional safety check to ensure we're in valid range
+    return percentage.clamp(30, 100);
   }
 
   String _getRandomMessage(int percentage, AppLocalizations localizations, {bool isCelebrity = false}) {
@@ -404,13 +408,87 @@ class CrushService {
     for (final key in keys) {
       final jsonString = prefs.getString(key);
       if (jsonString != null) {
-        final json = jsonDecode(jsonString);
-        results.add(CrushResult.fromJson(json));
+        try {
+          final json = jsonDecode(jsonString);
+          var result = CrushResult.fromJson(json);
+          
+          // Fix any invalid percentages (outside 30-100 range)
+          if (result.percentage < 30 || result.percentage > 100) {
+            // Recalculate with fixed algorithm
+            final correctedPercentage = _generateCompatibilityPercentage(
+              result.userName, 
+              result.crushName
+            );
+            
+            // Create corrected result
+            result = CrushResult(
+              userName: result.userName,
+              crushName: result.crushName,
+              percentage: correctedPercentage,
+              message: result.message,
+              emoji: result.emoji,
+              timestamp: result.timestamp,
+              isCelebrity: result.isCelebrity,
+            );
+            
+            // Save corrected result
+            await _saveResult(result);
+          }
+          
+          results.add(result);
+        } catch (e) {
+          // Skip corrupted results
+          continue;
+        }
       }
     }
 
     // Sort by timestamp (newest first)
     results.sort((a, b) => b.timestamp.compareTo(a.timestamp));
     return results;
+  }
+
+  /// Clean up any invalid results with percentages outside valid range
+  /// Limpiar resultados inválidos con porcentajes fuera del rango válido
+  Future<void> fixInvalidResults() async {
+    final prefs = await SharedPreferences.getInstance();
+    final keys =
+        prefs.getKeys().where((key) => key.startsWith('result_')).toList();
+
+    for (final key in keys) {
+      final jsonString = prefs.getString(key);
+      if (jsonString != null) {
+        try {
+          final json = jsonDecode(jsonString);
+          final result = CrushResult.fromJson(json);
+          
+          // Check if percentage is invalid
+          if (result.percentage < 30 || result.percentage > 100) {
+            // Recalculate with fixed algorithm
+            final correctedPercentage = _generateCompatibilityPercentage(
+              result.userName, 
+              result.crushName
+            );
+            
+            // Create corrected result
+            final correctedResult = CrushResult(
+              userName: result.userName,
+              crushName: result.crushName,
+              percentage: correctedPercentage,
+              message: result.message,
+              emoji: result.emoji,
+              timestamp: result.timestamp,
+              isCelebrity: result.isCelebrity,
+            );
+            
+            // Save corrected result
+            await _saveResult(correctedResult);
+          }
+        } catch (e) {
+          // Remove corrupted results
+          await prefs.remove(key);
+        }
+      }
+    }
   }
 }

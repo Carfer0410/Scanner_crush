@@ -17,7 +17,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get startScan => 'Start Scan';
 
   @override
-  String get celebrityScan => 'Celebrity Scan';
+  String get celebrityScan => 'Star Crush';
 
   @override
   String get dailyLove => 'Daily Love';

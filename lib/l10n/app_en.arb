@@ -1128,5 +1128,75 @@
   "close": "Close",
   "@close": {
     "description": "Close button text"
+  },
+
+  "streakTitle": "Daily Streak",
+  "@streakTitle": {
+    "description": "Daily streak title"
+  },
+  
+  "currentStreak": "Current Streak",
+  "@currentStreak": {
+    "description": "Current streak label"
+  },
+  
+  "bestStreak": "Best Streak",
+  "@bestStreak": {
+    "description": "Best streak label"
+  },
+  
+  "totalScans": "Total Scans",
+  "@totalScans": {
+    "description": "Total scans label"
+  },
+  
+  "daysStreak": "{count, plural, =0{0 days} =1{1 day} other{{count} days}}",
+  "@daysStreak": {
+    "description": "Days in streak",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  
+  "streakMaintain": "Don't break your streak!",
+  "@streakMaintain": {
+    "description": "Streak maintenance message"
+  },
+  
+  "streakAtRisk": "Streak at risk! Scan now to maintain it 🔥",
+  "@streakAtRisk": {
+    "description": "Streak at risk warning"
+  },
+  
+  "firstScanStreak": "🎉 Welcome! Your love journey begins now!",
+  "@firstScanStreak": {
+    "description": "First scan streak message"
+  },
+  
+  "streakBroken": "💔 Streak broken, but you're back! New streak started",
+  "@streakBroken": {
+    "description": "Streak broken message"
+  },
+  
+  "newStreakRecord": "🏆 NEW RECORD! {days} days streak! You're unstoppable!",
+  "@newStreakRecord": {
+    "description": "New streak record message",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  
+  "streakContinues": "🔥 Streak continues! {days} days of love scanning!",
+  "@streakContinues": {
+    "description": "Streak continues message",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
   }
 }

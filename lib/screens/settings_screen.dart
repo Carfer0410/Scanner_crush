@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/custom_widgets.dart';
 import '../services/theme_service.dart';
 import '../services/ad_service.dart';
 import '../services/audio_service.dart';
 import '../services/locale_service.dart';
+import '../services/daily_love_service.dart';
+import '../services/streak_service.dart';
 import '../generated/l10n/app_localizations.dart';
 import 'premium_screen.dart';
 import 'history_screen.dart';
@@ -164,6 +167,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ),
                             ),
                           ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 30),
+
+                    // Data section
+                    _buildSettingsSection(
+                      title: (LocaleService.instance.currentLocale.languageCode == 'en') ? 'Data' : 'Datos',
+                      items: [
+                        _buildSettingsItem(
+                          icon: Icons.delete_forever,
+                          title: (LocaleService.instance.currentLocale.languageCode == 'en') ? 'Clear All Data' : 'Eliminar Todos los Datos',
+                          subtitle: (LocaleService.instance.currentLocale.languageCode == 'en') ? 'Delete statistics, history and streaks' : 'Eliminar estadísticas, historial y rachas',
+                          onTap: () => _showClearDataDialog(),
+                          trailing: Icon(
+                            Icons.warning,
+                            color: Colors.red,
+                            size: 20,
+                          ),
+                        ),
                       ],
                     ),
 
@@ -656,5 +679,157 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ],
           ),
     );
+  }
+
+  // Method to show clear data confirmation dialog
+  void _showClearDataDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          (LocaleService.instance.currentLocale.languageCode == 'en') 
+              ? 'Clear All Data' 
+              : '¿Eliminar Todos los Datos?',
+          style: GoogleFonts.poppins(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: ThemeService.instance.textColor,
+          ),
+        ),
+        content: Text(
+          (LocaleService.instance.currentLocale.languageCode == 'en')
+              ? 'Are you sure you want to delete all your statistics, history, and streaks? This action cannot be undone.'
+              : '¿Estás seguro de que quieres eliminar todas tus estadísticas, historial y rachas? Esta acción no se puede deshacer.',
+          style: GoogleFonts.poppins(fontSize: 14),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              (LocaleService.instance.currentLocale.languageCode == 'en') ? 'Cancel' : 'Cancelar',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w500,
+                color: ThemeService.instance.textColor.withOpacity(0.7),
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () => _clearAllData(),
+            style: TextButton.styleFrom(
+              backgroundColor: Colors.red.withOpacity(0.1),
+            ),
+            child: Text(
+              (LocaleService.instance.currentLocale.languageCode == 'en') ? 'Delete All' : 'Eliminar Todo',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.bold,
+                color: Colors.red,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Method to clear all user data
+  Future<void> _clearAllData() async {
+    try {
+      // Close dialog first
+      Navigator.pop(context);
+      
+      // Show loading indicator
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+
+      // Clear SharedPreferences data
+      final prefs = await SharedPreferences.getInstance();
+      
+      // Keys to clear (based on all services)
+      final keysToRemove = [
+        // Streak service keys
+        'love_streak',
+        'last_used_date',
+        'total_scans',
+        'best_streak',
+        
+        // Daily love service keys (already covered by love_streak and last_used_date)
+        
+        // History keys (assuming they follow a pattern)
+        'crush_history',
+        'scan_history',
+        
+        // Any other statistics keys
+        'total_compatibility_scans',
+        'total_celebrity_scans',
+        'favorite_crush',
+        'highest_compatibility',
+        'last_scan_date',
+      ];
+
+      // Remove all specified keys
+      for (String key in keysToRemove) {
+        await prefs.remove(key);
+      }
+
+      // Also remove any keys that start with common prefixes
+      final allKeys = prefs.getKeys();
+      final keysToRemoveByPrefix = allKeys.where((key) => 
+        key.startsWith('scan_') || 
+        key.startsWith('crush_') || 
+        key.startsWith('history_') ||
+        key.startsWith('stat_')
+      ).toList();
+
+      for (String key in keysToRemoveByPrefix) {
+        await prefs.remove(key);
+      }
+
+      // Reinitialize services to reflect the cleared data
+      await DailyLoveService.instance.initialize();
+      await StreakService.instance.resetAllData(); // Usar resetAllData() que incluye notifyListeners()
+
+      // Close loading dialog
+      if (mounted) Navigator.pop(context);
+
+      // Show success message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              (LocaleService.instance.currentLocale.languageCode == 'en') 
+                  ? 'All data has been successfully deleted'
+                  : 'Todos los datos han sido eliminados exitosamente',
+              style: GoogleFonts.poppins(),
+            ),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      // Close loading dialog if still open
+      if (mounted) Navigator.pop(context);
+
+      // Show error message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              (LocaleService.instance.currentLocale.languageCode == 'en') 
+                  ? 'Error deleting data: $e'
+                  : 'Error al eliminar datos: $e',
+              style: GoogleFonts.poppins(),
+            ),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
   }
 }

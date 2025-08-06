@@ -8,6 +8,8 @@ import 'services/theme_service.dart';
 import 'services/daily_love_service.dart';
 import 'services/audio_service.dart';
 import 'services/locale_service.dart';
+import 'services/streak_service.dart';
+import 'services/crush_service.dart';
 import 'generated/l10n/app_localizations.dart';
 
 void main() async {
@@ -28,6 +30,11 @@ void main() async {
   await DailyLoveService.instance.initialize();
   await AudioService.instance.initialize();
   await LocaleService.instance.initialize();
+  await StreakService.instance.initialize();
+  
+  // Fix any invalid compatibility results from previous versions
+  await CrushService.instance.fixInvalidResults();
+  
   runApp(const ScannerCrushApp());
 }
 
@@ -45,6 +52,7 @@ class _ScannerCrushAppState extends State<ScannerCrushApp> {
       listenable: Listenable.merge([
         ThemeService.instance,
         LocaleService.instance,
+        StreakService.instance,
       ]),
       builder: (context, child) {
         return MaterialApp(

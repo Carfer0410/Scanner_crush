@@ -6,6 +6,8 @@ import '../widgets/custom_widgets.dart';
 import '../services/theme_service.dart';
 import '../services/crush_service.dart';
 import '../services/audio_service.dart';
+import '../services/streak_service.dart';
+import '../services/locale_service.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'result_screen.dart';
 
@@ -64,6 +66,50 @@ class _FormScreenState extends State<FormScreen> {
               _userNameController.text.trim(),
               _crushNameController.text.trim(),
             );
+
+      // 🔥 Update streak after successful scan
+      final streakUpdate = await StreakService.instance.recordScan();
+      
+      // Show streak feedback message
+      if (mounted && !streakUpdate.alreadyScannedToday) {
+        final message = streakUpdate.getFeedbackMessage(
+          LocaleService.instance.currentLocale.languageCode
+        );
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(
+                  streakUpdate.isNewRecord ? Icons.emoji_events : Icons.local_fire_department,
+                  color: Colors.white,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    message,
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: streakUpdate.isNewRecord 
+              ? Colors.amber.shade600 
+              : streakUpdate.streakBroken
+                ? Colors.orange.shade600
+                : Colors.green.shade600,
+            duration: const Duration(seconds: 3),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+      }
 
       if (mounted) {
         Navigator.push(

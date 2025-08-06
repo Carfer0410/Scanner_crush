@@ -122,10 +122,6 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
 
   Widget _buildMainContent() {
     final horoscope = DailyLoveService.instance.getTodayLoveHoroscopeLocalized(context);
-    final streak = DailyLoveService.instance.getCurrentStreak();
-    final totalScans = DailyLoveService.instance.getTotalScans();
-    final avgCompatibility =
-        DailyLoveService.instance.getAverageCompatibility();
     final personalizedTip = DailyLoveService.instance.getPersonalizedTipLocalized(context);
     final achievements = DailyLoveService.instance.getUnlockedAchievementsLocalized(context);
 
@@ -163,11 +159,6 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
 
           // Horóscopo del día
           _buildDailyHoroscope(horoscope),
-
-          const SizedBox(height: 30),
-
-          // Estadísticas rápidas
-          _buildQuickStats(streak, totalScans, avgCompatibility),
 
           const SizedBox(height: 30),
 
@@ -265,87 +256,6 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
         ],
       ),
     ).animate().fadeIn(duration: 800.ms).slideY(begin: 0.3, duration: 800.ms);
-  }
-
-  Widget _buildQuickStats(int streak, int totalScans, double avgCompatibility) {
-    return Row(
-      children: [
-        Expanded(
-          child: _buildStatCard(
-            '🔥',
-            streak.toString(),
-            AppLocalizations.of(context)!.consecutiveDays,
-            Colors.deepOrange,
-          ),
-        ),
-        const SizedBox(width: 15),
-        Expanded(
-          child: _buildStatCard(
-            '💘',
-            totalScans.toString(),
-            AppLocalizations.of(context)!.totalScans,
-            Colors.pink,
-          ),
-        ),
-        const SizedBox(width: 15),
-        Expanded(
-          child: _buildStatCard(
-            '⭐',
-            '${avgCompatibility.toInt()}%',
-            AppLocalizations.of(context)!.average,
-            Colors.purple,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStatCard(String emoji, String value, String label, Color color) {
-    return Container(
-          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [color, color.withOpacity(0.8)],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: color.withOpacity(0.3),
-                blurRadius: 10,
-                offset: const Offset(0, 5),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(emoji, style: const TextStyle(fontSize: 24)),
-              const SizedBox(height: 8),
-              Text(
-                value,
-                style: GoogleFonts.poppins(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                label,
-                style: GoogleFonts.poppins(
-                  fontSize: 11,
-                  color: Colors.white.withOpacity(0.9),
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-        )
-        .animate()
-        .fadeIn(delay: 200.ms, duration: 600.ms)
-        .scale(delay: 200.ms, duration: 600.ms);
   }
 
   Widget _buildPersonalizedTip(String tip) {
