@@ -15,10 +15,6 @@ class AdService {
 
   bool get isPremiumUser => _isPremiumUser;
 
-  void _loadInterstitialAd() {
-    // Placeholder for future ad implementation
-  }
-
   Future<bool> showInterstitialAd() async {
     if (_isPremiumUser) {
       return true; // Allow action without ad for premium users

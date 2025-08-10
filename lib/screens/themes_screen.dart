@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../services/theme_service.dart';
 import '../services/monetization_service.dart';
 import '../services/audio_service.dart';
@@ -38,6 +39,48 @@ class _ThemesScreenState extends State<ThemesScreen>
   void dispose() {
     _animationController.dispose();
     super.dispose();
+  }
+
+  String _getThemeName(BuildContext context, ThemeType themeType) {
+    switch (themeType) {
+      case ThemeType.classic:
+        return AppLocalizations.of(context)?.classicThemeName ?? '💘 Clásico';
+      case ThemeType.sunset:
+        return AppLocalizations.of(context)?.sunsetThemeName ?? '🌅 Atardecer';
+      case ThemeType.ocean:
+        return AppLocalizations.of(context)?.oceanThemeName ?? '🌊 Océano';
+      case ThemeType.forest:
+        return AppLocalizations.of(context)?.forestThemeName ?? '🌲 Bosque';
+      case ThemeType.lavender:
+        return AppLocalizations.of(context)?.lavenderThemeName ?? '💜 Lavanda';
+      case ThemeType.cosmic:
+        return AppLocalizations.of(context)?.cosmicThemeName ?? '🌌 Cósmico';
+      case ThemeType.cherry:
+        return AppLocalizations.of(context)?.cherryThemeName ?? '🌸 Cerezo';
+      case ThemeType.golden:
+        return AppLocalizations.of(context)?.goldenThemeName ?? '✨ Dorado';
+    }
+  }
+
+  String _getThemeDescription(BuildContext context, ThemeType themeType) {
+    switch (themeType) {
+      case ThemeType.classic:
+        return AppLocalizations.of(context)?.classicThemeDescription ?? 'El tema original de amor';
+      case ThemeType.sunset:
+        return AppLocalizations.of(context)?.sunsetThemeDescription ?? 'Cálidos tonos dorados y naranjas';
+      case ThemeType.ocean:
+        return AppLocalizations.of(context)?.oceanThemeDescription ?? 'Profundos azules marinos';
+      case ThemeType.forest:
+        return AppLocalizations.of(context)?.forestThemeDescription ?? 'Verdes naturales y frescos';
+      case ThemeType.lavender:
+        return AppLocalizations.of(context)?.lavenderThemeDescription ?? 'Elegantes púrpuras y violetas';
+      case ThemeType.cosmic:
+        return AppLocalizations.of(context)?.cosmicThemeDescription ?? 'Misterioso espacio profundo';
+      case ThemeType.cherry:
+        return AppLocalizations.of(context)?.cherryThemeDescription ?? 'Elegante rosa sakura japonés';
+      case ThemeType.golden:
+        return AppLocalizations.of(context)?.goldenThemeDescription ?? 'Lujo y elegancia dorada';
+    }
   }
 
   @override
@@ -99,7 +142,7 @@ class _ThemesScreenState extends State<ThemesScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '🎨 Temas Premium',
+                      AppLocalizations.of(context)?.themesTitle ?? '🎨 Temas Premium',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -107,7 +150,7 @@ class _ThemesScreenState extends State<ThemesScreen>
                       ),
                     ),
                     Text(
-                      'Personaliza tu experiencia',
+                      AppLocalizations.of(context)?.customizeExperience ?? 'Personaliza tu experiencia',
                       style: TextStyle(
                         fontSize: 16,
                         color: ThemeService.instance.subtitleColor,
@@ -141,14 +184,14 @@ class _ThemesScreenState extends State<ThemesScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Tema Actual',
+                        AppLocalizations.of(context)?.currentTheme ?? 'Tema Actual',
                         style: TextStyle(
                           fontSize: 14,
                           color: ThemeService.instance.subtitleColor,
                         ),
                       ),
                       Text(
-                        ThemeService.instance.currentAppTheme.name,
+                        _getThemeName(context, ThemeService.instance.currentAppTheme.type),
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -363,7 +406,7 @@ class _ThemesScreenState extends State<ThemesScreen>
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                theme.name,
+                                _getThemeName(context, theme.type),
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
@@ -372,7 +415,7 @@ class _ThemesScreenState extends State<ThemesScreen>
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                theme.description,
+                                _getThemeDescription(context, theme.type),
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: ThemeService.instance.subtitleColor,
@@ -427,7 +470,7 @@ class _ThemesScreenState extends State<ThemesScreen>
                         const Spacer(),
                         if (isSelected)
                           Text(
-                            'ACTIVO',
+                            AppLocalizations.of(context)?.active ?? 'ACTIVO',
                             style: TextStyle(
                               color: theme.primaryColor,
                               fontSize: 12,
@@ -482,7 +525,9 @@ class _ThemesScreenState extends State<ThemesScreen>
       // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Tema ${theme.name} aplicado'),
+          content: Text(
+            'Tema ${_getThemeName(context, theme.type)} aplicado'
+          ),
           backgroundColor: theme.primaryColor,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
@@ -502,14 +547,14 @@ class _ThemesScreenState extends State<ThemesScreen>
           borderRadius: BorderRadius.circular(20),
         ),
         title: Text(
-          '✨ Premium Requerido',
+          AppLocalizations.of(context)?.premiumRequired ?? '✨ Premium Requerido',
           style: TextStyle(
             color: ThemeService.instance.textColor,
             fontWeight: FontWeight.bold,
           ),
         ),
         content: Text(
-          'Este tema está disponible solo para usuarios Premium. ¡Desbloquea todos los temas y más funciones!',
+          AppLocalizations.of(context)?.premiumRequiredMessage ?? 'Este tema está disponible solo para usuarios Premium. ¡Desbloquea todos los temas y más funciones!',
           style: TextStyle(
             color: ThemeService.instance.subtitleColor,
           ),
@@ -520,7 +565,7 @@ class _ThemesScreenState extends State<ThemesScreen>
               Navigator.pop(context);
             },
             child: Text(
-              'Cancelar',
+              AppLocalizations.of(context)?.cancel ?? 'Cancelar',
               style: TextStyle(
                 color: ThemeService.instance.subtitleColor,
               ),
@@ -543,7 +588,7 @@ class _ThemesScreenState extends State<ThemesScreen>
                 borderRadius: BorderRadius.circular(15),
               ),
             ),
-            child: const Text('Ver Premium'),
+            child: Text(AppLocalizations.of(context)?.viewPremium ?? 'Ver Premium'),
           ),
         ],
       ),

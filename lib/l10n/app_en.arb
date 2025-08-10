@@ -1198,5 +1198,378 @@
         "type": "int"
       }
     }
+  },
+
+  "loveAnalytics": "📊 Love Analytics",
+  "@loveAnalytics": {
+    "description": "Love Analytics screen title"
+  },
+
+  "premiumRequired": "✨ Premium Required",
+  "@premiumRequired": {
+    "description": "Premium required dialog title"
+  },
+
+  "premiumRequiredMessage": "This theme is available only for Premium users. Unlock all themes and more features!",
+  "@premiumRequiredMessage": {
+    "description": "Premium required dialog message"
+  },
+
+  "viewPremium": "View Premium",
+  "@viewPremium": {
+    "description": "View premium button"
+  },
+
+  "analyticsPremium": "🔒 Analytics Premium",
+  "@analyticsPremium": {
+    "description": "Analytics premium title"
+  },
+
+  "unlockDeepInsights": "Unlock deep insights about your love life with advanced analytics, predictions and compatibility patterns.",
+  "@unlockDeepInsights": {
+    "description": "Analytics premium description"
+  },
+
+  "upgradeToPremiumAnalytics": "Upgrade to Premium",
+  "@upgradeToPremiumAnalytics": {
+    "description": "Upgrade to premium button for analytics"
+  },
+
+  "analyzingLoveLife": "Analyzing your love life...",
+  "@analyzingLoveLife": {
+    "description": "Analyzing love life loading message"
+  },
+
+  "errorLoadingAnalytics": "Error loading analytics",
+  "@errorLoadingAnalytics": {
+    "description": "Error loading analytics title"
+  },
+
+  "unknownErrorAnalytics": "Unknown error",
+  "@unknownErrorAnalytics": {
+    "description": "Unknown error message for analytics"
+  },
+
+  "retry": "Retry",
+  "@retry": {
+    "description": "Retry button"
+  },
+
+  "statisticsTab": "Statistics",
+  "@statisticsTab": {
+    "description": "Statistics tab label"
+  },
+
+  "insightsTab": "Insights",
+  "@insightsTab": {
+    "description": "Insights tab label"
+  },
+
+  "predictionsTab": "Predictions",
+  "@predictionsTab": {
+    "description": "Predictions tab label"
+  },
+
+  "totalScansAnalytics": "Total Scans",
+  "@totalScansAnalytics": {
+    "description": "Total scans analytics label"
+  },
+
+  "averageAnalytics": "Average",
+  "@averageAnalytics": {
+    "description": "Average analytics label"
+  },
+
+  "bestMatch": "Best Match",
+  "@bestMatch": {
+    "description": "Best match analytics label"
+  },
+
+  "celebritiesAnalytics": "Celebrities",
+  "@celebritiesAnalytics": {
+    "description": "Celebrities analytics label"
+  },
+
+  "compatibilityTrend": "📈 Compatibility Trend (30 days)",
+  "@compatibilityTrend": {
+    "description": "Compatibility trend chart title"
+  },
+
+  "notEnoughDataTrends": "Not enough data to show trends",
+  "@notEnoughDataTrends": {
+    "description": "Not enough data message for trends"
+  },
+
+  "last30Days": "Last 30 days",
+  "@last30Days": {
+    "description": "Last 30 days label"
+  },
+
+  "yourBestMatches": "🏆 Your Best Matches",
+  "@yourBestMatches": {
+    "description": "Your best matches section title"
+  },
+
+  "celebrity": "Celebrity",
+  "@celebrity": {
+    "description": "Celebrity label"
+  },
+
+  "personal": "Personal",
+  "@personal": {
+    "description": "Personal label"
+  },
+
+  "advancedAnalytics": "Advanced Analytics",
+  "@advancedAnalytics": {
+    "description": "Advanced analytics feature title"
+  },
+
+  "analyticsDescription": "Compatibility charts and statistics",
+  "@analyticsDescription": {
+    "description": "Advanced analytics feature description"
+  },
+
+  "cloudBackup": "Cloud Backup",
+  "@cloudBackup": {
+    "description": "Cloud backup feature title"
+  },
+
+  "cloudBackupDescription": "Your data safe and synchronized",
+  "@cloudBackupDescription": {
+    "description": "Cloud backup feature description"
+  },
+
+  "perMonth": "/month",
+  "@perMonth": {
+    "description": "Per month suffix"
+  },
+
+  "monthlyPrice": "$2.99",
+  "@monthlyPrice": {
+    "description": "Monthly price"
+  },
+
+  "unlockFullPotential": "Unlock the full potential of love!",
+  "@unlockFullPotential": {
+    "description": "Premium subtitle"
+  },
+
+  "purchasesRestoredSuccessfully": "Purchases restored successfully",
+  "@purchasesRestoredSuccessfully": {
+    "description": "Purchases restored success message"
+  },
+
+  "defaultPrice": "$4.99/month",
+  "@defaultPrice": {
+    "description": "Default price fallback"
+  },
+
+  "themesTitle": "🎨 Premium Themes",
+  "@themesTitle": {
+    "description": "Themes screen title"
+  },
+
+  "customizeExperience": "Customize your experience",
+  "@customizeExperience": {
+    "description": "Themes screen subtitle"
+  },
+
+  "currentTheme": "Current Theme",
+  "@currentTheme": {
+    "description": "Current theme label"
+  },
+
+  "active": "ACTIVE",
+  "@active": {
+    "description": "Active theme status"
+  },
+
+  "themeApplied": "Theme {themeName} applied",
+  "@themeApplied": {
+    "description": "Theme applied success message",
+    "placeholders": {
+      "themeName": {
+        "type": "String"
+      }
+    }
+  },
+
+  "classicThemeName": "💘 Classic",
+  "@classicThemeName": {
+    "description": "Classic theme name"
+  },
+
+  "classicThemeDescription": "The original love theme",
+  "@classicThemeDescription": {
+    "description": "Classic theme description"
+  },
+
+  "sunsetThemeName": "🌅 Sunset",
+  "@sunsetThemeName": {
+    "description": "Sunset theme name"
+  },
+
+  "sunsetThemeDescription": "Warm golden and orange tones",
+  "@sunsetThemeDescription": {
+    "description": "Sunset theme description"
+  },
+
+  "oceanThemeName": "🌊 Ocean",
+  "@oceanThemeName": {
+    "description": "Ocean theme name"
+  },
+
+  "oceanThemeDescription": "Deep marine blues",
+  "@oceanThemeDescription": {
+    "description": "Ocean theme description"
+  },
+
+  "forestThemeName": "🌲 Forest",
+  "@forestThemeName": {
+    "description": "Forest theme name"
+  },
+
+  "forestThemeDescription": "Natural and fresh greens",
+  "@forestThemeDescription": {
+    "description": "Forest theme description"
+  },
+
+  "lavenderThemeName": "💜 Lavender",
+  "@lavenderThemeName": {
+    "description": "Lavender theme name"
+  },
+
+  "lavenderThemeDescription": "Elegant purples and violets",
+  "@lavenderThemeDescription": {
+    "description": "Lavender theme description"
+  },
+
+  "cosmicThemeName": "🌌 Cosmic",
+  "@cosmicThemeName": {
+    "description": "Cosmic theme name"
+  },
+
+  "cosmicThemeDescription": "Mysterious deep space",
+  "@cosmicThemeDescription": {
+    "description": "Cosmic theme description"
+  },
+
+  "cherryThemeName": "🌸 Cherry",
+  "@cherryThemeName": {
+    "description": "Cherry theme name"
+  },
+
+  "cherryThemeDescription": "Elegant Japanese sakura pink",
+  "@cherryThemeDescription": {
+    "description": "Cherry theme description"
+  },
+
+  "goldenThemeName": "✨ Golden",
+  "@goldenThemeName": {
+    "description": "Golden theme name"
+  },
+
+  "goldenThemeDescription": "Luxury and golden elegance",
+  "@goldenThemeDescription": {
+    "description": "Golden theme description"
+  },
+
+  "scansToday": "Today's scans: {remaining}/{total}",
+  "@scansToday": {
+    "description": "Scans counter for today",
+    "placeholders": {
+      "remaining": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+
+  "scansRemaining": "{count} free scans remaining",
+  "@scansRemaining": {
+    "description": "Remaining scans message",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+
+  "noScansLeft": "No scans left! Watch ads for more",
+  "@noScansLeft": {
+    "description": "No scans left message"
+  },
+
+  "premiumBenefits": "🚀 Unlimited scans • 🚫 No ads • ⭐ Exclusive content",
+  "@premiumBenefits": {
+    "description": "Premium benefits text"
+  },
+
+  "trialPeriod": "🎉 Trial Period!",
+  "@trialPeriod": {
+    "description": "Trial period banner title"
+  },
+
+  "unlimitedScansRemaining": "UNLIMITED scans for {days} more days",
+  "@unlimitedScansRemaining": {
+    "description": "Trial period remaining days message",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+
+  "scansRemainingToday": "{count} scans remaining today",
+  "@scansRemainingToday": {
+    "description": "Scans remaining today message",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+
+  "limitReached": "Limit reached!",
+  "@limitReached": {
+    "description": "Daily limit reached message"
+  },
+
+  "watchAdForMore": "Watch ad for +2 more",
+  "@watchAdForMore": {
+    "description": "Watch ad to get more scans"
+  },
+
+  "upgradeForUnlimited": "Upgrade for unlimited",
+  "@upgradeForUnlimited": {
+    "description": "Upgrade to premium for unlimited scans"
+  },
+
+  "watchAdOrUpgrade": "Watch ad or upgrade for more",
+  "@watchAdOrUpgrade": {
+    "description": "Options when limit is reached"
+  },
+
+  "premiumAnalytics": "Premium Analytics",
+  "@premiumAnalytics": {
+    "description": "Premium Analytics title"
+  },
+
+  "analyzeCompatibilityPatterns": "Analyze your compatibility patterns",
+  "@analyzeCompatibilityPatterns": {
+    "description": "Analytics subtitle"
+  },
+
+  "premiumThemes": "Premium Themes",
+  "@premiumThemes": {
+    "description": "Premium Themes title"
+  },
+
+  "customizeWithThemes": "Customize with 8 unique themes",
+  "@customizeWithThemes": {
+    "description": "Themes subtitle"
   }
 }

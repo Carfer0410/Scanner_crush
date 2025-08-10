@@ -248,18 +248,18 @@ class _ScannerCrushAppState extends State<ScannerCrushApp> {
         ),
       ),
       switchTheme: SwitchThemeData(
-        thumbColor: MaterialStateProperty.resolveWith<Color>((
-          Set<MaterialState> states,
+        thumbColor: WidgetStateProperty.resolveWith<Color>((
+          Set<WidgetState> states,
         ) {
-          if (states.contains(MaterialState.selected)) {
+          if (states.contains(WidgetState.selected)) {
             return ThemeService.instance.primaryColor;
           }
           return ThemeService.instance.subtitleColor;
         }),
-        trackColor: MaterialStateProperty.resolveWith<Color>((
-          Set<MaterialState> states,
+        trackColor: WidgetStateProperty.resolveWith<Color>((
+          Set<WidgetState> states,
         ) {
-          if (states.contains(MaterialState.selected)) {
+          if (states.contains(WidgetState.selected)) {
             return ThemeService.instance.primaryColor.withOpacity(0.5);
           }
           return ThemeService.instance.borderColor;

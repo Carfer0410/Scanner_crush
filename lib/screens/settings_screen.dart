@@ -404,7 +404,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '¡Eres Premium!',
+                  (LocaleService.instance.currentLocale.languageCode == 'en')
+                    ? 'You\'re Premium!'
+                    : '¡Eres Premium!',
                   style: GoogleFonts.poppins(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -412,7 +414,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
                 Text(
-                  'Disfruta de todas las funciones sin límites',
+                  (LocaleService.instance.currentLocale.languageCode == 'en')
+                    ? 'Enjoy all features without limits'
+                    : 'Disfruta de todas las funciones sin límites',
                   style: GoogleFonts.poppins(
                     fontSize: 14,
                     color: Colors.white.withOpacity(0.9),
@@ -479,7 +483,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '✨ Upgrade a Premium',
+                            AppLocalizations.of(context)?.upgradeToPremium ?? '✨ Upgrade to Premium',
                             style: GoogleFonts.poppins(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -487,7 +491,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ),
                           ),
                           Text(
-                            'Desbloquea todo el potencial del amor',
+                            AppLocalizations.of(context)?.unlockFullPotential ?? 'Unlock the full potential of love!',
                             style: GoogleFonts.poppins(
                               fontSize: 14,
                               color: Colors.white.withOpacity(0.9),
@@ -522,7 +526,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Escaneos de hoy: $remainingScans/$totalFreeScans',
+                              (LocaleService.instance.currentLocale.languageCode == 'en')
+                                ? 'Today\'s scans: $remainingScans/$totalFreeScans'
+                                : 'Escaneos de hoy: $remainingScans/$totalFreeScans',
                               style: GoogleFonts.poppins(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
@@ -531,8 +537,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ),
                             Text(
                               remainingScans > 0 
-                                ? 'Quedan $remainingScans escaneos gratis'
-                                : '¡Sin escaneos! Ve anuncios para más',
+                                ? (LocaleService.instance.currentLocale.languageCode == 'en')
+                                  ? '$remainingScans free scans remaining'
+                                  : 'Quedan $remainingScans escaneos gratis'
+                                : (LocaleService.instance.currentLocale.languageCode == 'en')
+                                  ? 'No scans left! Watch ads for more'
+                                  : '¡Sin escaneos! Ve anuncios para más',
                               style: GoogleFonts.poppins(
                                 fontSize: 12,
                                 color: Colors.white.withOpacity(0.8),
@@ -549,7 +559,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 
                 // Premium benefits
                 Text(
-                  '🚀 Escaneos ilimitados • 🚫 Sin anuncios • ⭐ Contenido exclusivo',
+                  (LocaleService.instance.currentLocale.languageCode == 'en')
+                    ? '🚀 Unlimited scans • 🚫 No ads • ⭐ Exclusive content'
+                    : '🚀 Escaneos ilimitados • 🚫 Sin anuncios • ⭐ Contenido exclusivo',
                   style: GoogleFonts.poppins(
                     fontSize: 13,
                     color: Colors.white.withOpacity(0.9),

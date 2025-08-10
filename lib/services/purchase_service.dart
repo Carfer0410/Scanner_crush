@@ -34,7 +34,7 @@ class PurchaseService {
   };
 
   List<ProductDetails> _products = <ProductDetails>[];
-  List<PurchaseDetails> _purchases = <PurchaseDetails>[];
+  final List<PurchaseDetails> _purchases = <PurchaseDetails>[];
   List<String> _notFoundIds = <String>[];
   bool _isInitialized = false;
 

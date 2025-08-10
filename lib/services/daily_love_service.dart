@@ -30,59 +30,6 @@ class DailyLoveService {
     return _prefs!;
   }
 
-  // Lista de horóscopos del amor
-  final List<Map<String, dynamic>> _loveHoroscopes = [
-    {
-      'title': '💘 Conexión Magnética',
-      'message':
-          'Hoy las energías del amor están especialmente fuertes. Es el momento perfecto para descubrir nuevas conexiones.',
-      'advice': 'Mantén tu corazón abierto a las sorpresas del amor.',
-      'color': 0xFFE91E63,
-    },
-    {
-      'title': '✨ Día de Revelaciones',
-      'message':
-          'Los secretos del corazón están listos para ser revelados. Alguien especial podría confesarte algo importante.',
-      'advice': 'Presta atención a las señales sutiles de quien te rodea.',
-      'color': 0xFF9C27B0,
-    },
-    {
-      'title': '🌹 Romance en el Aire',
-      'message':
-          'El universo conspira para crear momentos románticos. Tu crush podría estar pensando en ti más de lo que imaginas.',
-      'advice': 'Sé valiente y da el primer paso.',
-      'color': 0xFFD32F2F,
-    },
-    {
-      'title': '💫 Destino Alineado',
-      'message':
-          'Las estrellas se alinean para favorecer encuentros casuales que pueden cambiar tu vida amorosa.',
-      'advice': 'Sal de tu zona de confort y socializa más.',
-      'color': 0xFF673AB7,
-    },
-    {
-      'title': '🦋 Mariposas en el Estómago',
-      'message':
-          'Hoy sentirás esas mariposas especiales. Tu intuición amorosa está en su punto más alto.',
-      'advice': 'Confía en tus instintos del corazón.',
-      'color': 0xFFE91E63,
-    },
-    {
-      'title': '🔥 Pasión Ardiente',
-      'message':
-          'La energía romántica está al máximo. Es un día perfecto para expresar tus sentimientos.',
-      'advice': 'No reprimas tus emociones, déjalas fluir.',
-      'color': 0xFFBF360C,
-    },
-    {
-      'title': '💎 Amor Auténtico',
-      'message':
-          'Hoy puedes reconocer el amor verdadero. Las conexiones superficiales se desvanecen.',
-      'advice': 'Busca la profundidad en tus relaciones.',
-      'color': 0xFF3F51B5,
-    },
-  ];
-
   // Obtener horóscopo del día
   Map<String, dynamic> getTodayLoveHoroscope() {
     final today = DateTime.now();

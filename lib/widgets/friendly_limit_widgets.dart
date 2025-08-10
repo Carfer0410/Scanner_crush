@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/theme_service.dart';
-import '../services/monetization_service.dart';
 
 /// Widget para mostrar límites de forma amigable
 class FriendlyLimitDialog extends StatelessWidget {

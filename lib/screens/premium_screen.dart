@@ -4,7 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../widgets/custom_widgets.dart';
 import '../services/theme_service.dart';
-import '../services/locale_service.dart';
 import '../services/monetization_service.dart';
 import '../services/admob_service.dart';
 import '../services/purchase_service.dart';
@@ -71,8 +70,8 @@ class _PremiumScreenState extends State<PremiumScreen> {
     },
     {
       'icon': Icons.analytics,
-      'title': 'Analytics Avanzados',
-      'description': 'Gráficos y estadísticas de compatibilidad',
+      'title': 'advancedAnalytics',
+      'description': 'analyticsDescription',
     },
     {
       'icon': Icons.palette,
@@ -81,8 +80,8 @@ class _PremiumScreenState extends State<PremiumScreen> {
     },
     {
       'icon': Icons.backup,
-      'title': 'Backup en la Nube',
-      'description': 'Tus datos seguros y sincronizados',
+      'title': 'cloudBackup',
+      'description': 'cloudBackupDescription',
     },
     {
       'icon': Icons.support_agent,
@@ -156,9 +155,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              (LocaleService.instance.currentLocale.languageCode == 'en')
-                  ? 'Purchase error: ${e.toString()}'
-                  : 'Error en la compra: ${e.toString()}',
+              'Error en la compra: ${e.toString()}',
             ),
             backgroundColor: Colors.red,
           ),
@@ -181,9 +178,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            (LocaleService.instance.currentLocale.languageCode == 'en')
-                ? 'Purchases restored successfully'
-                : 'Compras restauradas exitosamente'
+            AppLocalizations.of(context)?.purchasesRestoredSuccessfully ?? 'Purchases restored successfully'
           ),
           backgroundColor: Colors.green,
         ),
@@ -209,13 +204,15 @@ class _PremiumScreenState extends State<PremiumScreen> {
     }
     
     // Precio por defecto si no se puede cargar
-    return (LocaleService.instance.currentLocale.languageCode == 'en')
-        ? '\$4.99/month'
-        : '\$4.99/mes';
+    return AppLocalizations.of(context)?.defaultPrice ?? '\$4.99/month';
   }
 
   String _getFeatureTitle(String key) {
     switch (key) {
+      case 'advancedAnalytics':
+        return AppLocalizations.of(context)?.advancedAnalytics ?? key;
+      case 'cloudBackup':
+        return AppLocalizations.of(context)?.cloudBackup ?? key;
       case 'noAdsTitle':
         return AppLocalizations.of(context)?.noAdsTitle ?? key;
       case 'unlimitedScansTitle':
@@ -235,6 +232,10 @@ class _PremiumScreenState extends State<PremiumScreen> {
 
   String _getFeatureDescription(String key) {
     switch (key) {
+      case 'analyticsDescription':
+        return AppLocalizations.of(context)?.analyticsDescription ?? key;
+      case 'cloudBackupDescription':
+        return AppLocalizations.of(context)?.cloudBackupDescription ?? key;
       case 'noAdsDescription':
         return AppLocalizations.of(context)?.noAdsDescription ?? key;
       case 'unlimitedScansDescription':
@@ -314,30 +315,25 @@ class _PremiumScreenState extends State<PremiumScreen> {
 
                       const SizedBox(height: 30),
 
-                      Text(
-                        AppLocalizations.of(context)?.premiumSubtitle ?? '',
-                        style: GoogleFonts.poppins(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: ThemeService.instance.textColor,
-                          height: 1.2,
-                        ),
-                        textAlign: TextAlign.center,
-                      ).animate().fadeIn(delay: 400.ms),
+              Text(
+                AppLocalizations.of(context)?.unlockFullPotential ?? 'Unlock the full potential of love!',
+                style: GoogleFonts.poppins(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: ThemeService.instance.textColor,
+                  height: 1.2,
+                ),
+                textAlign: TextAlign.center,
+              ).animate().fadeIn(delay: 400.ms),                      const SizedBox(height: 16),
 
-                      const SizedBox(height: 16),
-
-                      Text(
-                        AppLocalizations.of(context)?.unlockAllFeatures ??
-                            'Obtén acceso completo a todas las funciones especiales',
-                        style: GoogleFonts.poppins(
-                          fontSize: 16,
-                          color: ThemeService.instance.subtitleColor,
-                        ),
-                        textAlign: TextAlign.center,
-                      ).animate().fadeIn(delay: 600.ms),
-
-                      const SizedBox(height: 40),
+              Text(
+                AppLocalizations.of(context)?.getFullAccess ?? 'Get full access to all special features',
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  color: ThemeService.instance.subtitleColor,
+                ),
+                textAlign: TextAlign.center,
+              ).animate().fadeIn(delay: 600.ms),                      const SizedBox(height: 40),
 
                       // Features list
                       ..._features.asMap().entries.map((entry) {
@@ -427,13 +423,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                         child: Column(
                           children: [
                             Text(
-                              (LocaleService
-                                          .instance
-                                          .currentLocale
-                                          .languageCode ==
-                                      'en')
-                                  ? 'Special Offer'
-                                  : 'Oferta Especial',
+                              AppLocalizations.of(context)?.specialOffer ?? 'Special Offer',
                               style: GoogleFonts.poppins(
                                 fontSize: 16,
                                 color: Colors.white.withOpacity(0.8),
@@ -445,7 +435,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 Text(
-                                  '\$2.99',
+                                  AppLocalizations.of(context)?.monthlyPrice ?? '\$2.99',
                                   style: GoogleFonts.poppins(
                                     fontSize: 36,
                                     fontWeight: FontWeight.bold,
@@ -453,7 +443,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                                   ),
                                 ),
                                 Text(
-                                  '/mes',
+                                  AppLocalizations.of(context)?.perMonth ?? '/month',
                                   style: GoogleFonts.poppins(
                                     fontSize: 16,
                                     color: Colors.white.withOpacity(0.8),
@@ -463,13 +453,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              (LocaleService
-                                          .instance
-                                          .currentLocale
-                                          .languageCode ==
-                                      'en')
-                                  ? 'Cancel anytime'
-                                  : 'Cancela cuando quieras',
+                              AppLocalizations.of(context)?.cancelAnytime ?? 'Cancel anytime',
                               style: GoogleFonts.poppins(
                                 fontSize: 14,
                                 color: Colors.white.withOpacity(0.7),
@@ -541,9 +525,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  (LocaleService.instance.currentLocale.languageCode == 'en')
-                                      ? 'Cancel anytime'
-                                      : 'Cancela cuando quieras',
+                                  AppLocalizations.of(context)?.cancelAnytime ?? 'Cancel anytime',
                                   style: GoogleFonts.poppins(
                                     fontSize: 14,
                                     color: ThemeService.instance.subtitleColor,

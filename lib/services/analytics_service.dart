@@ -1,4 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import '../models/crush_result.dart';
 import 'monetization_service.dart';
@@ -36,9 +37,14 @@ class AnalyticsService {
     }
 
     final totalScans = allResults.length;
-    final averageCompatibility = allResults
+    final rawAverage = allResults
         .map((r) => r.percentage)
         .reduce((a, b) => a + b) / totalScans;
+    
+    // Validar que el resultado no sea NaN o Infinity
+    final averageCompatibility = rawAverage.isNaN || rawAverage.isInfinite 
+        ? 0.0 
+        : rawAverage;
 
     final highestCompatibility = allResults
         .map((r) => r.percentage)
@@ -54,17 +60,23 @@ class AnalyticsService {
 
     final celebrityAvg = allResults.where((r) => r.isCelebrity).isEmpty
         ? 0.0
-        : allResults
-            .where((r) => r.isCelebrity)
-            .map((r) => r.percentage)
-            .reduce((a, b) => a + b) / celebrityScans;
+        : () {
+            final rawAvg = allResults
+                .where((r) => r.isCelebrity)
+                .map((r) => r.percentage)
+                .reduce((a, b) => a + b) / celebrityScans;
+            return rawAvg.isNaN || rawAvg.isInfinite ? 0.0 : rawAvg;
+          }();
 
     final personalAvg = allResults.where((r) => !r.isCelebrity).isEmpty
         ? 0.0
-        : allResults
-            .where((r) => !r.isCelebrity)
-            .map((r) => r.percentage)
-            .reduce((a, b) => a + b) / personalScans;
+        : () {
+            final rawAvg = allResults
+                .where((r) => !r.isCelebrity)
+                .map((r) => r.percentage)
+                .reduce((a, b) => a + b) / personalScans;
+            return rawAvg.isNaN || rawAvg.isInfinite ? 0.0 : rawAvg;
+          }();
 
     return CompatibilityStats(
       totalScans: totalScans,
@@ -144,6 +156,9 @@ class AnalyticsService {
       final month = int.parse(parts[1]);
       final percentages = entry.value;
       
+      // Validación para evitar división por zero
+      if (percentages.isEmpty) continue;
+      
       final average = percentages.reduce((a, b) => a + b) / percentages.length;
       
       monthlyData.add(MonthlyData(
@@ -181,16 +196,35 @@ class AnalyticsService {
     
     for (final key in keys) {
       final jsonString = prefs.getString(key);
-      if (jsonString != null) {
+      if (jsonString != null && jsonString.isNotEmpty) {
         try {
           final json = jsonDecode(jsonString);
-          results.add(CrushResult.fromJson(json));
+          
+          // Validar que los datos críticos existen
+          if (json is Map<String, dynamic> &&
+              json['crushName'] != null && 
+              json['percentage'] != null && 
+              json['timestamp'] != null) {
+            
+            final result = CrushResult.fromJson(json);
+            
+            // Validar rangos de datos
+            if (result.percentage >= 0 && 
+                result.percentage <= 100 &&
+                result.crushName.trim().isNotEmpty) {
+              results.add(result);
+            }
+          }
         } catch (e) {
-          // Ignorar resultados corruptos
+          // Log error but continue processing other results
+          debugPrint('Error parsing result $key: $e');
         }
       }
     }
 
+    // Ordenar por timestamp descendente
+    results.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+    
     return results;
   }
 
@@ -203,45 +237,50 @@ class AnalyticsService {
     final stats = await getCompatibilityStats();
     final insights = <PersonalInsight>[];
 
-    // Insight de compatibilidad promedio
-    if (stats.averageCompatibility >= 80) {
-      insights.add(PersonalInsight(
-        icon: '🔥',
-        title: 'Master del Amor',
-        description: 'Tu compatibilidad promedio es excepcional (${stats.averageCompatibility.toInt()}%). ¡Tienes un don natural para el amor!',
-        type: InsightType.positive,
-      ));
-    } else if (stats.averageCompatibility >= 60) {
-      insights.add(PersonalInsight(
-        icon: '💫',
-        title: 'Buen Radar Amoroso',
-        description: 'Tu compatibilidad promedio es sólida (${stats.averageCompatibility.toInt()}%). Confías en tus instintos.',
-        type: InsightType.neutral,
-      ));
-    } else {
-      insights.add(PersonalInsight(
-        icon: '🌱',
-        title: 'Explorador del Amor',
-        description: 'Estás explorando diferentes tipos de conexiones. ¡Cada escaneo te acerca más a tu match perfecto!',
-        type: InsightType.motivational,
-      ));
+    // Solo generar insights de compatibilidad si hay datos suficientes
+    if (stats.totalScans >= 3) {
+      // Insight de compatibilidad promedio
+      if (stats.averageCompatibility >= 80) {
+        insights.add(PersonalInsight(
+          icon: '🔥',
+          title: 'Master del Amor',
+          description: 'Tu compatibilidad promedio es excepcional (${stats.averageCompatibility.toInt()}%). ¡Tienes un don natural para el amor!',
+          type: InsightType.positive,
+        ));
+      } else if (stats.averageCompatibility >= 60) {
+        insights.add(PersonalInsight(
+          icon: '💫',
+          title: 'Buen Radar Amoroso',
+          description: 'Tu compatibilidad promedio es sólida (${stats.averageCompatibility.toInt()}%). Confías en tus instintos.',
+          type: InsightType.neutral,
+        ));
+      } else {
+        insights.add(PersonalInsight(
+          icon: '🌱',
+          title: 'Explorador del Amor',
+          description: 'Estás explorando diferentes tipos de conexiones. ¡Cada escaneo te acerca más a tu match perfecto!',
+          type: InsightType.motivational,
+        ));
+      }
     }
 
-    // Insight de preferencias
-    if (stats.celebrityScans > stats.personalScans) {
-      insights.add(PersonalInsight(
-        icon: '⭐',
-        title: 'Celebrity Crusher',
-        description: 'Prefieres las celebridades (${((stats.celebrityScans / stats.totalScans) * 100).toInt()}% de tus escaneos). ¡Te gustan los estándares altos!',
-        type: InsightType.fun,
-      ));
-    } else if (stats.personalScans > 0) {
-      insights.add(PersonalInsight(
-        icon: '💝',
-        title: 'Romántico Auténtico',
-        description: 'Prefieres conexiones reales (${((stats.personalScans / stats.totalScans) * 100).toInt()}% de tus escaneos). El amor verdadero te llama.',
-        type: InsightType.positive,
-      ));
+    // Insight de preferencias (solo con datos suficientes)
+    if (stats.totalScans >= 5) {
+      if (stats.celebrityScans > stats.personalScans) {
+        insights.add(PersonalInsight(
+          icon: '⭐',
+          title: 'Celebrity Crusher',
+          description: 'Prefieres las celebridades (${((stats.celebrityScans / stats.totalScans) * 100).toInt()}% de tus escaneos). ¡Te gustan los estándares altos!',
+          type: InsightType.fun,
+        ));
+      } else if (stats.personalScans > 0) {
+        insights.add(PersonalInsight(
+          icon: '💝',
+          title: 'Romántico Auténtico',
+          description: 'Prefieres conexiones reales (${((stats.personalScans / stats.totalScans) * 100).toInt()}% de tus escaneos). El amor verdadero te llama.',
+          type: InsightType.positive,
+        ));
+      }
     }
 
     // Insight de frecuencia
@@ -259,6 +298,20 @@ class AnalyticsService {
         description: 'Ya llevas ${stats.totalScans} escaneos. ¡Tu dedicación al amor es admirable!',
         type: InsightType.positive,
       ));
+    } else if (stats.totalScans >= 5) {
+      insights.add(PersonalInsight(
+        icon: '🌟',
+        title: 'Explorador Comprometido',
+        description: 'Con ${stats.totalScans} escaneos, estás construyendo un perfil sólido. ¡Sigue así!',
+        type: InsightType.motivational,
+      ));
+    } else if (stats.totalScans >= 1) {
+      insights.add(PersonalInsight(
+        icon: '🚀',
+        title: 'Nuevo Aventurero',
+        description: 'Has comenzado tu viaje de descubrimiento amoroso. ¡Cada escaneo revela algo nuevo!',
+        type: InsightType.motivational,
+      ));
     }
 
     return insights;
@@ -273,45 +326,107 @@ class AnalyticsService {
     final stats = await getCompatibilityStats();
     final predictions = <LovePrediction>[];
 
-    // Predicción basada en tendencia
-    if (stats.trendData.length >= 7) {
-      final recentAvg = stats.trendData
+    // Verificar que hay suficientes datos reales para tendencias
+    final realDataPoints = stats.trendData.where((t) => t.count > 0).length;
+    
+    // Predicción basada en tendencia (requiere al menos 10 escaneos en 7+ días diferentes)
+    if (stats.totalScans >= 10 && realDataPoints >= 7) {
+      final recentData = stats.trendData
           .takeLast(7)
-          .map((t) => t.average)
-          .reduce((a, b) => a + b) / 7;
+          .where((t) => t.count > 0)
+          .toList();
       
-      final olderAvg = stats.trendData
+      final olderData = stats.trendData
           .take(7)
-          .map((t) => t.average)
-          .reduce((a, b) => a + b) / 7;
+          .where((t) => t.count > 0)
+          .toList();
 
-      if (recentAvg > olderAvg + 5) {
-        predictions.add(LovePrediction(
-          icon: '📈',
-          title: 'Amor en Ascenso',
-          description: 'Tu compatibilidad ha mejorado últimamente. Las próximas semanas serán prometedoras para el amor.',
-          confidence: 85,
-          timeframe: 'Próximas 2 semanas',
-        ));
-      } else if (recentAvg < olderAvg - 5) {
-        predictions.add(LovePrediction(
-          icon: '🔄',
-          title: 'Tiempo de Reflexión',
-          description: 'Es un buen momento para reflexionar sobre qué buscas en el amor. La claridad traerá mejores conexiones.',
-          confidence: 70,
-          timeframe: 'Próximo mes',
-        ));
+      // Verificar que hay datos suficientes para calcular promedios
+      if (recentData.isEmpty || olderData.isEmpty) {
+        // No hacer predicciones de tendencia si no hay datos suficientes
+        // Continuar con otros tipos de predicciones
+      } else {
+        final recentAvg = recentData
+            .map((t) => t.average)
+            .fold(0.0, (a, b) => a + b) / recentData.length;
+        
+        final olderAvg = olderData
+            .map((t) => t.average)
+            .fold(0.0, (a, b) => a + b) / olderData.length;
+
+        if (recentAvg > olderAvg + 5) {
+          predictions.add(LovePrediction(
+            icon: '📈',
+            title: 'Amor en Ascenso',
+            description: 'Tu compatibilidad ha mejorado últimamente. Las próximas semanas serán prometedoras para el amor.',
+            confidence: 85,
+            timeframe: 'Próximas 2 semanas',
+          ));
+        } else if (recentAvg < olderAvg - 5) {
+          predictions.add(LovePrediction(
+            icon: '🔄',
+            title: 'Tiempo de Reflexión',
+            description: 'Es un buen momento para reflexionar sobre qué buscas en el amor. La claridad traerá mejores conexiones.',
+            confidence: 70,
+            timeframe: 'Próximo mes',
+          ));
+        } else {
+          predictions.add(LovePrediction(
+            icon: '💫',
+            title: 'Amor Estable',
+            description: 'Tu compatibilidad se mantiene consistente. Es un buen momento para consolidar conexiones.',
+            confidence: 75,
+            timeframe: 'Próximas 3 semanas',
+          ));
+        }
       }
+    } else if (stats.totalScans >= 5 && stats.totalScans < 10) {
+      // Predicciones para usuarios con pocos datos
+      predictions.add(LovePrediction(
+        icon: '🌱',
+        title: 'Descubriendo Tu Patrón',
+        description: 'Estás construyendo tu perfil amoroso. Cada escaneo nos ayuda a entender mejor tus preferencias.',
+        confidence: 60,
+        timeframe: 'Próximas semanas',
+      ));
+    } else if (stats.totalScans >= 1 && stats.totalScans < 5) {
+      // Predicciones para usuarios muy nuevos
+      predictions.add(LovePrediction(
+        icon: '✨',
+        title: 'Inicio de Tu Viaje',
+        description: 'Has comenzado tu exploración amorosa. ¡Sigue escaneando para descubrir patrones fascinantes!',
+        confidence: 50,
+        timeframe: 'A medida que explores',
+      ));
     }
 
-    // Predicción basada en patrones de compatibilidad
-    if (stats.averageCompatibility >= 75) {
+    // Predicción basada en patrones de compatibilidad (requiere datos suficientes)
+    if (stats.totalScans >= 3 && stats.averageCompatibility >= 75) {
       predictions.add(LovePrediction(
         icon: '💕',
         title: 'Match Perfecto Cerca',
-        description: 'Tu alta compatibilidad sugiere que tu match perfecto está muy cerca. Mantén los ojos abiertos.',
+        description: 'Tu alta compatibilidad promedio (${stats.averageCompatibility.toInt()}%) sugiere que tu match perfecto está muy cerca. Mantén los ojos abiertos.',
         confidence: 90,
         timeframe: 'Próximos 3 meses',
+      ));
+    } else if (stats.totalScans >= 3 && stats.averageCompatibility >= 60) {
+      predictions.add(LovePrediction(
+        icon: '🎯',
+        title: 'Buen Camino Amoroso',
+        description: 'Tu compatibilidad promedio (${stats.averageCompatibility.toInt()}%) muestra que tienes buen criterio. Confía en tus instintos.',
+        confidence: 75,
+        timeframe: 'Próximos 2 meses',
+      ));
+    }
+
+    // Si no hay predicciones y el usuario tiene al menos 1 escaneo, dar una predicción motivacional
+    if (predictions.isEmpty && stats.totalScans >= 1) {
+      predictions.add(LovePrediction(
+        icon: '🔮',
+        title: 'El Amor Te Espera',
+        description: 'Cada escaneo te acerca más a entender el amor. ¡Sigue explorando y descubriendo tu camino!',
+        confidence: 65,
+        timeframe: 'En tu viaje amoroso',
       ));
     }
 

@@ -338,5 +338,145 @@
   "firstScanStreak": "🎉 ¡Bienvenido! ¡Tu aventura de amor comienza ahora!",
   "streakBroken": "💔 Racha rota, ¡pero regresaste! Nueva racha iniciada",
   "newStreakRecord": "🏆 ¡NUEVO RÉCORD! ¡{days} días de racha! ¡Eres imparable!",
-  "streakContinues": "🔥 ¡La racha continúa! ¡{days} días escaneando amor!"
+  "streakContinues": "🔥 ¡La racha continúa! ¡{days} días escaneando amor!",
+
+  "loveAnalytics": "📊 Love Analytics",
+
+  "premiumRequired": "✨ Premium Requerido",
+
+  "premiumRequiredMessage": "Este tema está disponible solo para usuarios Premium. ¡Desbloquea todos los temas y más funciones!",
+
+  "viewPremium": "Ver Premium",
+
+  "analyticsPremium": "🔒 Analytics Premium",
+
+  "unlockDeepInsights": "Desbloquea insights profundos sobre tu vida amorosa con analytics avanzados, predicciones y patrones de compatibilidad.",
+
+  "upgradeToPremiumAnalytics": "Upgrade a Premium",
+
+  "analyzingLoveLife": "Analizando tu vida amorosa...",
+
+  "errorLoadingAnalytics": "Error cargando analytics",
+
+  "unknownErrorAnalytics": "Error desconocido",
+
+  "retry": "Reintentar",
+
+  "statisticsTab": "Estadísticas",
+
+  "insightsTab": "Insights",
+
+  "predictionsTab": "Predicciones",
+
+  "totalScansAnalytics": "Total Escaneos",
+
+  "averageAnalytics": "Promedio",
+
+  "bestMatch": "Mejor Match",
+
+  "celebritiesAnalytics": "Celebridades",
+
+  "compatibilityTrend": "📈 Tendencia de Compatibilidad (30 días)",
+
+  "notEnoughDataTrends": "No hay suficientes datos para mostrar tendencias",
+
+  "last30Days": "Últimos 30 días",
+
+  "yourBestMatches": "🏆 Tus Mejores Matches",
+
+  "celebrity": "Celebrity",
+
+  "personal": "Personal",
+
+  "changeAppTheme": "Cambiar el tema de la aplicación",
+
+  "advancedAnalytics": "Analytics Avanzados",
+
+  "analyticsDescription": "Gráficos y estadísticas de compatibilidad",
+
+  "cloudBackup": "Backup en la Nube",
+
+  "cloudBackupDescription": "Tus datos seguros y sincronizados",
+
+  "perMonth": "/mes",
+
+  "monthlyPrice": "$2.99",
+
+  "unlockFullPotential": "¡Desbloquea todo el potencial del amor!",
+
+  "purchasesRestoredSuccessfully": "Compras restauradas exitosamente",
+
+  "defaultPrice": "$4.99/mes",
+
+  "themesTitle": "🎨 Temas Premium",
+
+  "customizeExperience": "Personaliza tu experiencia",
+
+  "currentTheme": "Tema Actual",
+
+  "active": "ACTIVO",
+
+  "themeApplied": "Tema {themeName} aplicado",
+
+  "classicThemeName": "💘 Clásico",
+
+  "classicThemeDescription": "El tema original de amor",
+
+  "sunsetThemeName": "🌅 Atardecer",
+
+  "sunsetThemeDescription": "Cálidos tonos dorados y naranjas",
+
+  "oceanThemeName": "🌊 Océano",
+
+  "oceanThemeDescription": "Profundos azules marinos",
+
+  "forestThemeName": "🌲 Bosque",
+
+  "forestThemeDescription": "Verdes naturales y frescos",
+
+  "lavenderThemeName": "💜 Lavanda",
+
+  "lavenderThemeDescription": "Elegantes púrpuras y violetas",
+
+  "cosmicThemeName": "🌌 Cósmico",
+
+  "cosmicThemeDescription": "Misterioso espacio profundo",
+
+  "cherryThemeName": "🌸 Cerezo",
+
+  "cherryThemeDescription": "Elegante rosa sakura japonés",
+
+  "goldenThemeName": "✨ Dorado",
+
+  "goldenThemeDescription": "Lujo y elegancia dorada",
+
+  "scansToday": "Escaneos de hoy: {remaining}/{total}",
+
+  "scansRemaining": "Quedan {count} escaneos gratis",
+
+  "noScansLeft": "¡Sin escaneos! Ve anuncios para más",
+
+  "premiumBenefits": "🚀 Escaneos ilimitados • 🚫 Sin anuncios • ⭐ Contenido exclusivo",
+
+  "trialPeriod": "🎉 ¡Período de Prueba!",
+
+  "unlimitedScansRemaining": "Escaneos ILIMITADOS por {days} días más",
+
+  "scansRemainingToday": "{count} escaneos restantes hoy",
+
+  "limitReached": "¡Límite alcanzado!",
+
+  "watchAdForMore": "Ver anuncio para +2 más",
+
+  "upgradeForUnlimited": "Upgradea para ilimitados",
+
+  "watchAdOrUpgrade": "Ve anuncio o upgradea para más",
+
+  "premiumAnalytics": "Analytics Premium",
+
+  "analyzeCompatibilityPatterns": "Analiza tus patrones de compatibilidad",
+
+  "premiumThemes": "Temas Premium",
+
+  "customizeWithThemes": "Personaliza con 8 temas únicos"
 }

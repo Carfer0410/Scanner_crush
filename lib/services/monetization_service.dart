@@ -59,7 +59,7 @@ class MonetizationService {
   
   // Getters
   SubscriptionTier get currentTier => _currentTier;
-  bool get isPremium => _currentTier != SubscriptionTier.free;
+  bool get isPremium => true; // Temporalmente habilitado para desarrollo
   bool get isPremiumPlus => _currentTier == SubscriptionTier.premiumPlus;
   bool get isFree => _currentTier == SubscriptionTier.free;
   

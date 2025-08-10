@@ -379,8 +379,8 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                             // Premium Analytics (Premium Feature)
                             _buildScanOption(
                               context: context,
-                              title: '📊 Analytics Premium',
-                              subtitle: 'Analiza tus patrones de compatibilidad',
+                              title: AppLocalizations.of(context)!.premiumAnalytics,
+                              subtitle: AppLocalizations.of(context)!.analyzeCompatibilityPatterns,
                               icon: Icons.analytics,
                               colors: [Colors.blue, Colors.blueAccent],
                               onTap: () => _navigateToAnalytics(context),
@@ -393,8 +393,8 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                             // Premium Themes (Premium Feature)
                             _buildScanOption(
                               context: context,
-                              title: '🎨 Temas Premium',
-                              subtitle: 'Personaliza con 8 temas únicos',
+                              title: AppLocalizations.of(context)!.premiumThemes,
+                              subtitle: AppLocalizations.of(context)!.customizeWithThemes,
                               icon: Icons.palette,
                               colors: [Colors.purple, Colors.purpleAccent],
                               onTap: () => _navigateToThemes(context),
@@ -1183,7 +1183,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '🎉 ¡Período de Prueba!',
+                      (LocaleService.instance.currentLocale.languageCode == 'en')
+                        ? '🎉 Trial Period!'
+                        : '🎉 ¡Período de Prueba!',
                       style: GoogleFonts.poppins(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -1191,7 +1193,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                       ),
                     ),
                     Text(
-                      'Escaneos ILIMITADOS por $daysRemaining días más',
+                      (LocaleService.instance.currentLocale.languageCode == 'en')
+                        ? 'UNLIMITED scans for $daysRemaining more days'
+                        : 'Escaneos ILIMITADOS por $daysRemaining días más',
                       style: GoogleFonts.poppins(
                         fontSize: 12,
                         color: Colors.white.withOpacity(0.9),
@@ -1261,8 +1265,12 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                   children: [
                     Text(
                       remaining > 0 
-                        ? '$remaining escaneos restantes hoy'
-                        : '¡Límite alcanzado!',
+                        ? (LocaleService.instance.currentLocale.languageCode == 'en')
+                          ? '$remaining scans remaining today'
+                          : '$remaining escaneos restantes hoy'
+                        : (LocaleService.instance.currentLocale.languageCode == 'en')
+                          ? 'Limit reached!'
+                          : '¡Límite alcanzado!',
                       style: GoogleFonts.poppins(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -1271,8 +1279,16 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                     ),
                     Text(
                       remaining > 0
-                        ? (canWatchAd ? 'Ver anuncio para +2 más' : 'Upgradea para ilimitados')
-                        : 'Ve anuncio o upgradeapara más',
+                        ? (canWatchAd 
+                          ? (LocaleService.instance.currentLocale.languageCode == 'en')
+                            ? 'Watch ad for +2 more'
+                            : 'Ver anuncio para +2 más'
+                          : (LocaleService.instance.currentLocale.languageCode == 'en')
+                            ? 'Upgrade for unlimited'
+                            : 'Upgradea para ilimitados')
+                        : (LocaleService.instance.currentLocale.languageCode == 'en')
+                          ? 'Watch ad or upgrade for more'
+                          : 'Ve anuncio o upgradea para más',
                       style: GoogleFonts.poppins(
                         fontSize: 12,
                         color: Colors.white.withOpacity(0.9),

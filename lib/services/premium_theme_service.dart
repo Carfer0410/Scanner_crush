@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'monetization_service.dart';
 
 class PremiumThemeService {
   static final PremiumThemeService _instance = PremiumThemeService._internal();
@@ -157,9 +156,7 @@ class PremiumThemeService {
     final theme = _premiumThemes[themeId];
     if (theme == null) return false;
     
-    if (theme.isPremium) {
-      return MonetizationService.instance.isPremium;
-    }
+    // Temporalmente habilitado para desarrollo - todos los temas disponibles
     return true;
   }
 
