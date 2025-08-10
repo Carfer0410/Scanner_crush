@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/services.dart';
 import '../widgets/custom_widgets.dart';
 import '../services/theme_service.dart';
+import '../services/monetization_service.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'celebrity_screen.dart';
 
@@ -24,9 +25,18 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
     super.dispose();
   }
 
-  void _goToCelebritySelection() {
+  Future<void> _goToCelebritySelection() async {
     if (!_formKey.currentState!.validate()) {
       HapticFeedback.lightImpact();
+      return;
+    }
+
+    // 🔒 Validar si puede escanear hoy (monetización)
+    final canScan = await MonetizationService.instance.canScanToday();
+    
+    if (!canScan) {
+      HapticFeedback.lightImpact();
+      _showLimitDialog();
       return;
     }
 
@@ -50,6 +60,178 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  void _showLimitDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: ThemeService.instance.cardColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        title: Row(
+          children: [
+            Icon(
+              Icons.star,
+              color: ThemeService.instance.primaryColor,
+              size: 28,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                '¡Límite alcanzado!',
+                style: GoogleFonts.poppins(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: ThemeService.instance.textColor,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Has usado todos tus escaneos gratuitos de hoy.',
+              style: GoogleFonts.poppins(
+                fontSize: 16,
+                color: ThemeService.instance.textColor,
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              '¿Qué puedes hacer?',
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: ThemeService.instance.primaryColor,
+              ),
+            ),
+            const SizedBox(height: 8),
+            _buildDialogOption(
+              icon: Icons.play_circle,
+              title: 'Ver anuncio',
+              subtitle: 'Gana +2 escaneos más',
+              onTap: () async {
+                Navigator.pop(context);
+                final success = await MonetizationService.instance.watchAdForExtraScans();
+                if (success && mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        '¡+2 escaneos ganados!',
+                        style: GoogleFonts.poppins(color: Colors.white),
+                      ),
+                      backgroundColor: Colors.green,
+                      duration: const Duration(seconds: 2),
+                    ),
+                  );
+                }
+              },
+            ),
+            const SizedBox(height: 8),
+            _buildDialogOption(
+              icon: Icons.diamond,
+              title: 'Ir a Premium',
+              subtitle: 'Escaneos ilimitados',
+              onTap: () {
+                Navigator.pop(context);
+                // TODO: Navegar a pantalla de premium
+              },
+            ),
+            const SizedBox(height: 8),
+            _buildDialogOption(
+              icon: Icons.schedule,
+              title: 'Esperar',
+              subtitle: 'Más escaneos mañana',
+              onTap: () => Navigator.pop(context),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Cerrar',
+              style: GoogleFonts.poppins(
+                color: ThemeService.instance.subtitleColor,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDialogOption({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: ThemeService.instance.borderColor,
+            width: 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: ThemeService.instance.primaryColor.withOpacity(0.1),
+              ),
+              child: Icon(
+                icon,
+                color: ThemeService.instance.primaryColor,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: ThemeService.instance.textColor,
+                    ),
+                  ),
+                  Text(
+                    subtitle,
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      color: ThemeService.instance.subtitleColor,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.arrow_forward_ios,
+              color: ThemeService.instance.subtitleColor,
+              size: 16,
+            ),
+          ],
+        ),
       ),
     );
   }

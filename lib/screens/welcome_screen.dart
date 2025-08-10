@@ -7,11 +7,16 @@ import '../services/daily_love_service.dart';
 import '../services/audio_service.dart';
 import '../services/locale_service.dart';
 import '../services/streak_service.dart';
+import '../services/monetization_service.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'form_screen.dart';
 import 'settings_screen.dart';
+import 'premium_screen.dart';
 import 'celebrity_form_screen.dart';
 import 'daily_love_screen.dart';
+import 'analytics_screen.dart';
+import 'themes_screen.dart';
+import '../test_grace_period_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -212,6 +217,17 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                 // Streak card
                 _buildStreakCard(),
 
+                // Banner para nuevos usuarios o límites
+                FutureBuilder<bool>(
+                  future: MonetizationService.instance.isNewUser(),
+                  builder: (context, snapshot) {
+                    if (snapshot.data == true) {
+                      return _buildNewUserBanner();
+                    }
+                    return _buildLimitsBanner();
+                  },
+                ),
+
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Column(
@@ -336,10 +352,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                     context,
                                   )!.regularScanSubtitle,
                               icon: Icons.favorite,
-                              colors: [
-                                ThemeService.instance.primaryColor,
-                                ThemeService.instance.secondaryColor,
-                              ],
+                              colors: [Colors.purple, Colors.deepPurple],
                               onTap: () => _navigateToRegularScanner(context),
                               delay: 1200,
                             ),
@@ -359,6 +372,34 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                               colors: [Colors.purple, Colors.deepPurple],
                               onTap: () => _navigateToCelebrityScanner(context),
                               delay: 1400,
+                            ),
+
+                            const SizedBox(height: 20),
+
+                            // Premium Analytics (Premium Feature)
+                            _buildScanOption(
+                              context: context,
+                              title: '📊 Analytics Premium',
+                              subtitle: 'Analiza tus patrones de compatibilidad',
+                              icon: Icons.analytics,
+                              colors: [Colors.blue, Colors.blueAccent],
+                              onTap: () => _navigateToAnalytics(context),
+                              delay: 1600,
+                              isPremium: true,
+                            ),
+
+                            const SizedBox(height: 20),
+
+                            // Premium Themes (Premium Feature)
+                            _buildScanOption(
+                              context: context,
+                              title: '🎨 Temas Premium',
+                              subtitle: 'Personaliza con 8 temas únicos',
+                              icon: Icons.palette,
+                              colors: [Colors.purple, Colors.purpleAccent],
+                              onTap: () => _navigateToThemes(context),
+                              delay: 1800,
+                              isPremium: true,
                             ),
                           ],
                         ),
@@ -384,6 +425,18 @@ class _WelcomeScreenState extends State<WelcomeScreen>
           ),
         ),
       ),
+      floatingActionButton: FloatingActionButton.small(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const TestGracePeriodScreen(),
+            ),
+          );
+        },
+        backgroundColor: Colors.orange,
+        child: const Icon(Icons.bug_report, color: Colors.white, size: 20),
+      ),
     );
   }
 
@@ -395,6 +448,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     required List<Color> colors,
     required VoidCallback onTap,
     required int delay,
+    bool isPremium = false,
   }) {
     return GestureDetector(
           onTap: onTap,
@@ -435,25 +489,46 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        title,
-                        style: GoogleFonts.poppins(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              title,
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                              maxLines: 2,
+                            ),
+                          ),
+                          if (isPremium && !MonetizationService.instance.isPremium) ...[
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: Colors.amber,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                'PRO',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
                       const SizedBox(height: 4),
                       Text(
                         subtitle,
                         style: GoogleFonts.poppins(
-                          fontSize: 13,
+                          fontSize: 12,
                           color: Colors.white.withOpacity(0.9),
                         ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
@@ -503,6 +578,60 @@ class _WelcomeScreenState extends State<WelcomeScreen>
         pageBuilder:
             (context, animation, secondaryAnimation) =>
                 const CelebrityFormScreen(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(
+            opacity: animation,
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(1.0, 0.0),
+                end: Offset.zero,
+              ).animate(animation),
+              child: child,
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  void _navigateToAnalytics(BuildContext context) {
+    // Verificar si tiene premium
+    if (!MonetizationService.instance.isPremium) {
+      _showPremiumRequired(context);
+      return;
+    }
+
+    // 🎵 Sonido de transición
+    AudioService.instance.playTransition();
+
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => const AnalyticsScreen(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(
+            opacity: animation,
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(1.0, 0.0),
+                end: Offset.zero,
+              ).animate(animation),
+              child: child,
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  void _navigateToThemes(BuildContext context) {
+    // 🎵 Sonido de transición
+    AudioService.instance.playTransition();
+
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => const ThemesScreen(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return FadeTransition(
             opacity: animation,
@@ -598,7 +727,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                         ),
                       ),
                       const SizedBox(height: 2),
-                      Text(
+                    Text(
                         currentStreak > 0
                             ? '🔥 $currentStreak ${_getDaysText(currentStreak)}'
                             : (LocaleService
@@ -610,7 +739,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                             : '¡Comienza tu racha hoy!',
                         style: GoogleFonts.poppins(
                           fontSize: 12,
-                          color: ThemeService.instance.subtitleColor,
+                          color: ThemeService.instance.textColor,
                         ),
                       ),
                     ],
@@ -626,7 +755,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                         style: GoogleFonts.poppins(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.amber,
+                          color: ThemeService.instance.textColor,
                         ),
                       ),
                       Text(
@@ -636,7 +765,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                             : 'Mejor',
                         style: GoogleFonts.poppins(
                           fontSize: 10,
-                          color: ThemeService.instance.subtitleColor,
+                          color: ThemeService.instance.textColor,
                         ),
                       ),
                     ],
@@ -1011,5 +1140,227 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     } else {
       return count == 1 ? 'día' : 'días';
     }
+  }
+
+  /// Banner para nuevos usuarios
+  Widget _buildNewUserBanner() {
+    return FutureBuilder<int>(
+      future: MonetizationService.instance.getGracePeriodDaysRemaining(),
+      builder: (context, snapshot) {
+        final daysRemaining = snapshot.data ?? 0;
+        if (daysRemaining <= 0) return const SizedBox.shrink();
+        
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.green.shade400, Colors.teal.shade400],
+            ),
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.green.withOpacity(0.3),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withOpacity(0.2),
+                ),
+                child: const Icon(Icons.celebration, color: Colors.white, size: 20),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '🎉 ¡Período de Prueba!',
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    Text(
+                      'Escaneos ILIMITADOS por $daysRemaining días más',
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        color: Colors.white.withOpacity(0.9),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ).animate().slideX(begin: 0.3).fadeIn();
+      },
+    );
+  }
+
+  /// Banner de límites para usuarios regulares
+  Widget _buildLimitsBanner() {
+    return FutureBuilder<Map<String, dynamic>>(
+      future: _getLimitsInfo(),
+      builder: (context, snapshot) {
+        final data = snapshot.data;
+        if (data == null) return const SizedBox.shrink();
+        
+        final remaining = data['remaining'] as int;
+        final isPremium = data['isPremium'] as bool;
+        final canWatchAd = data['canWatchAd'] as bool;
+        
+        if (isPremium) return const SizedBox.shrink();
+        
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: remaining > 2 
+                ? [Colors.blue.shade400, Colors.purple.shade400]
+                : [Colors.orange.shade400, Colors.red.shade400],
+            ),
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: (remaining > 2 ? Colors.blue : Colors.orange).withOpacity(0.3),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withOpacity(0.2),
+                ),
+                child: Icon(
+                  remaining > 0 ? Icons.favorite : Icons.star,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      remaining > 0 
+                        ? '$remaining escaneos restantes hoy'
+                        : '¡Límite alcanzado!',
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    Text(
+                      remaining > 0
+                        ? (canWatchAd ? 'Ver anuncio para +2 más' : 'Upgradea para ilimitados')
+                        : 'Ve anuncio o upgradeapara más',
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        color: Colors.white.withOpacity(0.9),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (remaining == 0 || canWatchAd)
+                Icon(Icons.arrow_forward_ios, color: Colors.white, size: 16),
+            ],
+          ),
+        ).animate().slideX(begin: 0.3).fadeIn();
+      },
+    );
+  }
+
+  Future<Map<String, dynamic>> _getLimitsInfo() async {
+    final remaining = await MonetizationService.instance.getRemainingScansTodayForFree();
+    final isPremium = MonetizationService.instance.isPremium;
+    final canWatchAd = await MonetizationService.instance.canWatchAdForScans();
+    
+    return {
+      'remaining': remaining,
+      'isPremium': isPremium,
+      'canWatchAd': canWatchAd,
+    };
+  }
+
+  void _showPremiumRequired(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: ThemeService.instance.cardColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            Icon(Icons.diamond, color: ThemeService.instance.primaryColor),
+            const SizedBox(width: 8),
+            Text(
+              'Premium Requerido',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.bold,
+                color: ThemeService.instance.textColor,
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          'Esta función está disponible solo para usuarios Premium. ¡Actualiza ahora y desbloquea todas las funciones exclusivas!',
+          style: GoogleFonts.poppins(
+            color: ThemeService.instance.subtitleColor,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Cancelar',
+              style: GoogleFonts.poppins(
+                color: ThemeService.instance.subtitleColor,
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PremiumScreen(),
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: ThemeService.instance.primaryColor,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: Text(
+              'Ver Premium',
+              style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

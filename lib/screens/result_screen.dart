@@ -3,10 +3,12 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:flutter/services.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../widgets/custom_widgets.dart';
 import '../services/theme_service.dart';
-import '../services/ad_service.dart';
+import '../services/admob_service.dart';
 import '../services/audio_service.dart';
+import '../services/monetization_service.dart';
 import '../models/crush_result.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'form_screen.dart';
@@ -28,6 +30,7 @@ class _ResultScreenState extends State<ResultScreen>
   late AnimationController _percentageController;
   late AnimationController _heartController;
   late Animation<double> _percentageAnimation;
+  BannerAd? _bannerAd;
 
   @override
   void initState() {
@@ -65,6 +68,12 @@ class _ResultScreenState extends State<ResultScreen>
         _celebrationHaptic();
       }
     });
+
+    // Initialize banner ad for non-premium users
+    if (!MonetizationService.instance.isPremium) {
+      _bannerAd = AdMobService.instance.createBannerAd();
+      _bannerAd!.load();
+    }
   }
 
   void _celebrationHaptic() {
@@ -82,6 +91,7 @@ class _ResultScreenState extends State<ResultScreen>
   void dispose() {
     _percentageController.dispose();
     _heartController.dispose();
+    _bannerAd?.dispose();
     super.dispose();
   }
 
@@ -101,29 +111,123 @@ class _ResultScreenState extends State<ResultScreen>
   }
 
   Future<void> _scanAgain() async {
-    if (AdService.instance.isPremiumUser) {
+    // Verificar límites antes de permitir escanear de nuevo
+    final canScan = await MonetizationService.instance.canScanToday();
+    
+    if (canScan) {
       _navigateToForm();
       return;
     }
 
-    // Show ad before allowing to scan again
-    final adShown = await AdService.instance.showInterstitialAd();
-    if (adShown && mounted) {
-      _navigateToForm();
-    } else if (mounted) {
-      // Offer premium upgrade
-      final result = await Navigator.push<bool>(
-        context,
-        MaterialPageRoute(builder: (context) => const PremiumScreen()),
-      );
+    // Usuario ha alcanzado límite - mostrar opciones
+    final canWatchAd = await MonetizationService.instance.canWatchAdForScans();
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text('¡Límite alcanzado! 🎯'),
+        content: Text(
+          canWatchAd 
+            ? 'Has usado todos tus escaneos de hoy. ¿Qué quieres hacer?'
+            : 'Has usado todos tus escaneos de hoy. Upgradeaa Premium para escaneos ilimitados.',
+        ),
+        actions: [
+          if (canWatchAd) ...[
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                await _watchAdForMoreScans();
+              },
+              child: Text('Ver anuncio (+2 escaneos)'),
+            ),
+          ],
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              final result = await Navigator.push<bool>(
+                context,
+                MaterialPageRoute(builder: (context) => const PremiumScreen()),
+              );
+              if (result == true && mounted) {
+                _navigateToForm();
+              }
+            },
+            child: Text('Ir a Premium'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Esperar hasta mañana'),
+          ),
+        ],
+      ),
+    );
+  }
 
-      if (result == true && mounted) {
-        _navigateToForm();
-      }
+  Future<void> _watchAdForMoreScans() async {
+    // Mostrar loading
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(
+                ThemeService.instance.primaryColor,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Cargando anuncio...',
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontSize: 16,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+    
+    // Intentar mostrar anuncio con recompensa
+    final success = await MonetizationService.instance.watchAdForExtraScans();
+    
+    Navigator.pop(context);
+    
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('¡+2 escaneos ganados! Ahora puedes escanear de nuevo 🎉'),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+      );
+      
+      _navigateToForm();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('No hay anuncios disponibles. Intenta más tarde.'),
+          backgroundColor: Colors.orange,
+        ),
+      );
     }
   }
 
-  void _navigateToForm() {
+  void _navigateToForm() async {
+    // Mostrar anuncio intersticial si no es premium
+    if (!MonetizationService.instance.isPremium) {
+      final shouldShow = await AdMobService.instance.shouldShowInterstitialAd();
+      if (shouldShow && AdMobService.instance.isInterstitialAdReady) {
+        await AdMobService.instance.showInterstitialAd();
+        // Pequeña pausa para que el anuncio se procese
+        await Future.delayed(const Duration(milliseconds: 500));
+      }
+    }
+    
     Widget destinationScreen;
 
     if (widget.fromScreen == 'celebrity') {
@@ -427,8 +531,12 @@ class _ResultScreenState extends State<ResultScreen>
                       const SizedBox(height: 20),
 
                       // Ad banner for non-premium users
-                      if (!AdService.instance.isPremiumUser)
-                        AdService.instance.createBannerAd(),
+                      if (!MonetizationService.instance.isPremium && _bannerAd != null)
+                        Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 20),
+                          height: 50,
+                          child: AdWidget(ad: _bannerAd!),
+                        ),
                     ],
                   ),
                 ),

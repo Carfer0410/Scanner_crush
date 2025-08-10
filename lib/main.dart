@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'screens/welcome_screen.dart';
 import 'services/ad_service.dart';
 import 'services/theme_service.dart';
@@ -10,10 +11,21 @@ import 'services/audio_service.dart';
 import 'services/locale_service.dart';
 import 'services/streak_service.dart';
 import 'services/crush_service.dart';
+import 'services/monetization_service.dart';
+import 'services/admob_service.dart';
+import 'services/purchase_service.dart';
+import 'services/premium_theme_service.dart';
+import 'services/analytics_service.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize AdMob
+  await MobileAds.instance.initialize();
+  
+  // Initialize AdMob Service
+  await AdMobService.instance.initialize();
 
   // Set system UI overlay style
   SystemChrome.setSystemUIOverlayStyle(
@@ -31,6 +43,16 @@ void main() async {
   await AudioService.instance.initialize();
   await LocaleService.instance.initialize();
   await StreakService.instance.initialize();
+
+  // Initialize monetization service
+  await MonetizationService.instance.initialize();
+
+  // Initialize purchase service
+  await PurchaseService.instance.initialize();
+
+  // Initialize premium services
+  await PremiumThemeService.instance.initialize();
+  await AnalyticsService.instance.initialize();
 
   // Fix any invalid compatibility results from previous versions
   await CrushService.instance.fixInvalidResults();

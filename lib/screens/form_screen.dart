@@ -3,13 +3,16 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/services.dart';
 import '../widgets/custom_widgets.dart';
+import '../widgets/friendly_limit_widgets.dart';
 import '../services/theme_service.dart';
 import '../services/crush_service.dart';
 import '../services/audio_service.dart';
 import '../services/streak_service.dart';
 import '../services/locale_service.dart';
+import '../services/monetization_service.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'result_screen.dart';
+import 'premium_screen.dart';
 
 class FormScreen extends StatefulWidget {
   const FormScreen({super.key});
@@ -38,6 +41,13 @@ class _FormScreenState extends State<FormScreen> {
       return;
     }
 
+    // Verificar límites de escaneo ANTES de proceder
+    final canScan = await MonetizationService.instance.canScanToday();
+    if (!canScan) {
+      await _showLimitDialog();
+      return;
+    }
+
     setState(() {
       _isLoading = true;
     });
@@ -51,6 +61,9 @@ class _FormScreenState extends State<FormScreen> {
     try {
       // Simulate scanning process
       await Future.delayed(const Duration(seconds: 2));
+
+      // Registrar el escaneo para límites
+      await MonetizationService.instance.recordScan();
 
       // Get localizations safely
       final localizations = AppLocalizations.of(context);
@@ -164,6 +177,125 @@ class _FormScreenState extends State<FormScreen> {
     }
   }
 
+  Future<void> _showLimitDialog() async {
+    final remainingScans = await MonetizationService.instance.getRemainingScansTodayForFree();
+    final canWatchAd = await MonetizationService.instance.canWatchAdForScans();
+    final isNewUser = await MonetizationService.instance.isNewUser();
+    
+    if (isNewUser) {
+      final daysRemaining = await MonetizationService.instance.getGracePeriodDaysRemaining();
+      _showNewUserMessage(daysRemaining);
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => FriendlyLimitDialog(
+        remainingScans: remainingScans,
+        onWatchAd: canWatchAd ? _watchAdForScans : null,
+        onUpgrade: () {
+          Navigator.pop(context);
+          _navigateToPremium();
+        },
+      ),
+    );
+  }
+
+  void _showNewUserMessage(int daysRemaining) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            Icon(Icons.celebration, color: Colors.amber, size: 28),
+            const SizedBox(width: 8),
+            Text('¡Bienvenido!', style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
+          ],
+        ),
+        content: Text(
+          '🎉 ¡Estás en período de prueba!\n\nTienes $daysRemaining días con escaneos ILIMITADOS para probar todas las funciones.\n\n¡Disfrútalo! 💕',
+          style: GoogleFonts.poppins(fontSize: 16),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('¡Genial!', style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold,
+              color: ThemeService.instance.primaryColor,
+            )),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _watchAdForScans() async {
+    Navigator.pop(context); // Cerrar diálogo
+    
+    // Mostrar loading
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(
+                ThemeService.instance.primaryColor,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Cargando anuncio...',
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontSize: 16,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+    
+    // Intentar mostrar anuncio con recompensa
+    final success = await MonetizationService.instance.watchAdForExtraScans();
+    
+    Navigator.pop(context); // Cerrar loading
+    
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(Icons.celebration, color: Colors.white),
+              const SizedBox(width: 8),
+              Text('¡+2 escaneos ganados! 🎉'),
+            ],
+          ),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('No hay anuncios disponibles. Intenta más tarde.'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+    }
+  }
+
+  void _navigateToPremium() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const PremiumScreen()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
@@ -202,7 +334,22 @@ class _FormScreenState extends State<FormScreen> {
                             ),
                           ),
                           const Spacer(),
-                          const SizedBox(width: 48), // Balance the back button
+                          // Contador de escaneos (con ancho limitado para evitar overflow)
+                          ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 120),
+                            child: FutureBuilder<int>(
+                              future: MonetizationService.instance.getRemainingScansTodayForFree(),
+                              builder: (context, snapshot) {
+                                final remaining = snapshot.data ?? 0;
+                                final isPremium = MonetizationService.instance.isPremium;
+                                
+                                return ScanCounterWidget(
+                                  remainingScans: remaining,
+                                  isPremium: isPremium,
+                                );
+                              },
+                            ),
+                          ),
                         ],
                       ),
                     ),

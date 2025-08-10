@@ -1,8 +1,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Permisos para anuncios -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    
     <application
         android:label="scanner_crush"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        
+        <!-- AdMob App ID - ID REAL -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-6436417991123423~5033668315"/>
+            
         <activity
             android:name=".MainActivity"
             android:exported="true"

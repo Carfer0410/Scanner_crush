@@ -18,6 +18,8 @@ dependencies:
   share_plus: ^7.2.1
   cupertino_icons: ^1.0.6
   audioplayers: ^5.0.0
+  google_mobile_ads: ^5.1.0  # AdMob integration
+  in_app_purchase: ^3.1.0   # In-App Purchases
 
 dev_dependencies:
   flutter_test:

@@ -4,7 +4,7 @@ import '../services/theme_service.dart';
 import '../services/audio_service.dart';
 import 'dart:math' as math;
 
-class AnimatedBackground extends StatelessWidget {
+class AnimatedBackground extends StatefulWidget {
   final Widget child;
   final bool showHearts;
 
@@ -15,12 +15,27 @@ class AnimatedBackground extends StatelessWidget {
   });
 
   @override
+  State<AnimatedBackground> createState() => _AnimatedBackgroundState();
+}
+
+class _AnimatedBackgroundState extends State<AnimatedBackground> {
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: ThemeService.instance.backgroundGradient,
-      ),
-      child: Stack(children: [if (showHearts) const FloatingHearts(), child]),
+    return ListenableBuilder(
+      listenable: ThemeService.instance,
+      builder: (context, child) {
+        return Container(
+          decoration: BoxDecoration(
+            gradient: ThemeService.instance.backgroundGradient,
+          ),
+          child: Stack(
+            children: [
+              if (widget.showHearts) const FloatingHearts(),
+              widget.child,
+            ],
+          ),
+        );
+      },
     );
   }
 }
@@ -77,29 +92,34 @@ class _FloatingHeartsState extends State<FloatingHearts>
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: List.generate(_heartCount, (index) {
-        return AnimatedBuilder(
-          animation: _animations[index],
-          builder: (context, child) {
-            return Positioned(
-              left: _getHorizontalPosition(index, _animations[index].value),
-              top: _getVerticalPosition(index, _animations[index].value),
-              child: Transform.rotate(
-                angle:
-                    _animations[index].value *
-                    2 *
-                    math.pi /
-                    4, // Rotación suave
-                child: Transform.scale(
-                  scale: _getScale(index, _animations[index].value),
-                  child: _buildEnhancedHeart(index),
-                ),
-              ),
+    return ListenableBuilder(
+      listenable: ThemeService.instance,
+      builder: (context, child) {
+        return Stack(
+          children: List.generate(_heartCount, (index) {
+            return AnimatedBuilder(
+              animation: _animations[index],
+              builder: (context, child) {
+                return Positioned(
+                  left: _getHorizontalPosition(index, _animations[index].value),
+                  top: _getVerticalPosition(index, _animations[index].value),
+                  child: Transform.rotate(
+                    angle:
+                        _animations[index].value *
+                        2 *
+                        math.pi /
+                        4, // Rotación suave
+                    child: Transform.scale(
+                      scale: _getScale(index, _animations[index].value),
+                      child: _buildEnhancedHeart(index),
+                    ),
+                  ),
+                );
+              },
             );
-          },
+          }),
         );
-      }),
+      },
     );
   }
 
@@ -160,7 +180,7 @@ class _FloatingHeartsState extends State<FloatingHearts>
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: Colors.pink.withOpacity(0.3),
+            color: ThemeService.instance.primaryColor.withOpacity(0.3),
             blurRadius: 8,
             spreadRadius: 1,
           ),
@@ -171,7 +191,10 @@ class _FloatingHeartsState extends State<FloatingHearts>
         style: TextStyle(
           fontSize: size,
           shadows: [
-            Shadow(color: Colors.white.withOpacity(0.8), blurRadius: 4),
+            Shadow(
+              color: ThemeService.instance.secondaryColor.withOpacity(0.8), 
+              blurRadius: 4,
+            ),
           ],
         ),
       ),
@@ -227,9 +250,12 @@ class GradientButton extends StatelessWidget {
             : Icon(icon ?? Icons.favorite, color: Colors.white),
         label: Text(
           text,
+          textAlign: TextAlign.center,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
           style: const TextStyle(
             color: Colors.white,
-            fontSize: 18,
+            fontSize: 14,
             fontWeight: FontWeight.bold,
           ),
         ),

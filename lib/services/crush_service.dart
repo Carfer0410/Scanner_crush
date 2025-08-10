@@ -10,54 +10,135 @@ class CrushService {
   static CrushService get instance => _instance;
   CrushService._internal();
 
-  // Lista de celebridades populares
+  // Lista expandida de 500+ celebridades trending 2025 🌟
   final List<String> _celebrities = [
-    "Ryan Gosling",
-    "Emma Stone",
-    "Timothée Chalamet",
-    "Zendaya",
-    "Tom Holland",
-    "Anya Taylor-Joy",
-    "Michael B. Jordan",
-    "Margot Robbie",
-    "Chris Evans",
-    "Scarlett Johansson",
-    "Ryan Reynolds",
-    "Blake Lively",
-    "Leonardo DiCaprio",
-    "Jennifer Lawrence",
-    "Brad Pitt",
-    "Emma Watson",
-    "Sebastian Stan",
-    "Elizabeth Olsen",
-    "Oscar Isaac",
-    "Florence Pugh",
-    "Adam Driver",
-    "Saoirse Ronan",
-    "Regé-Jean Page",
-    "Bridgerton Cast",
-    "Harry Styles",
-    "Taylor Swift",
-    "Dua Lipa",
-    "Shawn Mendes",
-    "Bad Bunny",
-    "Billie Eilish",
-    "The Weeknd",
-    "Ariana Grande",
-    "BTS",
-    "Stray Kids",
-    "NewJeans",
-    "TWICE",
-    "BLACKPINK",
-    "IU",
-    "Pedro Pascal",
-    "Oscar Isaac",
-    "Michael Cera",
-    "Jacob Elordi",
-    "Sydney Sweeney",
-    "Maddie Ziegler",
-    "Noah Centineo",
-    "Charles Melton",
+    // 🎬 HOLLYWOOD A-LIST
+    "Ryan Gosling", "Emma Stone", "Timothée Chalamet", "Zendaya", "Tom Holland",
+    "Anya Taylor-Joy", "Michael B. Jordan", "Margot Robbie", "Chris Evans", "Scarlett Johansson",
+    "Ryan Reynolds", "Blake Lively", "Leonardo DiCaprio", "Jennifer Lawrence", "Brad Pitt",
+    "Emma Watson", "Sebastian Stan", "Elizabeth Olsen", "Oscar Isaac", "Florence Pugh",
+    "Adam Driver", "Saoirse Ronan", "Regé-Jean Page", "Pedro Pascal", "Jacob Elordi",
+    "Sydney Sweeney", "Noah Centineo", "Charles Melton", "Maddie Ziegler", "Glen Powell",
+    
+    // 🔥 NUEVAS GENERACIONES 2025
+    "Jenna Ortega", "Anya Chalotra", "Hunter Schafer", "Barbie Ferreira", "Alexa Demie",
+    "Storm Reid", "Kaitlyn Dever", "Thomasin McKenzie", "Millicent Simmonds", "Julia Garner",
+    "Rachel Zegler", "Halle Bailey", "Yara Shahidi", "Lana Condor", "Anna Cathcart",
+    "Madison Beer", "Dixie D'Amelio", "Addison Rae", "Emma Chamberlain", "James Charles",
+    "Noah Beck", "Bryce Hall", "Chase Hudson", "Anthony Reeves", "Payton Moormeier",
+    
+    // 🎵 MÚSICA GLOBAL
+    "Harry Styles", "Taylor Swift", "Dua Lipa", "Olivia Rodrigo", "Billie Eilish",
+    "The Weeknd", "Ariana Grande", "Post Malone", "Travis Scott", "Drake",
+    "Shawn Mendes", "Justin Bieber", "Ed Sheeran", "Bruno Mars", "The Chainsmokers",
+    "Camila Cabello", "Selena Gomez", "Doja Cat", "Megan Thee Stallion", "Cardi B",
+    "SZA", "Halsey", "Lorde", "Charli XCX", "Troye Sivan", "Lana Del Rey",
+    
+    // 🇰🇷 K-POP SUPERSTARS
+    "BTS", "RM", "Jin", "Suga", "J-Hope", "Jimin", "V", "Jungkook",
+    "BLACKPINK", "Jennie", "Jisoo", "Rosé", "Lisa", "TWICE", "Nayeon", "Jeongyeon",
+    "Momo", "Sana", "Jihyo", "Mina", "Dahyun", "Chaeyoung", "Tzuyu",
+    "Stray Kids", "Bang Chan", "Lee Know", "Changbin", "Hyunjin", "Han", "Felix", "Seungmin", "I.N",
+    "NewJeans", "Minji", "Hanni", "Danielle", "Haerin", "Hyein",
+    "aespa", "Karina", "Giselle", "Winter", "Ningning", "IU", "Taeyeon", "IVE",
+    "ITZY", "LE SSERAFIM", "(G)I-DLE", "Red Velvet", "MAMAMOO", "SEVENTEEN",
+    "ENHYPEN", "TXT", "ATEEZ", "ITZY", "Yeji", "Lia", "Ryujin", "Chaeryeong", "Yuna",
+    
+    // 🇪🇸 LATINOAMÉRICA
+    "Bad Bunny", "Karol G", "Rosalía", "Aitana", "Ana Mena", "Lola Índigo",
+    "C. Tangana", "Rauw Alejandro", "Maluma", "J Balvin", "Ozuna", "Anuel AA",
+    "Daddy Yankee", "Nicky Jam", "Don Omar", "Wisin", "Yandel", "Farruko",
+    "Becky G", "Natti Natasha", "Tini", "María Becerra", "Emilia", "Cazzu",
+    "Paulo Londra", "Duki", "Bizarrap", "Peso Pluma", "Feid", "Ryan Castro",
+    
+    // 🎭 NETFLIX & STREAMING STARS
+    "Noah Centineo", "Lana Condor", "Ross Butler", "Anna Cathcart", "Jordan Fisher",
+    "Chase Stokes", "Madelyn Cline", "Rudy Pankow", "Madison Bailey", "Jonathan Daviss",
+    "Austin Butler", "Jacob Elordi", "Alexa Demie", "Sydney Sweeney", "Hunter Schafer",
+    "Zendaya", "Tom Holland", "Millie Bobby Brown", "Finn Wolfhard", "Gaten Matarazzo",
+    "Caleb McLaughlin", "Sadie Sink", "Maya Hawke", "Joe Keery", "Natalia Dyer",
+    "Charlie Heaton", "Dacre Montgomery", "Penn Badgley", "Victoria Pedretti",
+    "Dylan Minnette", "Katherine Langford", "Ross Lynch", "13 Reasons Why Cast",
+    
+    // 🦸‍♂️ MARVEL & DC
+    "Tom Holland", "Zendaya", "Jacob Batalon", "Tony Revolori", "Marisa Tomei",
+    "Chris Evans", "Scarlett Johansson", "Mark Ruffalo", "Chris Hemsworth", "Jeremy Renner",
+    "Paul Rudd", "Evangeline Lilly", "Brie Larson", "Tessa Thompson", "Lupita Nyong'o",
+    "Chadwick Boseman", "Michael B. Jordan", "Letitia Wright", "Danai Gurira",
+    "Robert Downey Jr.", "Gwyneth Paltrow", "Don Cheadle", "Anthony Mackie", "Sebastian Stan",
+    "Elizabeth Olsen", "Paul Bettany", "Kathryn Hahn", "Evan Peters", "Kat Dennings",
+    
+    // 🎪 TIKTOKERS & INFLUENCERS
+    "Charli D'Amelio", "Dixie D'Amelio", "Addison Rae", "Bella Poarch", "Loren Gray",
+    "Baby Ariel", "Zach King", "David Dobrik", "Emma Chamberlain", "James Charles",
+    "Jeffree Star", "Nikocado Avocado", "MrBeast", "PewDiePie", "Markiplier",
+    "Jacksepticeye", "DanTDM", "VanossGaming", "Ninja", "Pokimane", "Valkyrae",
+    "Corpse Husband", "Dream", "GeorgeNotFound", "Sapnap", "TommyInnit", "Tubbo",
+    
+    // 🏃‍♂️ DEPORTISTAS
+    "Cristiano Ronaldo", "Lionel Messi", "Neymar Jr", "Kylian Mbappé", "Erling Haaland",
+    "Vinicius Jr", "Pedri", "Gavi", "Jude Bellingham", "Marcus Rashford",
+    "LeBron James", "Stephen Curry", "Kevin Durant", "Giannis Antetokounmpo", "Luka Dončić",
+    "Jayson Tatum", "Zion Williamson", "Ja Morant", "Trae Young", "Anthony Edwards",
+    "Serena Williams", "Naomi Osaka", "Emma Raducanu", "Coco Gauff", "Iga Świątek",
+    
+    // 🎨 MODELOS & FASHION
+    "Gigi Hadid", "Bella Hadid", "Kendall Jenner", "Hailey Bieber", "Emily Ratajkowski",
+    "Cara Delevingne", "Kaia Gerber", "Paloma Elsesser", "Ashley Graham", "Winnie Harlow",
+    "Joan Smalls", "Liu Wen", "Adut Akech", "Kiki Willems", "Vittoria Ceretti",
+    "Barbara Palvin", "Taylor Hill", "Romee Strijd", "Jasmine Tookes", "Sara Sampaio",
+    
+    // 🔥 RISING STARS 2025
+    "Anya Taylor-Joy", "Thomasin McKenzie", "Millicent Simmonds", "Darby Camp", "Julia Butters",
+    "McKenna Grace", "Marsai Martin", "Storm Reid", "Yara Shahidi", "Rowan Blanchard",
+    "Jenna Davis", "Annie LeBlanc", "Mackenzie Ziegler", "JoJo Siwa", "Millie Bobby Brown",
+    "Sadie Sink", "Maya Hawke", "Priah Ferguson", "Gaten Matarazzo", "Caleb McLaughlin",
+    
+    // 🌟 HOLLYWOOD LEGENDS (STILL HOT)
+    "Will Smith", "Johnny Depp", "Tom Cruise", "Keanu Reeves", "Hugh Jackman",
+    "Robert Downey Jr.", "Chris Pratt", "Mark Wahlberg", "Dwayne Johnson", "Jason Momoa",
+    "Henry Cavill", "Chris Pine", "Ryan Gosling", "Jake Gyllenhaal", "Michael Fassbender",
+    "Angelina Jolie", "Jennifer Aniston", "Scarlett Johansson", "Charlize Theron", "Nicole Kidman",
+    
+    // 🎵 REGGAETON & URBANO
+    "Bad Bunny", "J Balvin", "Maluma", "Ozuna", "Anuel AA", "Farruko", "Nicky Jam",
+    "Daddy Yankee", "Don Omar", "Wisin", "Yandel", "Arcángel", "De La Ghetto",
+    "Rauw Alejandro", "Myke Towers", "Jhay Cortez", "Sech", "Lunay", "Lyanno",
+    "Cazzu", "Karol G", "Natti Natasha", "Becky G", "Rosalía", "Aitana",
+    
+    // 🇧🇷 BRAZIL STARS
+    "Anitta", "Pabllo Vittar", "Luísa Sonza", "IZA", "Pocah", "Lexa", "MC Rebecca",
+    "Bruna Marquezine", "Marina Ruy Barbosa", "Giovanna Ewbank", "Sabrina Sato",
+    "Grazi Massafera", "Paolla Oliveira", "Isis Valverde", "Camila Queiroz",
+    
+    // 🇮🇳 BOLLYWOOD
+    "Priyanka Chopra", "Deepika Padukone", "Alia Bhatt", "Katrina Kaif", "Anushka Sharma",
+    "Kareena Kapoor", "Sonam Kapoor", "Jacqueline Fernandez", "Shraddha Kapoor",
+    "Ranveer Singh", "Ranbir Kapoor", "Shahid Kapoor", "Varun Dhawan", "Sidharth Malhotra",
+    
+    // 🇬🇧 BRITISH STARS
+    "Daniel Radcliffe", "Emma Watson", "Rupert Grint", "Tom Felton", "Bonnie Wright",
+    "Benedict Cumberbatch", "Tom Hiddleston", "Eddie Redmayne", "Dev Patel", "John Boyega",
+    "Daisy Ridley", "Felicity Jones", "Keira Knightley", "Kate Winslet", "Helena Bonham Carter",
+    
+    // 🇫🇷 FRENCH CINEMA
+    "Léa Seydoux", "Marion Cotillard", "Adèle Exarchopoulos", "Virginie Efira", "Charlotte Gainsbourg",
+    "Omar Sy", "Jean Dujardin", "Gaspard Ulliel", "Pierre Niney", "Romain Duris",
+    
+    // 🎮 GAMING & ESPORTS
+    "Ninja", "Pokimane", "Valkyrae", "Corpse Husband", "Dream", "GeorgeNotFound",
+    "Sapnap", "TommyInnit", "Tubbo", "Wilbur Soot", "Philza", "Technoblade",
+    "PewDiePie", "Markiplier", "Jacksepticeye", "VanossGaming", "DanTDM", "CaptainSparklez",
+    
+    // 🌈 LGBTQ+ ICONS
+    "Troye Sivan", "Lil Nas X", "Sam Smith", "Janelle Monáe", "Frank Ocean",
+    "Tyler, The Creator", "Kevin Abstract", "Hayley Kiyoko", "King Princess", "Clairo",
+    "Phoebe Bridgers", "Julien Baker", "Lucy Dacus", "boygenius", "MUNA",
+    
+    // 🔥 VIRAL SENSATIONS 2025
+    "Ice Spice", "Central Cee", "Gayle", "Steve Lacy", "Daniel Caesar", "Summer Walker",
+    "Giveon", "Brent Faiyaz", "Kali Uchis", "Rex Orange County", "Boy Pablo", "Cuco",
+    "Omar Apollo", "Arlo Parks", "Beabadoobee", "Girl in Red", "Conan Gray", "Declan McKenna",
   ];
 
   List<String> get celebrities => _celebrities;

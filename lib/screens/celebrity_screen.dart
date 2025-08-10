@@ -6,6 +6,7 @@ import '../services/theme_service.dart';
 import '../services/crush_service.dart';
 import '../services/streak_service.dart';
 import '../services/locale_service.dart';
+import '../services/monetization_service.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'result_screen.dart';
 
@@ -48,6 +49,9 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
 
   Future<void> _selectCelebrity(String celebrity) async {
     try {
+      // 🔒 Registrar escaneo para monetización
+      await MonetizationService.instance.recordScan();
+      
       // Get localizations with null safety
       final localizations = AppLocalizations.of(context);
       
@@ -106,6 +110,9 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
           ),
         );
       }
+
+      // 🎬 Mostrar anuncio intersticial después del escaneo
+      await MonetizationService.instance.showInterstitialAd();
 
       if (mounted) {
         Navigator.pushReplacement(

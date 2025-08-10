@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../models/app_theme.dart';
 
 class ThemeService extends ChangeNotifier {
   static final ThemeService _instance = ThemeService._internal();
@@ -7,12 +8,17 @@ class ThemeService extends ChangeNotifier {
   ThemeService._internal();
 
   bool _isDarkMode = false;
+  ThemeType _currentTheme = ThemeType.classic;
 
   bool get isDarkMode => _isDarkMode;
+  ThemeType get currentTheme => _currentTheme;
+  AppTheme get currentAppTheme => AppTheme.getThemeByType(_currentTheme);
 
   Future<void> initialize() async {
     final prefs = await SharedPreferences.getInstance();
     _isDarkMode = prefs.getBool('dark_mode') ?? false;
+    final themeIndex = prefs.getInt('current_theme') ?? 0;
+    _currentTheme = ThemeType.values[themeIndex];
     notifyListeners();
   }
 
@@ -23,79 +29,66 @@ class ThemeService extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Gradientes mejorados para ambos temas
-  LinearGradient get backgroundGradient {
-    if (_isDarkMode) {
-      return const LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          Color(0xFF1A1A2E), // Azul oscuro elegante
-          Color(0xFF16213E), // Azul marino profundo
-          Color(0xFF0F3460), // Azul medianoche
-        ],
-      );
-    } else {
-      return const LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          Color(0xFFFFE0E6), // Rosa claro
-          Color(0xFFFFB3C1), // Rosa medio
-          Color(0xFFFF8A95), // Rosa más intenso
-        ],
-      );
-    }
+  Future<void> changeTheme(ThemeType newTheme) async {
+    _currentTheme = newTheme;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('current_theme', newTheme.index);
+    notifyListeners();
   }
 
-  // Colores primarios y secundarios mejorados
-  Color get primaryColor => _isDarkMode 
-    ? const Color(0xFFFF6B9D) // Rosa vibrante para modo oscuro
-    : const Color(0xFFFF6F91); // Rosa original para modo claro
-    
-  Color get secondaryColor => _isDarkMode 
-    ? const Color(0xFFC44EB5) // Magenta suave para modo oscuro
-    : const Color(0xFFFFC0CB); // Rosa claro para modo claro
+  // Gradientes basados en el tema actual
+  LinearGradient get backgroundGradient {
+    return _isDarkMode 
+      ? currentAppTheme.backgroundGradientDark
+      : currentAppTheme.backgroundGradient;
+  }
 
-  // Colores de texto optimizados
+  // Colores basados en el tema actual
+  Color get primaryColor => currentAppTheme.primaryColor;
+  Color get secondaryColor => currentAppTheme.secondaryColor;
+  Color get accentColor => currentAppTheme.accentColor;
+
+  // Colores de texto basados en el tema actual
   Color get textColor => _isDarkMode 
-    ? const Color(0xFFF5F5F5) // Blanco suave
-    : const Color(0xFF2C1810); // Marrón oscuro original
+    ? Colors.white.withOpacity(0.95) // Blanco suave para modo oscuro
+    : currentAppTheme.primaryColor.computeLuminance() > 0.5 
+      ? const Color(0xFF2C1810) // Texto oscuro para temas claros
+      : const Color(0xFF1A1A1A); // Texto muy oscuro para temas vibrantes
     
   Color get subtitleColor => _isDarkMode 
-    ? const Color(0xFFB0B0B0) // Gris claro para subtítulos
-    : const Color(0xFF757575); // Gris medio para subtítulos
+    ? Colors.white.withOpacity(0.7) // Blanco transparente para modo oscuro
+    : currentAppTheme.primaryColor.withOpacity(0.8); // Color del tema con transparencia
 
-  // Colores de tarjetas y superficies mejorados
+  // Colores de tarjetas y superficies basados en el tema actual
   Color get cardColor => _isDarkMode 
-    ? const Color(0xFF1E1E2E).withOpacity(0.95) // Azul muy oscuro con transparencia
+    ? Color.lerp(const Color(0xFF1A1A1A), currentAppTheme.primaryColor, 0.1)!.withOpacity(0.95)
     : Colors.white.withOpacity(0.9);
     
   Color get surfaceColor => _isDarkMode 
-    ? const Color(0xFF252540) // Superficie secundaria oscura
-    : const Color(0xFFF8F9FA); // Superficie secundaria clara
+    ? Color.lerp(const Color(0xFF2A2A2A), currentAppTheme.primaryColor, 0.05)!
+    : Color.lerp(Colors.white, currentAppTheme.primaryColor, 0.03)!;
 
-  // Colores para elementos específicos
+  // Colores para elementos específicos basados en el tema
   Color get iconColor => _isDarkMode 
-    ? const Color(0xFFE0E0E0) // Blanco suave para iconos
-    : const Color(0xFF424242); // Gris oscuro para iconos
+    ? Colors.white.withOpacity(0.9)
+    : currentAppTheme.primaryColor.withOpacity(0.8);
     
   Color get borderColor => _isDarkMode 
-    ? const Color(0xFF3A3A54) // Borde sutil oscuro
-    : const Color(0xFFE0E0E0); // Borde sutil claro
+    ? currentAppTheme.primaryColor.withOpacity(0.3)
+    : currentAppTheme.primaryColor.withOpacity(0.2);
 
-  // Colores de estado
+  // Colores de estado adaptados al tema
   Color get successColor => _isDarkMode 
-    ? const Color(0xFF4CAF50) // Verde exitoso
-    : const Color(0xFF2E7D32); // Verde más oscuro para modo claro
+    ? const Color(0xFF4CAF50)
+    : const Color(0xFF2E7D32);
     
   Color get warningColor => _isDarkMode 
-    ? const Color(0xFFFF9800) // Naranja cálido
-    : const Color(0xFFF57C00); // Naranja más oscuro para modo claro
+    ? const Color(0xFFFF9800)
+    : const Color(0xFFF57C00);
     
   Color get errorColor => _isDarkMode 
-    ? const Color(0xFFF44336) // Rojo suave
-    : const Color(0xFFD32F2F); // Rojo más oscuro para modo claro
+    ? const Color(0xFFF44336)
+    : const Color(0xFFD32F2F);
 
   // Gradientes especiales para botones y elementos destacados
   LinearGradient get primaryGradient => LinearGradient(
@@ -105,10 +98,10 @@ class ThemeService extends ChangeNotifier {
   );
   
   LinearGradient get cardGradient => _isDarkMode 
-    ? const LinearGradient(
+    ? LinearGradient(
         colors: [
-          Color(0xFF1E1E2E),
-          Color(0xFF252540),
+          Color.lerp(const Color(0xFF1A1A1A), currentAppTheme.primaryColor, 0.1)!,
+          Color.lerp(const Color(0xFF2A2A2A), currentAppTheme.primaryColor, 0.05)!,
         ],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
@@ -116,7 +109,7 @@ class ThemeService extends ChangeNotifier {
     : LinearGradient(
         colors: [
           Colors.white.withOpacity(0.9),
-          Colors.white.withOpacity(0.7),
+          Color.lerp(Colors.white, currentAppTheme.primaryColor, 0.05)!.withOpacity(0.7),
         ],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,

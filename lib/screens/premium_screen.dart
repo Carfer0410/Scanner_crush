@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../widgets/custom_widgets.dart';
 import '../services/theme_service.dart';
-import '../services/ad_service.dart';
 import '../services/locale_service.dart';
+import '../services/monetization_service.dart';
+import '../services/admob_service.dart';
+import '../services/purchase_service.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class PremiumScreen extends StatefulWidget {
@@ -16,17 +19,45 @@ class PremiumScreen extends StatefulWidget {
 
 class _PremiumScreenState extends State<PremiumScreen> {
   bool _isLoading = false;
+  BannerAd? _bannerAd;
+  bool _isBannerAdReady = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBannerAd();
+  }
+
+  void _loadBannerAd() {
+    final currentTier = MonetizationService.instance.currentTier;
+    
+    // Solo mostrar anuncios si no es premium
+    if (currentTier == SubscriptionTier.free) {
+      _bannerAd = AdMobService.instance.createBannerAd();
+      _bannerAd?.load().then((_) {
+        setState(() {
+          _isBannerAdReady = true;
+        });
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _bannerAd?.dispose();
+    super.dispose();
+  }
 
   final List<Map<String, dynamic>> _features = [
-    {
-      'icon': Icons.block,
-      'title': 'noAdsTitle',
-      'description': 'noAdsDescription',
-    },
     {
       'icon': Icons.all_inclusive,
       'title': 'unlimitedScansTitle',
       'description': 'unlimitedScansDescription',
+    },
+    {
+      'icon': Icons.block,
+      'title': 'noAdsTitle',
+      'description': 'noAdsDescription',
     },
     {
       'icon': Icons.star,
@@ -39,9 +70,19 @@ class _PremiumScreenState extends State<PremiumScreen> {
       'description': 'crushHistoryDescription',
     },
     {
+      'icon': Icons.analytics,
+      'title': 'Analytics Avanzados',
+      'description': 'Gráficos y estadísticas de compatibilidad',
+    },
+    {
       'icon': Icons.palette,
       'title': 'specialThemesTitle',
       'description': 'specialThemesDescription',
+    },
+    {
+      'icon': Icons.backup,
+      'title': 'Backup en la Nube',
+      'description': 'Tus datos seguros y sincronizados',
     },
     {
       'icon': Icons.support_agent,
@@ -56,15 +97,13 @@ class _PremiumScreenState extends State<PremiumScreen> {
     });
 
     try {
-      // Simulate purchase process
-      await Future.delayed(const Duration(seconds: 2));
+      // Intentar compra real con PurchaseService
+      final success = await PurchaseService.instance.buySubscription(
+        PurchaseService.premiumMonthlyId
+      );
 
-      // In a real app, implement actual in-app purchase logic here
-      // For now, we'll just simulate a successful purchase
-      await AdService.instance.setPremiumUser(true);
-
-      if (mounted) {
-        // Show success dialog
+      if (success && mounted) {
+        // Mostrar diálogo de éxito
         showDialog(
           context: context,
           barrierDismissible: false,
@@ -135,13 +174,44 @@ class _PremiumScreenState extends State<PremiumScreen> {
   }
 
   void _restorePurchases() async {
-    // In a real app, implement restore purchases logic
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(AppLocalizations.of(context)?.noPreviousPurchases ?? ''),
-        backgroundColor: Colors.orange,
-      ),
+    // Restaurar compras reales con PurchaseService
+    final success = await PurchaseService.instance.restorePurchases();
+    
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            (LocaleService.instance.currentLocale.languageCode == 'en')
+                ? 'Purchases restored successfully'
+                : 'Compras restauradas exitosamente'
+          ),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)?.noPreviousPurchases ?? ''),
+          backgroundColor: Colors.orange,
+        ),
+      );
+    }
+  }
+
+  Future<String> _getPremiumPrice() async {
+    // Obtener precio real desde PurchaseService
+    final price = PurchaseService.instance.getFormattedPrice(
+      PurchaseService.premiumMonthlyId
     );
+    
+    if (price != 'N/A') {
+      return '$price/mes';
+    }
+    
+    // Precio por defecto si no se puede cargar
+    return (LocaleService.instance.currentLocale.languageCode == 'en')
+        ? '\$4.99/month'
+        : '\$4.99/mes';
   }
 
   String _getFeatureTitle(String key) {
@@ -410,6 +480,82 @@ class _PremiumScreenState extends State<PremiumScreen> {
                       ).animate().scale(delay: 1.2.seconds),
 
                       const SizedBox(height: 30),
+
+                      // Banner Ad (solo para usuarios gratuitos)
+                      if (_bannerAd != null && _isBannerAdReady) ...[
+                        Container(
+                          width: _bannerAd!.size.width.toDouble(),
+                          height: _bannerAd!.size.height.toDouble(),
+                          child: AdWidget(ad: _bannerAd!),
+                        ),
+                        const SizedBox(height: 20),
+                      ],
+
+                      // Sección de precios desde PurchaseService
+                      FutureBuilder<String>(
+                        future: _getPremiumPrice(),
+                        builder: (context, snapshot) {
+                          final price = snapshot.data ?? '\$4.99/mes';
+                          return Container(
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.purple.withOpacity(0.1),
+                                  Colors.pink.withOpacity(0.1),
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: Colors.purple.withOpacity(0.3),
+                                width: 1,
+                              ),
+                            ),
+                            child: Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.stars, color: Colors.amber, size: 24),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Premium',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold,
+                                        color: ThemeService.instance.textColor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  price,
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 32,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.purple,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  (LocaleService.instance.currentLocale.languageCode == 'en')
+                                      ? 'Cancel anytime'
+                                      : 'Cancela cuando quieras',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14,
+                                    color: ThemeService.instance.subtitleColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ).animate().scale(delay: 1.2.seconds),
+
+                      const SizedBox(height: 20),
 
                       // Purchase button
                       GradientButton(

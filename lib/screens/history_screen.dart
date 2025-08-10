@@ -6,8 +6,12 @@ import '../widgets/custom_widgets.dart';
 import '../services/theme_service.dart';
 import '../services/crush_service.dart';
 import '../services/locale_service.dart';
+import '../services/monetization_service.dart';
+import '../services/admob_service.dart';
+import '../screens/premium_screen.dart';
 import '../models/crush_result.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -19,18 +23,52 @@ class HistoryScreen extends StatefulWidget {
 class _HistoryScreenState extends State<HistoryScreen> {
   List<CrushResult> _results = [];
   bool _isLoading = true;
+  BannerAd? _bannerAd;
+  bool _isBannerAdReady = false;
+  static const int _freeHistoryLimit = 10; // Límite para usuarios gratuitos
 
   @override
   void initState() {
     super.initState();
     _loadHistory();
+    _loadBannerAd();
+  }
+
+  void _loadBannerAd() {
+    // Solo cargar banner ads para usuarios no premium
+    if (!MonetizationService.instance.isPremium) {
+      _bannerAd = AdMobService.instance.createBannerAd();
+      _bannerAd?.load().then((_) {
+        if (mounted) {
+          setState(() {
+            _isBannerAdReady = true;
+          });
+        }
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _bannerAd?.dispose();
+    super.dispose();
   }
 
   Future<void> _loadHistory() async {
     try {
-      final results = await CrushService.instance.getAllSavedResults();
+      final allResults = await CrushService.instance.getAllSavedResults();
+      
+      // Aplicar límite para usuarios no premium
+      List<CrushResult> displayResults;
+      if (MonetizationService.instance.isPremium) {
+        displayResults = allResults; // Sin límites para premium
+      } else {
+        // Solo mostrar los últimos 10 resultados para usuarios gratuitos
+        displayResults = allResults.take(_freeHistoryLimit).toList();
+      }
+      
       setState(() {
-        _results = results;
+        _results = displayResults;
         _isLoading = false;
       });
     } catch (e) {
@@ -136,6 +174,17 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     ),
                   ),
 
+                  // Banner Ad for non-premium users
+                  if (_bannerAd != null && _isBannerAdReady && !MonetizationService.instance.isPremium) ...[
+                    Container(
+                      alignment: Alignment.center,
+                      width: _bannerAd!.size.width.toDouble(),
+                      height: _bannerAd!.size.height.toDouble(),
+                      child: AdWidget(ad: _bannerAd!),
+                    ),
+                    const SizedBox(height: 10),
+                  ],
+
                   Expanded(
                     child:
                         _isLoading
@@ -239,11 +288,86 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Widget _buildHistoryList() {
     return ListView.builder(
       padding: const EdgeInsets.all(20),
-      itemCount: _results.length,
+      itemCount: _results.length + (_shouldShowUpgradePrompt() ? 1 : 0),
       itemBuilder: (context, index) {
+        if (index == _results.length && _shouldShowUpgradePrompt()) {
+          return _buildUpgradePrompt();
+        }
         final result = _results[index];
         return _buildHistoryCard(result, index);
       },
+    );
+  }
+
+  bool _shouldShowUpgradePrompt() {
+    return !MonetizationService.instance.isPremium && 
+           _results.length >= _freeHistoryLimit;
+  }
+
+  Widget _buildUpgradePrompt() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Colors.purple.withOpacity(0.1),
+            Colors.pink.withOpacity(0.1),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.purple.withOpacity(0.3), width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.purple.withOpacity(0.1),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Icon(
+            Icons.star,
+            size: 50,
+            color: Colors.amber,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            '🔒 Historial Completo',
+            style: GoogleFonts.poppins(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: ThemeService.instance.textColor,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Upgrade a Premium para ver tu historial completo sin límites',
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              color: ThemeService.instance.subtitleColor,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 20),
+          GradientButton(
+            text: 'Upgrade a Premium',
+            icon: Icons.diamond,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PremiumScreen(),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 

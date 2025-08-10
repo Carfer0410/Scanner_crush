@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../widgets/custom_widgets.dart';
 import '../services/theme_service.dart';
 import '../services/daily_love_service.dart';
+import '../services/monetization_service.dart';
+import '../services/admob_service.dart';
+import '../screens/premium_screen.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class DailyLoveScreen extends StatefulWidget {
@@ -18,6 +22,8 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
   late AnimationController _pulseController;
   bool _isLoading = true;
   String? _errorMessage;
+  BannerAd? _bannerAd;
+  bool _isBannerAdReady = false;
 
   @override
   void initState() {
@@ -28,6 +34,28 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
     )..repeat(reverse: true);
 
     _initializeData();
+    _loadBannerAd();
+  }
+
+  void _loadBannerAd() {
+    // Solo cargar banner ads para usuarios no premium
+    if (!MonetizationService.instance.isPremium) {
+      _bannerAd = AdMobService.instance.createBannerAd();
+      _bannerAd?.load().then((_) {
+        if (mounted) {
+          setState(() {
+            _isBannerAdReady = true;
+          });
+        }
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _bannerAd?.dispose();
+    _pulseController.dispose();
+    super.dispose();
   }
 
   Future<void> _initializeData() async {
@@ -47,12 +75,6 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
         });
       }
     }
-  }
-
-  @override
-  void dispose() {
-    _pulseController.dispose();
-    super.dispose();
   }
 
   @override
@@ -162,6 +184,17 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
 
           const SizedBox(height: 30),
 
+          // Banner Ad for non-premium users
+          if (_bannerAd != null && _isBannerAdReady && !MonetizationService.instance.isPremium) ...[
+            Container(
+              alignment: Alignment.center,
+              width: _bannerAd!.size.width.toDouble(),
+              height: _bannerAd!.size.height.toDouble(),
+              margin: const EdgeInsets.only(bottom: 20),
+              child: AdWidget(ad: _bannerAd!),
+            ),
+          ],
+
           // Horóscopo del día
           _buildDailyHoroscope(horoscope),
 
@@ -174,6 +207,11 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
 
           // Logros
           if (achievements.isNotEmpty) _buildAchievements(achievements),
+
+          const SizedBox(height: 30),
+
+          // Premium features promotion for non-premium users
+          if (!MonetizationService.instance.isPremium) _buildPremiumPromotion(),
         ],
       ),
     );
@@ -383,6 +421,80 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
               .slideX(begin: 0.3, duration: 500.ms);
         }).toList(),
       ],
+    );
+  }
+
+  Widget _buildPremiumPromotion() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Colors.purple.withOpacity(0.8),
+            Colors.pink.withOpacity(0.8),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(25),
+        border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.purple.withOpacity(0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Icon(
+            Icons.diamond,
+            size: 50,
+            color: Colors.amber,
+          ).animate().scale(delay: 200.ms),
+          
+          const SizedBox(height: 16),
+          
+          Text(
+            '✨ Desbloquea el Universo Premium',
+            style: GoogleFonts.poppins(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+            textAlign: TextAlign.center,
+          ).animate().fadeIn(delay: 400.ms),
+          
+          const SizedBox(height: 12),
+          
+          Text(
+            '• Horóscopos personalizados diarios\n• Consejos amorosos exclusivos\n• Análisis de compatibilidad avanzado\n• Sin anuncios',
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              color: Colors.white.withOpacity(0.9),
+              height: 1.6,
+            ),
+            textAlign: TextAlign.center,
+          ).animate().fadeIn(delay: 600.ms),
+          
+          const SizedBox(height: 24),
+          
+          GradientButton(
+            text: 'Upgrade a Premium',
+            icon: Icons.diamond,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PremiumScreen(),
+                ),
+              );
+            },
+          ).animate().scale(delay: 800.ms),
+        ],
+      ),
     );
   }
 }
