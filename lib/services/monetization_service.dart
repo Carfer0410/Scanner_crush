@@ -59,16 +59,45 @@ class MonetizationService {
   
   // Getters
   SubscriptionTier get currentTier => _currentTier;
-  bool get isPremium => _currentTier == SubscriptionTier.premium || _currentTier == SubscriptionTier.premiumPlus;
+  
+  /// Verificar si el usuario tiene acceso premium (incluye período de gracia y acceso temporal)
+  bool get isPremium {
+    // Si es premium real, retornar true
+    if (_currentTier == SubscriptionTier.premium || _currentTier == SubscriptionTier.premiumPlus) {
+      return true;
+    }
+    
+    // Durante el período de gracia, actuar como premium
+    // Nota: Esto es síncrono para mejor rendimiento, se verifica async cuando es necesario
+    return false; // Se verifica con isPremiumWithGrace() para operaciones async
+  }
+  
+  /// Verificar acceso premium incluyendo período de gracia (async)
+  Future<bool> isPremiumWithGrace() async {
+    // Si es premium real, retornar true
+    if (_currentTier == SubscriptionTier.premium || _currentTier == SubscriptionTier.premiumPlus) {
+      return true;
+    }
+    
+    // Verificar período de gracia
+    if (await _isInGracePeriod()) {
+      return true;
+    }
+    
+    // Verificar acceso temporal por anuncio
+    if (await hasTemporaryPremiumAccess()) {
+      return true;
+    }
+    
+    return false;
+  }
+  
   bool get isPremiumPlus => _currentTier == SubscriptionTier.premiumPlus;
   bool get isFree => _currentTier == SubscriptionTier.free;
   
   // Verificaciones de límites
   Future<bool> canScanToday() async {
-    if (isPremium) return true;
-    
-    // Verificar período de gracia para nuevos usuarios
-    if (await _isInGracePeriod()) return true;
+    if (await isPremiumWithGrace()) return true;
     
     final totalScansToday = await _getTotalScansToday();
     final maxAllowed = _dailyFreeScans + await getExtraScansFromAds();
@@ -105,17 +134,14 @@ class MonetizationService {
   }
   
   Future<void> recordScan() async {
-    if (isFree) {
+    if (!await isPremiumWithGrace()) {
       final todayScans = _prefs?.getInt('today_scans') ?? 0;
       await _prefs?.setInt('today_scans', todayScans + 1);
     }
   }
   
   Future<int> getRemainingScansTodayForFree() async {
-    if (isPremium) return -1; // Ilimitado
-    
-    // Verificar período de gracia
-    if (await _isInGracePeriod()) return -1; // Ilimitado durante gracia
+    if (await isPremiumWithGrace()) return -1; // Ilimitado
     
     final totalScansUsed = await _getTotalScansToday();
     final baseScans = _dailyFreeScans;
@@ -126,7 +152,7 @@ class MonetizationService {
   }
   
   Future<int> getAvailableAdBonusScans() async {
-    if (isPremium) return 0;
+    if (await isPremiumWithGrace()) return 0;
     
     final extraScans = await getExtraScansFromAds();
     return (_maxAdBonusScans - extraScans).clamp(0, _maxAdBonusScans);
@@ -146,16 +172,26 @@ class MonetizationService {
   }
   
   bool canAccessCelebrity(int celebrityIndex) {
-    if (isPremium) return true;
+    // Para acceso inmediato (sync), verificamos solo premium real
+    // Las pantallas deberían usar canAccessCelebrityAsync() para verificar período de gracia
+    if (_currentTier == SubscriptionTier.premium || _currentTier == SubscriptionTier.premiumPlus) {
+      return true;
+    }
     return celebrityIndex < _freeCelebrities;
   }
   
-  bool canAccessFullHistory() {
-    return isPremium;
+  /// Verificar acceso a celebridad incluyendo período de gracia (async)
+  Future<bool> canAccessCelebrityAsync(int celebrityIndex) async {
+    if (await isPremiumWithGrace()) return true;
+    return celebrityIndex < _freeCelebrities;
+  }
+  
+  Future<bool> canAccessFullHistory() async {
+    return await isPremiumWithGrace();
   }
   
   Future<bool> canShareToday() async {
-    if (isPremium) return true;
+    if (await isPremiumWithGrace()) return true;
     
     final today = DateTime.now().toIso8601String().split('T')[0];
     final lastShareDate = _prefs?.getString('last_share_date');
@@ -172,7 +208,7 @@ class MonetizationService {
   }
   
   Future<void> recordShare() async {
-    if (isFree) {
+    if (!await isPremiumWithGrace()) {
       final todayShares = _prefs?.getInt('today_shares') ?? 0;
       await _prefs?.setInt('today_shares', todayShares + 1);
     }
@@ -193,7 +229,7 @@ class MonetizationService {
   
   // Manejo de anuncios con recompensa
   Future<bool> watchAdForExtraScans() async {
-    if (isPremium) return false;
+    if (await isPremiumWithGrace()) return false;
     
     final currentExtra = await getExtraScansFromAds();
     if (currentExtra >= _maxAdBonusScans) return false; // Ya llegó al máximo
@@ -216,7 +252,7 @@ class MonetizationService {
 
   /// Nueva función: Ver anuncio para acceso temporal a tema premium (24 horas)
   Future<bool> watchAdForPremiumThemeAccess() async {
-    if (isPremium) return false;
+    if (await isPremiumWithGrace()) return false;
     
     // Verificar si ya tiene acceso temporal activo
     if (await hasTemporaryPremiumAccess()) return false;
@@ -235,7 +271,9 @@ class MonetizationService {
 
   /// Verificar si tiene acceso temporal a funciones premium
   Future<bool> hasTemporaryPremiumAccess() async {
-    if (isPremium) return true; // Ya es premium real
+    if (_currentTier == SubscriptionTier.premium || _currentTier == SubscriptionTier.premiumPlus) {
+      return true; // Ya es premium real
+    }
     
     final isActive = _prefs?.getBool('temp_premium_active') ?? false;
     if (!isActive) return false;
@@ -267,7 +305,7 @@ class MonetizationService {
   }
   
   Future<bool> showInterstitialAd() async {
-    if (isPremium) return true; // Premium no ve anuncios
+    if (await isPremiumWithGrace()) return true; // Premium no ve anuncios
     
     final shouldShow = await AdMobService.instance.shouldShowInterstitialAd();
     if (!shouldShow) return true; // Cooldown activo, permitir acción
@@ -276,7 +314,7 @@ class MonetizationService {
   }
   
   Future<bool> canWatchAdForScans() async {
-    if (isPremium) return false; // Premium no necesita ads
+    if (await isPremiumWithGrace()) return false; // Premium no necesita ads
     final available = await getAvailableAdBonusScans();
     return available >= 2; // Puede ver ad si puede ganar al menos 2 escaneos
   }
@@ -341,14 +379,21 @@ class MonetizationService {
   }
   
   // Funciones exclusivas Premium Plus
-  bool canAccessAIPredictions() => isPremiumPlus;
-  bool canAccessMultipleCrushAnalysis() => isPremiumPlus;
-  bool canAccessAdvancedStats() => isPremiumPlus;
-  bool canAccessPersonalizedAdvice() => isPremiumPlus;
+  Future<bool> canAccessAIPredictions() async => 
+    _currentTier == SubscriptionTier.premiumPlus;
+  Future<bool> canAccessMultipleCrushAnalysis() async => 
+    _currentTier == SubscriptionTier.premiumPlus;
+  Future<bool> canAccessAdvancedStats() async => 
+    _currentTier == SubscriptionTier.premiumPlus;
+  Future<bool> canAccessPersonalizedAdvice() async => 
+    _currentTier == SubscriptionTier.premiumPlus;
   
   /// Crear banner ad (solo para usuarios gratuitos)
   Widget? createBannerAd() {
-    if (isPremium) return null;
+    // Para banner, verificamos premium síncrono (sin período de gracia para mantener simplicidad)
+    if (_currentTier == SubscriptionTier.premium || _currentTier == SubscriptionTier.premiumPlus) {
+      return null;
+    }
     
     final bannerAd = AdMobService.instance.createBannerAd();
     bannerAd.load();

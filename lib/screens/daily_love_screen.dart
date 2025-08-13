@@ -37,9 +37,9 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
     _loadBannerAd();
   }
 
-  void _loadBannerAd() {
-    // Solo cargar banner ads para usuarios no premium
-    if (!MonetizationService.instance.isPremium) {
+  void _loadBannerAd() async {
+    // Solo cargar banner ads para usuarios no premium (incluyendo período de gracia)
+    if (!await MonetizationService.instance.isPremiumWithGrace()) {
       _bannerAd = AdMobService.instance.createBannerAd();
       _bannerAd?.load().then((_) {
         if (mounted) {
@@ -184,16 +184,23 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
 
           const SizedBox(height: 30),
 
-          // Banner Ad for non-premium users
-          if (_bannerAd != null && _isBannerAdReady && !MonetizationService.instance.isPremium) ...[
-            Container(
-              alignment: Alignment.center,
-              width: _bannerAd!.size.width.toDouble(),
-              height: _bannerAd!.size.height.toDouble(),
-              margin: const EdgeInsets.only(bottom: 20),
-              child: AdWidget(ad: _bannerAd!),
-            ),
-          ],
+          // Banner Ad for non-premium users (incluyendo período de gracia)
+          FutureBuilder<bool>(
+            future: MonetizationService.instance.isPremiumWithGrace(),
+            builder: (context, snapshot) {
+              final isPremiumWithGrace = snapshot.data ?? false;
+              if (_bannerAd != null && _isBannerAdReady && !isPremiumWithGrace) {
+                return Container(
+                  alignment: Alignment.center,
+                  width: _bannerAd!.size.width.toDouble(),
+                  height: _bannerAd!.size.height.toDouble(),
+                  margin: const EdgeInsets.only(bottom: 20),
+                  child: AdWidget(ad: _bannerAd!),
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
 
           // Horóscopo del día
           _buildDailyHoroscope(horoscope),
@@ -210,8 +217,17 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
 
           const SizedBox(height: 30),
 
-          // Premium features promotion for non-premium users
-          if (!MonetizationService.instance.isPremium) _buildPremiumPromotion(),
+          // Premium features promotion for non-premium users (excluyendo período de gracia)
+          FutureBuilder<bool>(
+            future: MonetizationService.instance.isPremiumWithGrace(),
+            builder: (context, snapshot) {
+              final isPremiumWithGrace = snapshot.data ?? false;
+              if (!isPremiumWithGrace) {
+                return _buildPremiumPromotion();
+              }
+              return const SizedBox.shrink();
+            },
+          ),
         ],
       ),
     );

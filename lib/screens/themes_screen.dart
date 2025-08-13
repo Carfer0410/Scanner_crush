@@ -36,9 +36,12 @@ class _ThemesScreenState extends State<ThemesScreen>
       curve: Curves.easeInOut,
     ));
     _animationController.forward();
-    
-    // Cargar banner solo para usuarios no premium
-    if (!MonetizationService.instance.isPremium) {
+    _loadBannerAd();
+  }
+
+  void _loadBannerAd() async {
+    // Cargar banner solo para usuarios no premium (incluyendo período de gracia)
+    if (!await MonetizationService.instance.isPremiumWithGrace()) {
       _bannerAd = AdMobService.instance.createBannerAd();
       _bannerAd!.load();
     }
@@ -114,14 +117,22 @@ class _ThemesScreenState extends State<ThemesScreen>
                 ),
               ),
               
-              // Banner ad para usuarios no premium
-              if (_bannerAd != null && !MonetizationService.instance.isPremium)
-                Container(
-                  width: double.infinity,
-                  height: 60,
-                  margin: const EdgeInsets.only(top: 8),
-                  child: AdWidget(ad: _bannerAd!),
-                ),
+              // Banner ad para usuarios no premium (incluyendo período de gracia)
+              FutureBuilder<bool>(
+                future: MonetizationService.instance.isPremiumWithGrace(),
+                builder: (context, snapshot) {
+                  final isPremiumWithGrace = snapshot.data ?? false;
+                  if (_bannerAd != null && !isPremiumWithGrace) {
+                    return Container(
+                      width: double.infinity,
+                      height: 60,
+                      margin: const EdgeInsets.only(top: 8),
+                      child: AdWidget(ad: _bannerAd!),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
             ],
           ),
         ),
@@ -249,12 +260,17 @@ class _ThemesScreenState extends State<ThemesScreen>
         final theme = AppTheme.availableThemes[index];
         final isSelected = theme.type == ThemeService.instance.currentTheme;
         
-        return FutureBuilder<bool>(
-          future: MonetizationService.instance.hasTemporaryPremiumAccess(),
+        return FutureBuilder<List<bool>>(
+          future: Future.wait([
+            MonetizationService.instance.hasTemporaryPremiumAccess(),
+            MonetizationService.instance.isPremiumWithGrace(),
+          ]),
           builder: (context, snapshot) {
-            final hasTemporaryAccess = snapshot.data ?? false;
+            final data = snapshot.data ?? [false, false];
+            final hasTemporaryAccess = data[0];
+            final isPremiumWithGrace = data[1];
             final canUse = !theme.isPremium || 
-                          MonetizationService.instance.isPremium ||
+                          isPremiumWithGrace ||
                           hasTemporaryAccess;
         
             return AnimatedContainer(
@@ -542,9 +558,11 @@ class _ThemesScreenState extends State<ThemesScreen>
   void _onThemeSelected(AppTheme theme, bool canUse, bool hasTemporaryAccess) async {
     AudioService.instance.playButtonTap();
     
+    final isPremiumWithGrace = await MonetizationService.instance.isPremiumWithGrace();
+    
     if (!canUse) {
       // Si es un tema premium y no tiene acceso, mostrar opción de ver anuncio
-      if (theme.isPremium && !MonetizationService.instance.isPremium) {
+      if (theme.isPremium && !isPremiumWithGrace) {
         _showPremiumOrAdOptions(theme);
       } else {
         _showPremiumRequired();
@@ -556,8 +574,8 @@ class _ThemesScreenState extends State<ThemesScreen>
       // Tracking de acción del usuario para anuncios inteligentes
       await AdMobService.instance.trackUserAction();
       
-      // Mostrar intersticial ocasionalmente para usuarios no premium
-      if (!MonetizationService.instance.isPremium && !hasTemporaryAccess) {
+      // Mostrar intersticial ocasionalmente para usuarios no premium (sin período de gracia)
+      if (!isPremiumWithGrace && !hasTemporaryAccess) {
         final shouldShow = await AdMobService.instance.shouldShowInterstitialAd();
         if (shouldShow) {
           await MonetizationService.instance.showInterstitialAd();

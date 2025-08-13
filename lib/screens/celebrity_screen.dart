@@ -31,9 +31,12 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
   void initState() {
     super.initState();
     _filteredCelebrities = CrushService.instance.celebrities;
-    
-    // Cargar banner solo para usuarios no premium
-    if (!MonetizationService.instance.isPremium) {
+    _loadBannerAd();
+  }
+
+  void _loadBannerAd() async {
+    // Cargar banner solo para usuarios no premium (incluyendo período de gracia)
+    if (!await MonetizationService.instance.isPremiumWithGrace()) {
       _bannerAd = AdMobService.instance.createBannerAd();
       _bannerAd!.load();
     }
@@ -342,14 +345,22 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
                   ),
                 ),
               ),
-              // Banner ad al final para usuarios no premium
-              if (_bannerAd != null && !MonetizationService.instance.isPremium)
-                Container(
-                  width: double.infinity,
-                  height: 60,
-                  margin: const EdgeInsets.only(top: 8),
-                  child: AdWidget(ad: _bannerAd!),
-                ),
+              // Banner ad al final para usuarios no premium (incluyendo período de gracia)
+              FutureBuilder<bool>(
+                future: MonetizationService.instance.isPremiumWithGrace(),
+                builder: (context, snapshot) {
+                  final isPremiumWithGrace = snapshot.data ?? false;
+                  if (_bannerAd != null && !isPremiumWithGrace) {
+                    return Container(
+                      width: double.infinity,
+                      height: 60,
+                      margin: const EdgeInsets.only(top: 8),
+                      child: AdWidget(ad: _bannerAd!),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
             ],
           ),
         ),

@@ -34,9 +34,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _loadBannerAd();
   }
 
-  void _loadBannerAd() {
-    // Solo cargar banner ads para usuarios no premium
-    if (!MonetizationService.instance.isPremium) {
+  void _loadBannerAd() async {
+    // Solo cargar banner ads para usuarios no premium (incluye período de gracia)
+    if (!await MonetizationService.instance.isPremiumWithGrace()) {
       _bannerAd = AdMobService.instance.createBannerAd();
       _bannerAd?.load().then((_) {
         if (mounted) {
@@ -89,16 +89,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
 
-              // Banner Ad for non-premium users
-              if (_bannerAd != null && _isBannerAdReady && !MonetizationService.instance.isPremium) ...[
-                Container(
-                  alignment: Alignment.center,
-                  width: _bannerAd!.size.width.toDouble(),
-                  height: _bannerAd!.size.height.toDouble(),
-                  margin: const EdgeInsets.symmetric(vertical: 10),
-                  child: AdWidget(ad: _bannerAd!),
-                ),
-              ],
+              // Banner Ad for non-premium users (incluyendo período de gracia)
+              FutureBuilder<bool>(
+                future: MonetizationService.instance.isPremiumWithGrace(),
+                builder: (context, snapshot) {
+                  final isPremiumWithGrace = snapshot.data ?? false;
+                  if (_bannerAd != null && _isBannerAdReady && !isPremiumWithGrace) {
+                    return Container(
+                      alignment: Alignment.center,
+                      width: _bannerAd!.size.width.toDouble(),
+                      height: _bannerAd!.size.height.toDouble(),
+                      margin: const EdgeInsets.symmetric(vertical: 10),
+                      child: AdWidget(ad: _bannerAd!),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
 
               Expanded(
                 child: ListView(

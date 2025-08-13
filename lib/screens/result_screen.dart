@@ -69,8 +69,12 @@ class _ResultScreenState extends State<ResultScreen>
       }
     });
 
-    // Initialize banner ad for non-premium users
-    if (!MonetizationService.instance.isPremium) {
+    _loadBannerAd();
+  }
+
+  void _loadBannerAd() async {
+    // Initialize banner ad for non-premium users (incluyendo período de gracia)
+    if (!await MonetizationService.instance.isPremiumWithGrace()) {
       _bannerAd = AdMobService.instance.createBannerAd();
       _bannerAd!.load();
     }
@@ -218,8 +222,9 @@ class _ResultScreenState extends State<ResultScreen>
   }
 
   void _navigateToForm() async {
-    // Mostrar anuncio intersticial si no es premium
-    if (!MonetizationService.instance.isPremium) {
+    // Mostrar anuncio intersticial si no es premium (incluyendo período de gracia)
+    final isPremiumWithGrace = await MonetizationService.instance.isPremiumWithGrace();
+    if (!isPremiumWithGrace) {
       final shouldShow = await AdMobService.instance.shouldShowInterstitialAd();
       if (shouldShow && AdMobService.instance.isInterstitialAdReady) {
         await AdMobService.instance.showInterstitialAd();
@@ -530,13 +535,21 @@ class _ResultScreenState extends State<ResultScreen>
 
                       const SizedBox(height: 20),
 
-                      // Ad banner for non-premium users
-                      if (!MonetizationService.instance.isPremium && _bannerAd != null)
-                        Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 20),
-                          height: 50,
-                          child: AdWidget(ad: _bannerAd!),
-                        ),
+                      // Ad banner for non-premium users (incluyendo período de gracia)
+                      FutureBuilder<bool>(
+                        future: MonetizationService.instance.isPremiumWithGrace(),
+                        builder: (context, snapshot) {
+                          final isPremiumWithGrace = snapshot.data ?? false;
+                          if (!isPremiumWithGrace && _bannerAd != null) {
+                            return Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 20),
+                              height: 50,
+                              child: AdWidget(ad: _bannerAd!),
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        },
+                      ),
                     ],
                   ),
                 ),

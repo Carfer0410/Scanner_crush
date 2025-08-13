@@ -26,7 +26,7 @@ class AnalyticsService {
 
   // Obtener estadísticas generales
   Future<CompatibilityStats> getCompatibilityStats() async {
-    if (!MonetizationService.instance.isPremium) {
+    if (!await MonetizationService.instance.isPremiumWithGrace()) {
       throw Exception('Analytics requires Premium subscription');
     }
 
@@ -230,7 +230,7 @@ class AnalyticsService {
 
   // Obtener insights personalizados
   Future<List<PersonalInsight>> getPersonalInsights() async {
-    if (!MonetizationService.instance.isPremium) {
+    if (!await MonetizationService.instance.isPremiumWithGrace()) {
       throw Exception('Personal Insights require Premium subscription');
     }
 
@@ -319,7 +319,7 @@ class AnalyticsService {
 
   // Predicciones basadas en patrones
   Future<List<LovePrediction>> getLovePredictions() async {
-    if (!MonetizationService.instance.isPremium) {
+    if (!await MonetizationService.instance.isPremiumWithGrace()) {
       throw Exception('Love Predictions require Premium subscription');
     }
 

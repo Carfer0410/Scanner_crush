@@ -52,9 +52,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     _loadBannerAd();
   }
 
-  void _loadBannerAd() {
-    // Solo cargar banner ads para usuarios no premium
-    if (!MonetizationService.instance.isPremium) {
+  void _loadBannerAd() async {
+    // Solo cargar banner ads para usuarios no premium (incluyendo período de gracia)
+    if (!await MonetizationService.instance.isPremiumWithGrace()) {
       _bannerAd = AdMobService.instance.createBannerAd();
       _bannerAd?.load().then((_) {
         if (mounted) {
@@ -454,16 +454,23 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                   ).animate().fadeIn(delay: 1.5.seconds),
                 ),
 
-                // Banner Ad for non-premium users
-                if (_bannerAd != null && _isBannerAdReady && !MonetizationService.instance.isPremium) ...[
-                  Container(
-                    alignment: Alignment.center,
-                    width: _bannerAd!.size.width.toDouble(),
-                    height: _bannerAd!.size.height.toDouble(),
-                    margin: const EdgeInsets.only(bottom: 20),
-                    child: AdWidget(ad: _bannerAd!),
-                  ),
-                ],
+                // Banner Ad for non-premium users (incluyendo período de gracia)
+                FutureBuilder<bool>(
+                  future: MonetizationService.instance.isPremiumWithGrace(),
+                  builder: (context, snapshot) {
+                    final isPremiumWithGrace = snapshot.data ?? false;
+                    if (_bannerAd != null && _isBannerAdReady && !isPremiumWithGrace) {
+                      return Container(
+                        alignment: Alignment.center,
+                        width: _bannerAd!.size.width.toDouble(),
+                        height: _bannerAd!.size.height.toDouble(),
+                        margin: const EdgeInsets.only(bottom: 20),
+                        child: AdWidget(ad: _bannerAd!),
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
+                ),
               ],
             ),
           ),
@@ -537,7 +544,12 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     required int delay,
     bool isPremium = false,
   }) {
-    return GestureDetector(
+    return FutureBuilder<bool>(
+      future: MonetizationService.instance.isPremiumWithGrace(),
+      builder: (context, snapshot) {
+        final hasPremiumAccess = snapshot.data ?? false;
+        
+        return GestureDetector(
           onTap: onTap,
           child: Container(
             width: double.infinity,
@@ -589,7 +601,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                               maxLines: 2,
                             ),
                           ),
-                          if (isPremium && !MonetizationService.instance.isPremium) ...[
+                          if (isPremium && !hasPremiumAccess) ...[
                             const SizedBox(width: 8),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -628,6 +640,8 @@ class _WelcomeScreenState extends State<WelcomeScreen>
         .animate()
         .fadeIn(delay: Duration(milliseconds: delay))
         .slideX(begin: 0.3, duration: 600.ms);
+      },
+    );
   }
 
   void _navigateToRegularScanner(BuildContext context) {
@@ -681,9 +695,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     );
   }
 
-  void _navigateToAnalytics(BuildContext context) {
-    // Verificar si tiene premium
-    if (!MonetizationService.instance.isPremium) {
+  void _navigateToAnalytics(BuildContext context) async {
+    // Verificar si tiene premium (incluye período de gracia)
+    if (!await MonetizationService.instance.isPremiumWithGrace()) {
       _showPremiumRequired(context);
       return;
     }
@@ -1466,7 +1480,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
   Future<Map<String, dynamic>> _getLimitsInfo() async {
     final remaining = await MonetizationService.instance.getRemainingScansTodayForFree();
-    final isPremium = MonetizationService.instance.isPremium;
+    final isPremium = await MonetizationService.instance.isPremiumWithGrace();
     final canWatchAd = await MonetizationService.instance.canWatchAdForScans();
     
     return {

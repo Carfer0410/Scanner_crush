@@ -27,7 +27,25 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    _loadAnalytics();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_isLoading) {
+      _checkPremiumAndLoad();
+    }
+  }
+
+  Future<void> _checkPremiumAndLoad() async {
+    final isPremiumWithGrace = await MonetizationService.instance.isPremiumWithGrace();
+    if (isPremiumWithGrace) {
+      _loadAnalytics();
+    } else {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
@@ -37,14 +55,6 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
   }
 
   Future<void> _loadAnalytics() async {
-    if (!MonetizationService.instance.isPremium) {
-      setState(() {
-        _isLoading = false;
-        _errorMessage = AppLocalizations.of(context)?.premiumRequiredMessage ?? 'Premium subscription required';
-      });
-      return;
-    }
-
     try {
       // Agregar timeout para evitar carga infinita
       final results = await Future.wait([
@@ -124,14 +134,22 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
                 ),
               ),
 
-              if (!MonetizationService.instance.isPremium)
-                _buildPremiumRequired()
-              else if (_isLoading)
-                _buildLoadingScreen()
-              else if (_errorMessage != null)
-                _buildErrorScreen()
-              else
-                _buildAnalyticsContent(),
+              FutureBuilder<bool>(
+                future: MonetizationService.instance.isPremiumWithGrace(),
+                builder: (context, snapshot) {
+                  final isPremiumWithGrace = snapshot.data ?? false;
+                  
+                  if (!isPremiumWithGrace) {
+                    return _buildPremiumRequired();
+                  } else if (_isLoading) {
+                    return _buildLoadingScreen();
+                  } else if (_errorMessage != null) {
+                    return _buildErrorScreen();
+                  } else {
+                    return _buildAnalyticsContent();
+                  }
+                },
+              ),
             ],
           ),
         ),
