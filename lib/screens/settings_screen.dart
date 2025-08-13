@@ -432,150 +432,305 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _buildUpgradeCard() {
-    return FutureBuilder<int>(
-      future: MonetizationService.instance.getRemainingScansTodayForFree(),
-      builder: (context, snapshot) {
-        final remainingScans = snapshot.data ?? 0;
-        final baseScans = 5; // _dailyFreeScans del MonetizationService
+    return FutureBuilder<bool>(
+      future: MonetizationService.instance.isNewUser(),
+      builder: (context, graceSnapshot) {
+        final isInGracePeriod = graceSnapshot.data ?? false;
         
-        return FutureBuilder<int>(
-          future: MonetizationService.instance.getExtraScansFromAds(),
-          builder: (context, adSnapshot) {
-            final extraScans = adSnapshot.data ?? 0;
-            final totalFreeScans = baseScans + extraScans;
-        
-        return GestureDetector(
-          onTap: () => _navigateToPremium(),
-          child: Container(
-            padding: const EdgeInsets.all(25),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Colors.purple.withOpacity(0.9),
-                  Colors.pink.withOpacity(0.9),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.purple.withOpacity(0.4),
-                  blurRadius: 15,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(Icons.diamond, color: Colors.amber, size: 30),
+        if (isInGracePeriod) {
+          // Usuario en período de gracia - mostrar escaneos ilimitados
+          return FutureBuilder<int>(
+            future: MonetizationService.instance.getGracePeriodDaysRemaining(),
+            builder: (context, daysSnapshot) {
+              final daysRemaining = daysSnapshot.data ?? 0;
+              
+              return GestureDetector(
+                onTap: () => _navigateToPremium(),
+                child: Container(
+                  padding: const EdgeInsets.all(25),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.green.withOpacity(0.9),
+                        Colors.teal.withOpacity(0.9),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.green.withOpacity(0.4),
+                        blurRadius: 15,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
                         children: [
-                          Text(
-                            AppLocalizations.of(context)?.upgradeToPremium ?? '✨ Upgrade to Premium',
-                            style: GoogleFonts.poppins(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Icon(Icons.favorite, color: Colors.white, size: 30),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  (LocaleService.instance.currentLocale.languageCode == 'en')
+                                    ? '🎉 Welcome New User!'
+                                    : '🎉 ¡Bienvenido Usuario Nuevo!',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                Text(
+                                  (LocaleService.instance.currentLocale.languageCode == 'en')
+                                    ? 'Enjoy unlimited scans during your trial!'
+                                    : '¡Disfruta escaneos ilimitados en tu prueba!',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14,
+                                    color: Colors.white.withOpacity(0.9),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          Text(
-                            AppLocalizations.of(context)?.unlockFullPotential ?? 'Unlock the full potential of love!',
-                            style: GoogleFonts.poppins(
-                              fontSize: 14,
-                              color: Colors.white.withOpacity(0.9),
-                            ),
-                          ),
+                          Icon(Icons.arrow_forward_ios, color: Colors.white, size: 20),
                         ],
                       ),
-                    ),
-                    Icon(Icons.arrow_forward_ios, color: Colors.white, size: 20),
-                  ],
-                ),
-                
-                const SizedBox(height: 20),
-                
-                // Scan counter for free users
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: Colors.white.withOpacity(0.2),
-                      width: 1,
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.favorite, color: Colors.red[300], size: 24),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                      
+                      const SizedBox(height: 20),
+                      
+                      // Grace period info
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.2),
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
                           children: [
-                            Text(
-                              (LocaleService.instance.currentLocale.languageCode == 'en')
-                                ? 'Today\'s scans: $remainingScans/$totalFreeScans'
-                                : 'Escaneos de hoy: $remainingScans/$totalFreeScans',
-                              style: GoogleFonts.poppins(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                              ),
-                            ),
-                            Text(
-                              remainingScans > 0 
-                                ? (LocaleService.instance.currentLocale.languageCode == 'en')
-                                  ? '$remainingScans free scans remaining'
-                                  : 'Quedan $remainingScans escaneos gratis'
-                                : (LocaleService.instance.currentLocale.languageCode == 'en')
-                                  ? 'No scans left! Watch ads for more'
-                                  : '¡Sin escaneos! Ve anuncios para más',
-                              style: GoogleFonts.poppins(
-                                fontSize: 12,
-                                color: Colors.white.withOpacity(0.8),
+                            Icon(Icons.all_inclusive, color: Colors.white, size: 24),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    (LocaleService.instance.currentLocale.languageCode == 'en')
+                                      ? 'Unlimited Scans Active'
+                                      : 'Escaneos Ilimitados Activos',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  Text(
+                                    daysRemaining > 0
+                                      ? (LocaleService.instance.currentLocale.languageCode == 'en')
+                                        ? '$daysRemaining ${daysRemaining == 1 ? 'day' : 'days'} remaining in trial'
+                                        : 'Quedan $daysRemaining ${daysRemaining == 1 ? 'día' : 'días'} de prueba'
+                                      : (LocaleService.instance.currentLocale.languageCode == 'en')
+                                        ? 'Trial ending today'
+                                        : 'Prueba termina hoy',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 12,
+                                      color: Colors.white.withOpacity(0.8),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
                         ),
                       ),
+                      
+                      const SizedBox(height: 16),
+                      
+                      // Premium benefits
+                      Text(
+                        (LocaleService.instance.currentLocale.languageCode == 'en')
+                          ? '🚀 Continue unlimited • 🚫 No ads • ⭐ Exclusive content'
+                          : '🚀 Continúa ilimitado • 🚫 Sin anuncios • ⭐ Contenido exclusivo',
+                        style: GoogleFonts.poppins(
+                          fontSize: 13,
+                          color: Colors.white.withOpacity(0.9),
+                          fontWeight: FontWeight.w500,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
                     ],
                   ),
                 ),
-                
-                const SizedBox(height: 16),
-                
-                // Premium benefits
-                Text(
-                  (LocaleService.instance.currentLocale.languageCode == 'en')
-                    ? '🚀 Unlimited scans • 🚫 No ads • ⭐ Exclusive content'
-                    : '🚀 Escaneos ilimitados • 🚫 Sin anuncios • ⭐ Contenido exclusivo',
-                  style: GoogleFonts.poppins(
-                    fontSize: 13,
-                    color: Colors.white.withOpacity(0.9),
-                    fontWeight: FontWeight.w500,
+              ).animate().scale(delay: 200.ms);
+            },
+          );
+        } else {
+          // Usuario fuera del período de gracia - mostrar contador normal
+          return FutureBuilder<int>(
+            future: MonetizationService.instance.getRemainingScansTodayForFree(),
+            builder: (context, snapshot) {
+              final remainingScans = snapshot.data ?? 0;
+              final baseScans = 5; // _dailyFreeScans del MonetizationService
+              
+              return FutureBuilder<int>(
+                future: MonetizationService.instance.getExtraScansFromAds(),
+                builder: (context, adSnapshot) {
+                  final extraScans = adSnapshot.data ?? 0;
+                  final totalFreeScans = baseScans + extraScans;
+                  // Calcular los escaneos utilizados hoy
+                  final scansUsedToday = (totalFreeScans - remainingScans).clamp(0, totalFreeScans);
+              
+              return GestureDetector(
+                onTap: () => _navigateToPremium(),
+                child: Container(
+                  padding: const EdgeInsets.all(25),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.purple.withOpacity(0.9),
+                        Colors.pink.withOpacity(0.9),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.purple.withOpacity(0.4),
+                        blurRadius: 15,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
                   ),
-                  textAlign: TextAlign.center,
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Icon(Icons.diamond, color: Colors.amber, size: 30),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  AppLocalizations.of(context)?.upgradeToPremium ?? '✨ Upgrade to Premium',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                Text(
+                                  AppLocalizations.of(context)?.unlockFullPotential ?? 'Unlock the full potential of love!',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14,
+                                    color: Colors.white.withOpacity(0.9),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Icon(Icons.arrow_forward_ios, color: Colors.white, size: 20),
+                        ],
+                      ),
+                      
+                      const SizedBox(height: 20),
+                      
+                      // Scan counter for free users
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.2),
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.favorite, color: Colors.red[300], size: 24),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    (LocaleService.instance.currentLocale.languageCode == 'en')
+                                      ? 'Today\'s scans: $scansUsedToday/$totalFreeScans'
+                                      : 'Escaneos de hoy: $scansUsedToday/$totalFreeScans',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  Text(
+                                    remainingScans > 0 
+                                      ? (LocaleService.instance.currentLocale.languageCode == 'en')
+                                        ? '$remainingScans free scans remaining'
+                                        : 'Quedan $remainingScans escaneos gratis'
+                                      : (LocaleService.instance.currentLocale.languageCode == 'en')
+                                        ? 'No scans left! Watch ads for more'
+                                        : '¡Sin escaneos! Ve anuncios para más',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 12,
+                                      color: Colors.white.withOpacity(0.8),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      
+                      const SizedBox(height: 16),
+                      
+                      // Premium benefits
+                      Text(
+                        (LocaleService.instance.currentLocale.languageCode == 'en')
+                          ? '🚀 Unlimited scans • 🚫 No ads • ⭐ Exclusive content'
+                          : '🚀 Escaneos ilimitados • 🚫 Sin anuncios • ⭐ Contenido exclusivo',
+                        style: GoogleFonts.poppins(
+                          fontSize: 13,
+                          color: Colors.white.withOpacity(0.9),
+                          fontWeight: FontWeight.w500,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
                 ),
-              ],
-            ),
-          ),
-        ).animate().scale(delay: 200.ms);
-          },
-        );
+              ).animate().scale(delay: 200.ms);
+                },
+              );
+            },
+          );
+        }
       },
     );
   }
