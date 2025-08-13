@@ -59,7 +59,7 @@ class MonetizationService {
   
   // Getters
   SubscriptionTier get currentTier => _currentTier;
-  bool get isPremium => true; // Temporalmente habilitado para desarrollo
+  bool get isPremium => _currentTier == SubscriptionTier.premium || _currentTier == SubscriptionTier.premiumPlus;
   bool get isPremiumPlus => _currentTier == SubscriptionTier.premiumPlus;
   bool get isFree => _currentTier == SubscriptionTier.free;
   
@@ -212,6 +212,58 @@ class MonetizationService {
     );
     
     return adShown;
+  }
+
+  /// Nueva función: Ver anuncio para acceso temporal a tema premium (24 horas)
+  Future<bool> watchAdForPremiumThemeAccess() async {
+    if (isPremium) return false;
+    
+    // Verificar si ya tiene acceso temporal activo
+    if (await hasTemporaryPremiumAccess()) return false;
+    
+    final adShown = await AdMobService.instance.showRewardedAd(
+      onUserEarnedReward: (ad, reward) async {
+        // Otorgar acceso temporal por 24 horas
+        final expiryTime = DateTime.now().add(const Duration(hours: 24));
+        await _prefs?.setString('temp_premium_expiry', expiryTime.toIso8601String());
+        await _prefs?.setBool('temp_premium_active', true);
+      },
+    );
+    
+    return adShown;
+  }
+
+  /// Verificar si tiene acceso temporal a funciones premium
+  Future<bool> hasTemporaryPremiumAccess() async {
+    if (isPremium) return true; // Ya es premium real
+    
+    final isActive = _prefs?.getBool('temp_premium_active') ?? false;
+    if (!isActive) return false;
+    
+    final expiryString = _prefs?.getString('temp_premium_expiry');
+    if (expiryString == null) return false;
+    
+    final expiry = DateTime.parse(expiryString);
+    if (DateTime.now().isAfter(expiry)) {
+      // Expiró, limpiar
+      await _prefs?.remove('temp_premium_active');
+      await _prefs?.remove('temp_premium_expiry');
+      return false;
+    }
+    
+    return true;
+  }
+
+  /// Obtener horas restantes de acceso temporal
+  Future<int> getTemporaryPremiumHoursRemaining() async {
+    if (!await hasTemporaryPremiumAccess()) return 0;
+    
+    final expiryString = _prefs?.getString('temp_premium_expiry');
+    if (expiryString == null) return 0;
+    
+    final expiry = DateTime.parse(expiryString);
+    final remaining = expiry.difference(DateTime.now()).inHours;
+    return remaining.clamp(0, 24);
   }
   
   Future<bool> showInterstitialAd() async {

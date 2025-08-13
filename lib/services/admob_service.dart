@@ -315,17 +315,34 @@ class AdMobService {
     return true;
   }
 
-  /// Configurar frecuencia de anuncios intersticiales
+  /// Configurar frecuencia de anuncios intersticiales (más inteligente)
   Future<bool> shouldShowInterstitialAd() async {
     final lastShown = _prefs?.getInt('last_interstitial_timestamp') ?? 0;
     final now = DateTime.now().millisecondsSinceEpoch;
-    const cooldownMinutes = 3; // Mínimo 3 minutos entre intersticiales
+    const cooldownMinutes = 2; // Reducido a 2 minutos para mejor monetización
     
-    if (now - lastShown > (cooldownMinutes * 60 * 1000)) {
+    // También considerar número de acciones del usuario
+    final todayActions = _prefs?.getInt('user_actions_today') ?? 0;
+    
+    if (now - lastShown > (cooldownMinutes * 60 * 1000) && todayActions >= 3) {
       await _prefs?.setInt('last_interstitial_timestamp', now);
       return true;
     }
     
     return false;
+  }
+
+  /// Incrementar contador de acciones del usuario
+  Future<void> trackUserAction() async {
+    final today = DateTime.now().toIso8601String().split('T')[0];
+    final lastActionDate = _prefs?.getString('last_action_date');
+    
+    if (lastActionDate != today) {
+      await _prefs?.setString('last_action_date', today);
+      await _prefs?.setInt('user_actions_today', 1);
+    } else {
+      final currentActions = _prefs?.getInt('user_actions_today') ?? 0;
+      await _prefs?.setInt('user_actions_today', currentActions + 1);
+    }
   }
 }

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../services/theme_service.dart';
 import '../services/monetization_service.dart';
 import '../services/audio_service.dart';
+import '../services/admob_service.dart';
 import '../models/app_theme.dart';
 import 'premium_screen.dart';
 
@@ -17,6 +19,7 @@ class _ThemesScreenState extends State<ThemesScreen>
     with TickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
+  BannerAd? _bannerAd;
 
   @override
   void initState() {
@@ -33,11 +36,18 @@ class _ThemesScreenState extends State<ThemesScreen>
       curve: Curves.easeInOut,
     ));
     _animationController.forward();
+    
+    // Cargar banner solo para usuarios no premium
+    if (!MonetizationService.instance.isPremium) {
+      _bannerAd = AdMobService.instance.createBannerAd();
+      _bannerAd!.load();
+    }
   }
 
   @override
   void dispose() {
     _animationController.dispose();
+    _bannerAd?.dispose();
     super.dispose();
   }
 
@@ -103,6 +113,15 @@ class _ThemesScreenState extends State<ThemesScreen>
                   child: _buildThemesGrid(),
                 ),
               ),
+              
+              // Banner ad para usuarios no premium
+              if (_bannerAd != null && !MonetizationService.instance.isPremium)
+                Container(
+                  width: double.infinity,
+                  height: 60,
+                  margin: const EdgeInsets.only(top: 8),
+                  child: AdWidget(ad: _bannerAd!),
+                ),
             ],
           ),
         ),
@@ -229,20 +248,29 @@ class _ThemesScreenState extends State<ThemesScreen>
       itemBuilder: (context, index) {
         final theme = AppTheme.availableThemes[index];
         final isSelected = theme.type == ThemeService.instance.currentTheme;
-        final canUse = !theme.isPremium || MonetizationService.instance.isPremium;
         
-        return AnimatedContainer(
-          duration: Duration(milliseconds: 200 + (index * 100)),
-          margin: const EdgeInsets.only(bottom: 16),
-          child: _buildThemeCard(theme, isSelected, canUse),
+        return FutureBuilder<bool>(
+          future: MonetizationService.instance.hasTemporaryPremiumAccess(),
+          builder: (context, snapshot) {
+            final hasTemporaryAccess = snapshot.data ?? false;
+            final canUse = !theme.isPremium || 
+                          MonetizationService.instance.isPremium ||
+                          hasTemporaryAccess;
+        
+            return AnimatedContainer(
+              duration: Duration(milliseconds: 200 + (index * 100)),
+              margin: const EdgeInsets.only(bottom: 16),
+              child: _buildThemeCard(theme, isSelected, canUse, hasTemporaryAccess),
+            );
+          },
         );
       },
     );
   }
 
-  Widget _buildThemeCard(AppTheme theme, bool isSelected, bool canUse) {
+  Widget _buildThemeCard(AppTheme theme, bool isSelected, bool canUse, bool hasTemporaryAccess) {
     return GestureDetector(
-      onTap: () => _onThemeSelected(theme, canUse),
+      onTap: () => _onThemeSelected(theme, canUse, hasTemporaryAccess),
       child: Container(
         decoration: BoxDecoration(
           color: ThemeService.instance.cardColor,
@@ -511,23 +539,43 @@ class _ThemesScreenState extends State<ThemesScreen>
     );
   }
 
-  void _onThemeSelected(AppTheme theme, bool canUse) {
+  void _onThemeSelected(AppTheme theme, bool canUse, bool hasTemporaryAccess) async {
     AudioService.instance.playButtonTap();
     
     if (!canUse) {
-      _showPremiumRequired();
+      // Si es un tema premium y no tiene acceso, mostrar opción de ver anuncio
+      if (theme.isPremium && !MonetizationService.instance.isPremium) {
+        _showPremiumOrAdOptions(theme);
+      } else {
+        _showPremiumRequired();
+      }
       return;
     }
     
     if (theme.type != ThemeService.instance.currentTheme) {
+      // Tracking de acción del usuario para anuncios inteligentes
+      await AdMobService.instance.trackUserAction();
+      
+      // Mostrar intersticial ocasionalmente para usuarios no premium
+      if (!MonetizationService.instance.isPremium && !hasTemporaryAccess) {
+        final shouldShow = await AdMobService.instance.shouldShowInterstitialAd();
+        if (shouldShow) {
+          await MonetizationService.instance.showInterstitialAd();
+        }
+      }
+      
       ThemeService.instance.changeTheme(theme.type);
       
       // Show success message
+      String message = 'Tema ${_getThemeName(context, theme.type)} aplicado';
+      if (hasTemporaryAccess && theme.isPremium) {
+        final hoursRemaining = await MonetizationService.instance.getTemporaryPremiumHoursRemaining();
+        message += ' (Acceso temporal: ${hoursRemaining}h restantes)';
+      }
+      
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            'Tema ${_getThemeName(context, theme.type)} aplicado'
-          ),
+          content: Text(message),
           backgroundColor: theme.primaryColor,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
@@ -536,6 +584,147 @@ class _ThemesScreenState extends State<ThemesScreen>
         ),
       );
     }
+  }
+
+  void _showPremiumOrAdOptions(AppTheme theme) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: ThemeService.instance.cardColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        title: Text(
+          '🎨 Tema Premium',
+          style: TextStyle(
+            color: ThemeService.instance.textColor,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Este tema requiere acceso premium. Puedes:',
+              style: TextStyle(
+                color: ThemeService.instance.subtitleColor,
+              ),
+            ),
+            const SizedBox(height: 16),
+            
+            // Opción 1: Ver anuncio para acceso temporal
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.orange.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.orange.withOpacity(0.3)),
+              ),
+              child: Column(
+                children: [
+                  Icon(Icons.tv, color: Colors.orange, size: 32),
+                  const SizedBox(height: 8),
+                  Text(
+                    '📺 Ver Anuncio',
+                    style: TextStyle(
+                      color: Colors.orange,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    'Acceso por 24 horas',
+                    style: TextStyle(
+                      color: ThemeService.instance.subtitleColor,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            
+            const SizedBox(height: 12),
+            
+            // Opción 2: Comprar premium
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: ThemeService.instance.primaryColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: ThemeService.instance.primaryColor.withOpacity(0.3)),
+              ),
+              child: Column(
+                children: [
+                  Icon(Icons.star, color: ThemeService.instance.primaryColor, size: 32),
+                  const SizedBox(height: 8),
+                  Text(
+                    '⭐ Premium',
+                    style: TextStyle(
+                      color: ThemeService.instance.primaryColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    'Acceso permanente',
+                    style: TextStyle(
+                      color: ThemeService.instance.subtitleColor,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Cancelar',
+              style: TextStyle(
+                color: ThemeService.instance.subtitleColor,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              final success = await MonetizationService.instance.watchAdForPremiumThemeAccess();
+              if (success) {
+                setState(() {}); // Refrescar para mostrar el acceso temporal
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('¡Acceso temporal otorgado por 24 horas! 🎉'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              }
+            },
+            child: Text(
+              '📺 Ver Anuncio',
+              style: TextStyle(color: Colors.orange),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PremiumScreen(),
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: ThemeService.instance.primaryColor,
+              foregroundColor: Colors.white,
+            ),
+            child: Text('⭐ Premium'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showPremiumRequired() {

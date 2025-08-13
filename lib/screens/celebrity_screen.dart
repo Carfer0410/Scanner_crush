@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../widgets/custom_widgets.dart';
 import '../services/theme_service.dart';
 import '../services/crush_service.dart';
 import '../services/streak_service.dart';
 import '../services/locale_service.dart';
 import '../services/monetization_service.dart';
+import '../services/admob_service.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'result_screen.dart';
 
@@ -23,11 +25,18 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
   final TextEditingController _searchController = TextEditingController();
   List<String> _filteredCelebrities = [];
   bool _isSearching = false;
+  BannerAd? _bannerAd;
 
   @override
   void initState() {
     super.initState();
     _filteredCelebrities = CrushService.instance.celebrities;
+    
+    // Cargar banner solo para usuarios no premium
+    if (!MonetizationService.instance.isPremium) {
+      _bannerAd = AdMobService.instance.createBannerAd();
+      _bannerAd!.load();
+    }
   }
 
   void _filterCelebrities(String query) {
@@ -333,6 +342,14 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
                   ),
                 ),
               ),
+              // Banner ad al final para usuarios no premium
+              if (_bannerAd != null && !MonetizationService.instance.isPremium)
+                Container(
+                  width: double.infinity,
+                  height: 60,
+                  margin: const EdgeInsets.only(top: 8),
+                  child: AdWidget(ad: _bannerAd!),
+                ),
             ],
           ),
         ),
@@ -343,6 +360,7 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
   @override
   void dispose() {
     _searchController.dispose();
+    _bannerAd?.dispose();
     super.dispose();
   }
 }
