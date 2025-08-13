@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../widgets/custom_widgets.dart';
 import '../services/theme_service.dart';
 import '../services/daily_love_service.dart';
@@ -8,6 +9,7 @@ import '../services/audio_service.dart';
 import '../services/locale_service.dart';
 import '../services/streak_service.dart';
 import '../services/monetization_service.dart';
+import '../services/admob_service.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'form_screen.dart';
 import 'settings_screen.dart';
@@ -16,6 +18,7 @@ import 'celebrity_form_screen.dart';
 import 'daily_love_screen.dart';
 import 'analytics_screen.dart';
 import 'themes_screen.dart';
+import 'ads_test_screen.dart';
 import '../test_grace_period_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
@@ -29,6 +32,8 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     with TickerProviderStateMixin {
   late AnimationController _heartController;
   late AnimationController _titleController;
+  BannerAd? _bannerAd;
+  bool _isBannerAdReady = false;
 
   @override
   void initState() {
@@ -42,12 +47,30 @@ class _WelcomeScreenState extends State<WelcomeScreen>
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     )..forward();
+
+    // Load banner ad for non-premium users
+    _loadBannerAd();
+  }
+
+  void _loadBannerAd() {
+    // Solo cargar banner ads para usuarios no premium
+    if (!MonetizationService.instance.isPremium) {
+      _bannerAd = AdMobService.instance.createBannerAd();
+      _bannerAd?.load().then((_) {
+        if (mounted) {
+          setState(() {
+            _isBannerAdReady = true;
+          });
+        }
+      });
+    }
   }
 
   @override
   void dispose() {
     _heartController.dispose();
     _titleController.dispose();
+    _bannerAd?.dispose();
     super.dispose();
   }
 
@@ -218,10 +241,20 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                 _buildStreakCard(),
 
                 // Banner para nuevos usuarios o límites
-                FutureBuilder<bool>(
-                  future: MonetizationService.instance.isNewUser(),
+                FutureBuilder<Map<String, dynamic>>(
+                  future: _getWelcomeInfo(),
                   builder: (context, snapshot) {
-                    if (snapshot.data == true) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const SizedBox.shrink();
+                    }
+                    
+                    final data = snapshot.data;
+                    if (data == null) return const SizedBox.shrink();
+                    
+                    final isNewUser = data['isNewUser'] as bool;
+                    final daysRemaining = data['daysRemaining'] as int;
+                    
+                    if (isNewUser && daysRemaining > 0) {
                       return _buildNewUserBanner();
                     }
                     return _buildLimitsBanner();
@@ -420,22 +453,76 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                     textAlign: TextAlign.center,
                   ).animate().fadeIn(delay: 1.5.seconds),
                 ),
+
+                // Banner Ad for non-premium users
+                if (_bannerAd != null && _isBannerAdReady && !MonetizationService.instance.isPremium) ...[
+                  Container(
+                    alignment: Alignment.center,
+                    width: _bannerAd!.size.width.toDouble(),
+                    height: _bannerAd!.size.height.toDouble(),
+                    margin: const EdgeInsets.only(bottom: 20),
+                    child: AdWidget(ad: _bannerAd!),
+                  ),
+                ],
               ],
             ),
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton.small(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const TestGracePeriodScreen(),
-            ),
-          );
-        },
-        backgroundColor: Colors.orange,
-        child: const Icon(Icons.bug_report, color: Colors.white, size: 20),
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          // Grace period simulator button
+          FloatingActionButton.small(
+            onPressed: () async {
+              await MonetizationService.instance.simulateNewUser();
+              setState(() {}); // Refresh to show grace period card
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    '🔧 Usuario simulado como nuevo - Card de gracia debería aparecer',
+                    style: GoogleFonts.poppins(fontSize: 12),
+                  ),
+                  backgroundColor: Colors.green,
+                  duration: const Duration(seconds: 3),
+                ),
+              );
+            },
+            backgroundColor: Colors.purple,
+            heroTag: "grace_simulator",
+            child: const Icon(Icons.refresh, color: Colors.white, size: 20),
+          ),
+          const SizedBox(width: 10),
+          // Ads test button
+          FloatingActionButton.small(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AdsTestScreen(),
+                ),
+              );
+            },
+            backgroundColor: Colors.green,
+            heroTag: "ads_test",
+            child: const Icon(Icons.ads_click, color: Colors.white, size: 20),
+          ),
+          const SizedBox(width: 10),
+          // Grace period test button
+          FloatingActionButton.small(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const TestGracePeriodScreen(),
+                ),
+              );
+            },
+            backgroundColor: Colors.orange,
+            heroTag: "grace_test",
+            child: const Icon(Icons.bug_report, color: Colors.white, size: 20),
+          ),
+        ],
       ),
     );
   }
@@ -1156,57 +1243,118 @@ class _WelcomeScreenState extends State<WelcomeScreen>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [Colors.green.shade400, Colors.teal.shade400],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
                 color: Colors.green.withOpacity(0.3),
-                blurRadius: 8,
-                offset: const Offset(0, 4),
+                blurRadius: 12,
+                offset: const Offset(0, 6),
               ),
             ],
+            border: Border.all(
+              color: Colors.white.withOpacity(0.2),
+              width: 1,
+            ),
           ),
           child: Row(
             children: [
               Container(
-                width: 40,
-                height: 40,
+                width: 50,
+                height: 50,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: Colors.white.withOpacity(0.2),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.3),
+                    width: 2,
+                  ),
                 ),
-                child: const Icon(Icons.celebration, color: Colors.white, size: 20),
+                child: const Icon(Icons.celebration, color: Colors.white, size: 24),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      (LocaleService.instance.currentLocale.languageCode == 'en')
-                        ? '🎉 Trial Period!'
-                        : '🎉 ¡Período de Prueba!',
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
+                    Row(
+                      children: [
+                        Text(
+                          '🎉 ',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                        Expanded(
+                          child: Text(
+                            (LocaleService.instance.currentLocale.languageCode == 'en')
+                              ? 'FREE Trial Period!'
+                              : '¡Período de Prueba GRATIS!',
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            daysRemaining == 1 
+                              ? (LocaleService.instance.currentLocale.languageCode == 'en')
+                                ? '1 DAY LEFT'
+                                : '1 DÍA RESTANTE'
+                              : (LocaleService.instance.currentLocale.languageCode == 'en')
+                                ? '$daysRemaining DAYS LEFT'
+                                : '$daysRemaining DÍAS RESTANTES',
+                            style: GoogleFonts.poppins(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            (LocaleService.instance.currentLocale.languageCode == 'en')
+                              ? 'Unlimited scans!'
+                              : '¡Escaneos ilimitados!',
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                              color: Colors.white.withOpacity(0.9),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
                     Text(
                       (LocaleService.instance.currentLocale.languageCode == 'en')
-                        ? 'UNLIMITED scans for $daysRemaining more days'
-                        : 'Escaneos ILIMITADOS por $daysRemaining días más',
+                        ? 'Enjoy unlimited love scans during your trial'
+                        : 'Disfruta escaneos de amor ilimitados durante tu prueba',
                       style: GoogleFonts.poppins(
-                        fontSize: 12,
-                        color: Colors.white.withOpacity(0.9),
+                        fontSize: 11,
+                        color: Colors.white.withOpacity(0.8),
                       ),
                     ),
                   ],
                 ),
               ),
+              const Icon(Icons.favorite, color: Colors.white, size: 20),
             ],
           ),
-        ).animate().slideX(begin: 0.3).fadeIn();
+        ).animate().slideX(begin: 0.3).fadeIn().then(delay: 100.ms).shimmer(duration: 1.seconds);
       },
     );
   }
@@ -1304,6 +1452,16 @@ class _WelcomeScreenState extends State<WelcomeScreen>
         ).animate().slideX(begin: 0.3).fadeIn();
       },
     );
+  }
+
+  Future<Map<String, dynamic>> _getWelcomeInfo() async {
+    final isNewUser = await MonetizationService.instance.isNewUser();
+    final daysRemaining = await MonetizationService.instance.getGracePeriodDaysRemaining();
+    
+    return {
+      'isNewUser': isNewUser,
+      'daysRemaining': daysRemaining,
+    };
   }
 
   Future<Map<String, dynamic>> _getLimitsInfo() async {

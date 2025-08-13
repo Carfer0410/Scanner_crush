@@ -415,11 +415,42 @@ class CrushService {
   }
 
   bool _isCelebrity(String name) {
-    return _celebrities.any(
-      (celebrity) =>
-          celebrity.toLowerCase().contains(name.toLowerCase()) ||
-          name.toLowerCase().contains(celebrity.toLowerCase()),
-    );
+    final inputName = name.toLowerCase().trim();
+    
+    return _celebrities.any((celebrity) {
+      final celebName = celebrity.toLowerCase().trim();
+      
+      // 1. Coincidencia exacta completa
+      if (celebName == inputName) return true;
+      
+      final celebWords = celebName.split(' ');
+      final inputWords = inputName.split(' ');
+      
+      // 2. Solo considerar como celebridad si:
+      // - El input contiene EXACTAMENTE el nombre completo de la celebridad, O
+      // - El input contiene TODAS las palabras significativas de la celebridad (>3 caracteres)
+      
+      // Para celebridades de una sola palabra
+      if (celebWords.length == 1) {
+        final celebWord = celebWords.first;
+        // Solo si la palabra completa coincide exactamente
+        return inputWords.contains(celebWord);
+      }
+      
+      // Para celebridades de múltiples palabras
+      // El input debe contener TODAS las palabras principales de la celebridad
+      final significantCelebWords = celebWords.where((word) => word.length > 3).toList();
+      
+      if (significantCelebWords.isEmpty) {
+        // Si no hay palabras significativas, requerir coincidencia exacta completa
+        return false;
+      }
+      
+      // TODAS las palabras significativas de la celebridad deben estar en el input
+      return significantCelebWords.every((celebWord) =>
+        inputWords.any((inputWord) => inputWord == celebWord)
+      );
+    });
   }
 
   String _getRandomEmoji() {

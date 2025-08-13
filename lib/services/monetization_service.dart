@@ -178,6 +178,19 @@ class MonetizationService {
     }
   }
   
+  // DEBUG: Método para simular usuario nuevo (solo para pruebas)
+  Future<void> simulateNewUser() async {
+    final today = DateTime.now().toIso8601String().split('T')[0];
+    await _prefs?.setString('first_install_date', today);
+    print('🔧 DEBUG: Usuario simulado como nuevo con fecha: $today');
+  }
+  
+  // DEBUG: Método para resetear período de gracia (solo para pruebas)
+  Future<void> resetGracePeriod() async {
+    await _prefs?.remove('first_install_date');
+    print('🔧 DEBUG: Período de gracia reseteado');
+  }
+  
   // Manejo de anuncios con recompensa
   Future<bool> watchAdForExtraScans() async {
     if (isPremium) return false;

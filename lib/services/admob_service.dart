@@ -11,14 +11,15 @@ class AdMobService {
 
   SharedPreferences? _prefs;
   
-  // IDs temporales - CAMBIAR A REALES cuando AdMob esté aprobado
-  // REALES: Banner=ca-app-pub-6436417991123423/1992572008, Interstitial=ca-app-pub-6436417991123423/1801000311, Rewarded=ca-app-pub-6436417991123423/1900222602
-  static const String _androidBannerAdUnitId = 'ca-app-pub-3940256099942544/6300978111'; // Test ID temporal
-  static const String _iosBannerAdUnitId = 'ca-app-pub-3940256099942544/2934735716'; // Test ID temporal
-  static const String _androidInterstitialAdUnitId = 'ca-app-pub-3940256099942544/1033173712'; // Test ID temporal
-  static const String _iosInterstitialAdUnitId = 'ca-app-pub-3940256099942544/4411468910'; // Test ID temporal
-  static const String _androidRewardedAdUnitId = 'ca-app-pub-3940256099942544/5224354917'; // Test ID temporal
-  static const String _iosRewardedAdUnitId = 'ca-app-pub-3940256099942544/1712485313'; // Test ID temporal
+  // IDs de PRUEBA - SEGUROS para desarrollo y testing
+  // CAMBIAR a IDs reales SOLO después de publicar la app en Play Store
+  // REALES para cuando publiques: Banner=ca-app-pub-6436417991123423/1992572008, Interstitial=ca-app-pub-6436417991123423/1801000311, Rewarded=ca-app-pub-6436417991123423/1900222602
+  static const String _androidBannerAdUnitId = 'ca-app-pub-3940256099942544/6300978111'; // Test ID - SEGURO
+  static const String _iosBannerAdUnitId = 'ca-app-pub-3940256099942544/2934735716'; // Test ID - SEGURO
+  static const String _androidInterstitialAdUnitId = 'ca-app-pub-3940256099942544/1033173712'; // Test ID - SEGURO
+  static const String _iosInterstitialAdUnitId = 'ca-app-pub-3940256099942544/4411468910'; // Test ID - SEGURO
+  static const String _androidRewardedAdUnitId = 'ca-app-pub-3940256099942544/5224354917'; // Test ID - SEGURO
+  static const String _iosRewardedAdUnitId = 'ca-app-pub-3940256099942544/1712485313'; // Test ID - SEGURO
 
   // Estado de anuncios
   BannerAd? _bannerAd;

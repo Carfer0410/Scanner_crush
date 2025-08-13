@@ -263,13 +263,13 @@ class _ResultScreenState extends State<ResultScreen>
     if (percentage >= 80) {
       return const Color(0xFF4CAF50); // Green - Perfect compatibility
     } else if (percentage >= 60) {
-      return const Color(0xFFFF9800); // Orange - Great compatibility
+      return const Color(0xFFE91E63); // Pink - Great compatibility (better visibility than orange)
     } else if (percentage >= 40) {
       return const Color(
         0xFF2196F3,
       ); // Blue - Good compatibility (better visibility)
     } else {
-      return const Color(0xFFE91E63); // Pink - There is potential
+      return const Color(0xFF9C27B0); // Purple - There is potential
     }
   }
 
