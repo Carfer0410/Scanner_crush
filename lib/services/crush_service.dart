@@ -431,31 +431,18 @@ class CrushService {
   bool _isCelebrity(String name) {
     final inputName = _normalizeText(name);
     
-    // Debug: imprimir el nombre que se está verificando
-    print('🔍 Verificando si "$name" (normalizado: "$inputName") es celebridad...');
-    
-    final result = _celebrities.any((celebrity) {
+    return _celebrities.any((celebrity) {
       final celebName = _normalizeText(celebrity);
       
-      // Debug: imprimir cada comparación
-      print('   Comparando con: "$celebrity" (normalizado: "$celebName")');
-      
       // 1. Coincidencia exacta completa
-      if (celebName == inputName) {
-        print('   ✅ COINCIDENCIA EXACTA encontrada');
-        return true;
-      }
+      if (celebName == inputName) return true;
       
       // 2. Para evitar falsos positivos, usar coincidencia MUY estricta
       final celebWords = celebName.split(' ');
       final inputWords = inputName.split(' ');
       
-      print('   Palabras celebridad: $celebWords');
-      print('   Palabras input: $inputWords');
-      
       // REGLA CRÍTICA: Solo considerar coincidencia si el número de palabras es EXACTAMENTE igual
       if (celebWords.length != inputWords.length) {
-        print('   ❌ Diferente número de palabras (${celebWords.length} vs ${inputWords.length})');
         return false;
       }
       
@@ -467,18 +454,8 @@ class CrushService {
         celebWords.any((celebWord) => celebWord == inputWord)
       );
       
-      final isMatch = allCelebWordsFound && allInputWordsMatched;
-      if (isMatch) {
-        print('   ✅ COINCIDENCIA COMPLETA encontrada');
-      } else {
-        print('   ❌ No hay coincidencia completa');
-      }
-      
-      return isMatch;
+      return allCelebWordsFound && allInputWordsMatched;
     });
-    
-    print('🔍 Resultado final para "$name": ${result ? "ES CELEBRIDAD" : "NO ES CELEBRIDAD"}');
-    return result;
   }
 
   String _getRandomEmoji() {

@@ -1016,7 +1016,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         'total_scans',
         'best_streak',
 
-        // Daily love service keys (already covered by love_streak and last_used_date)
+        // Daily love service keys
+        'total_compatibility', // Agregado para limpiar estadísticas de compatibilidad
 
         // History keys (assuming they follow a pattern)
         'crush_history',

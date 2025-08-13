@@ -221,6 +221,13 @@ class StreakService extends ChangeNotifier {
     _bestStreak = 0;
     await _saveData(); // _saveData() ya incluye notifyListeners()
   }
+
+  /// Sincronizar con los datos actualizados por DailyLoveService
+  /// Sync with data updated by DailyLoveService
+  Future<void> syncWithDailyLoveService() async {
+    await _loadData();
+    notifyListeners();
+  }
 }
 
 /// Clase para representar el resultado de una actualización de racha
