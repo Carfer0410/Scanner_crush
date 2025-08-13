@@ -414,43 +414,71 @@ class CrushService {
     }
   }
 
+  // Función auxiliar para normalizar texto (remover acentos y convertir a minúsculas)
+  String _normalizeText(String text) {
+    return text
+        .toLowerCase()
+        .trim()
+        .replaceAll('á', 'a')
+        .replaceAll('é', 'e')
+        .replaceAll('í', 'i')
+        .replaceAll('ó', 'o')
+        .replaceAll('ú', 'u')
+        .replaceAll('ü', 'u')
+        .replaceAll('ñ', 'n');
+  }
+
   bool _isCelebrity(String name) {
-    final inputName = name.toLowerCase().trim();
+    final inputName = _normalizeText(name);
     
-    return _celebrities.any((celebrity) {
-      final celebName = celebrity.toLowerCase().trim();
+    // Debug: imprimir el nombre que se está verificando
+    print('🔍 Verificando si "$name" (normalizado: "$inputName") es celebridad...');
+    
+    final result = _celebrities.any((celebrity) {
+      final celebName = _normalizeText(celebrity);
+      
+      // Debug: imprimir cada comparación
+      print('   Comparando con: "$celebrity" (normalizado: "$celebName")');
       
       // 1. Coincidencia exacta completa
-      if (celebName == inputName) return true;
+      if (celebName == inputName) {
+        print('   ✅ COINCIDENCIA EXACTA encontrada');
+        return true;
+      }
       
+      // 2. Para evitar falsos positivos, usar coincidencia MUY estricta
       final celebWords = celebName.split(' ');
       final inputWords = inputName.split(' ');
       
-      // 2. Solo considerar como celebridad si:
-      // - El input contiene EXACTAMENTE el nombre completo de la celebridad, O
-      // - El input contiene TODAS las palabras significativas de la celebridad (>3 caracteres)
+      print('   Palabras celebridad: $celebWords');
+      print('   Palabras input: $inputWords');
       
-      // Para celebridades de una sola palabra
-      if (celebWords.length == 1) {
-        final celebWord = celebWords.first;
-        // Solo si la palabra completa coincide exactamente
-        return inputWords.contains(celebWord);
-      }
-      
-      // Para celebridades de múltiples palabras
-      // El input debe contener TODAS las palabras principales de la celebridad
-      final significantCelebWords = celebWords.where((word) => word.length > 3).toList();
-      
-      if (significantCelebWords.isEmpty) {
-        // Si no hay palabras significativas, requerir coincidencia exacta completa
+      // REGLA CRÍTICA: Solo considerar coincidencia si el número de palabras es EXACTAMENTE igual
+      if (celebWords.length != inputWords.length) {
+        print('   ❌ Diferente número de palabras (${celebWords.length} vs ${inputWords.length})');
         return false;
       }
       
-      // TODAS las palabras significativas de la celebridad deben estar en el input
-      return significantCelebWords.every((celebWord) =>
+      // Si ambos tienen exactamente las mismas palabras (sin importar orden)
+      final allCelebWordsFound = celebWords.every((celebWord) => 
         inputWords.any((inputWord) => inputWord == celebWord)
       );
+      final allInputWordsMatched = inputWords.every((inputWord) =>
+        celebWords.any((celebWord) => celebWord == inputWord)
+      );
+      
+      final isMatch = allCelebWordsFound && allInputWordsMatched;
+      if (isMatch) {
+        print('   ✅ COINCIDENCIA COMPLETA encontrada');
+      } else {
+        print('   ❌ No hay coincidencia completa');
+      }
+      
+      return isMatch;
     });
+    
+    print('🔍 Resultado final para "$name": ${result ? "ES CELEBRIDAD" : "NO ES CELEBRIDAD"}');
+    return result;
   }
 
   String _getRandomEmoji() {
@@ -709,6 +737,16 @@ class CrushService {
           await prefs.remove(key);
         }
       }
+    }
+  }
+
+  /// Clears all saved crush results from storage
+  Future<void> clearAllHistory() async {
+    final prefs = await SharedPreferences.getInstance();
+    final keys = prefs.getKeys().where((key) => key.startsWith('result_')).toList();
+    
+    for (final key in keys) {
+      await prefs.remove(key);
     }
   }
 }

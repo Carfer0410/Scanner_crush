@@ -12,6 +12,7 @@ import '../services/daily_love_service.dart';
 import '../services/streak_service.dart';
 import '../services/monetization_service.dart';
 import '../services/admob_service.dart';
+import '../services/crush_service.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'premium_screen.dart';
 import 'history_screen.dart';
@@ -1050,6 +1051,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       for (String key in keysToRemoveByPrefix) {
         await prefs.remove(key);
       }
+
+      // Clear crush history using the dedicated service method
+      await CrushService.instance.clearAllHistory();
 
       // Reinitialize services to reflect the cleared data
       await DailyLoveService.instance.initialize();
