@@ -66,7 +66,7 @@ class AppTheme {
     // Tema atardecer (premium)
     AppTheme(
       type: ThemeType.sunset,
-      name: '� Aurora Pastel',
+      name: '🌌 Aurora Pastel',
       description: 'Degradé moderno de violeta, rosa y azul',
       icon: Icons.wb_sunny,
       backgroundGradient: LinearGradient(
@@ -149,26 +149,30 @@ class AppTheme {
     // Tema lavanda (premium)
     AppTheme(
       type: ThemeType.lavender,
-      name: '💜 Lavanda',
-      description: 'Elegantes púrpuras y violetas',
-      icon: Icons.local_florist,
+      name: '🌈 Neon Sunset',
+      description: 'Vibrante degradé de fucsia, violeta y azul eléctrico',
+      icon: Icons.bolt,
       backgroundGradient: LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
-          Color(0xFFF3E5F5), // Púrpura muy claro
-          Color(0xFFCE93D8), // Púrpura claro
-          Color(0xFF8E24AA), // Púrpura intenso
+          Color(0xFFFF5EDF), // Fucsia neón
+          Color(0xFF7A5FFF), // Violeta eléctrico
+          Color(0xFF01C8EE), // Azul neón
         ],
       ),
       backgroundGradientDark: LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
-        colors: [Color(0xFF1A0A1A), Color(0xFF4A148C), Color(0xFF6A1B9A)],
+        colors: [
+          Color(0xFF232526), // Gris azulado oscuro
+          Color(0xFF7A5FFF), // Violeta eléctrico
+          Color(0xFF0F2027), // Azul profundo
+        ],
       ),
-      primaryColor: Color(0xFF8E24AA),
-      secondaryColor: Color(0xFFCE93D8),
-      accentColor: Color(0xFF4A148C),
+      primaryColor: Color(0xFF7A5FFF), // Violeta eléctrico
+      secondaryColor: Color(0xFFFF5EDF), // Fucsia neón
+      accentColor: Color(0xFF01C8EE), // Azul neón
       isPremium: true,
     ),
 
