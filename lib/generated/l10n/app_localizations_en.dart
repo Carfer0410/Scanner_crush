@@ -437,7 +437,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get premiumSupportDescription => 'Priority attention and advanced technical support';
 
   @override
-  String get purchasePremium => 'Get Premium - \$4.99/month';
+  String get purchasePremium => 'Get Premium - \$2.99/month';
 
   @override
   String get welcomeToPremium => 'Welcome to Premium!';

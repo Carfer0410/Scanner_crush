@@ -699,7 +699,7 @@
   "@premiumSupportDescription": {
     "description": "Premium support feature description"
   },
-  "purchasePremium": "Get Premium - $4.99/month",
+  "purchasePremium": "Get Premium - $2.99/month",
   "@purchasePremium": {
     "description": "Purchase premium button"
   },
@@ -1360,7 +1360,7 @@
     "description": "Purchases restored success message"
   },
 
-  "defaultPrice": "$4.99/month",
+  "defaultPrice": "$2.99/month",
   "@defaultPrice": {
     "description": "Default price fallback"
   },
