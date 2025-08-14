@@ -1,4 +1,8 @@
 {
+  "premiumUniverseCard": "Unlock the premium universe: daily personalized horoscopes, love advice, advanced compatibility analysis, no ads.",
+  "@premiumUniverseCard": {
+    "description": "Card text describing premium features for the premium universe."
+  },
   "@@locale": "en",
   "appTitle": "Crush Scanner 💘",
   "@appTitle": {

@@ -1,4 +1,8 @@
 {
+  "premiumUniverseCard": "Desbloquea el universo premium: horóscopos personalizados diarios, consejos amorosos, análisis de compatibilidad avanzado, sin anuncios.",
+  "@premiumUniverseCard": {
+    "description": "Texto de la tarjeta que describe las funciones premium del universo premium."
+  },
   "@@locale": "es",
   "appTitle": "Escáner de Crush",
   "welcomeTitle": "Descubre a tu Admirador Secreto",

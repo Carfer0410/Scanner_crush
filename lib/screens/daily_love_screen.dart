@@ -189,7 +189,9 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
             future: MonetizationService.instance.isPremiumWithGrace(),
             builder: (context, snapshot) {
               final isPremiumWithGrace = snapshot.data ?? false;
-              if (_bannerAd != null && _isBannerAdReady && !isPremiumWithGrace) {
+              if (_bannerAd != null &&
+                  _isBannerAdReady &&
+                  !isPremiumWithGrace) {
                 return Container(
                   alignment: Alignment.center,
                   width: _bannerAd!.size.width.toDouble(),
@@ -470,11 +472,13 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
             size: 50,
             color: Colors.amber,
           ).animate().scale(delay: 200.ms),
-          
+
           const SizedBox(height: 16),
-          
+
           Text(
-            '✨ Desbloquea el Universo Premium',
+            AppLocalizations.of(
+              context,
+            )!.premiumUniverseCard.split(':').first.trim(),
             style: GoogleFonts.poppins(
               fontSize: 22,
               fontWeight: FontWeight.bold,
@@ -482,11 +486,17 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
             ),
             textAlign: TextAlign.center,
           ).animate().fadeIn(delay: 400.ms),
-          
+
           const SizedBox(height: 12),
-          
+
           Text(
-            '• Horóscopos personalizados diarios\n• Consejos amorosos exclusivos\n• Análisis de compatibilidad avanzado\n• Sin anuncios',
+            AppLocalizations.of(context)!.premiumUniverseCard.contains(':')
+                ? '• ' +
+                    AppLocalizations.of(context)!.premiumUniverseCard
+                        .split(':')[1]
+                        .replaceAll(',', '\n•')
+                        .trim()
+                : AppLocalizations.of(context)!.premiumUniverseCard,
             style: GoogleFonts.poppins(
               fontSize: 16,
               color: Colors.white.withOpacity(0.9),
@@ -494,18 +504,16 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
             ),
             textAlign: TextAlign.center,
           ).animate().fadeIn(delay: 600.ms),
-          
+
           const SizedBox(height: 24),
-          
+
           GradientButton(
             text: 'Upgrade a Premium',
             icon: Icons.diamond,
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const PremiumScreen(),
-                ),
+                MaterialPageRoute(builder: (context) => const PremiumScreen()),
               );
             },
           ).animate().scale(delay: 800.ms),
