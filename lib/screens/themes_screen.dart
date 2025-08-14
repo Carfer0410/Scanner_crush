@@ -60,7 +60,7 @@ class _ThemesScreenState extends State<ThemesScreen>
       case ThemeType.classic:
         return AppLocalizations.of(context)?.classicThemeName ?? '💘 Clásico';
       case ThemeType.sunset:
-        return AppLocalizations.of(context)?.sunsetThemeName ?? '🌅 Atardecer';
+        return AppLocalizations.of(context)?.sunsetThemeName ?? '� Aurora Pastel';
       case ThemeType.ocean:
         return AppLocalizations.of(context)?.oceanThemeName ?? '🌊 Océano';
       case ThemeType.forest:
@@ -81,7 +81,7 @@ class _ThemesScreenState extends State<ThemesScreen>
       case ThemeType.classic:
         return AppLocalizations.of(context)?.classicThemeDescription ?? 'El tema original de amor';
       case ThemeType.sunset:
-        return AppLocalizations.of(context)?.sunsetThemeDescription ?? 'Cálidos tonos dorados y naranjas';
+        return AppLocalizations.of(context)?.sunsetThemeDescription ?? 'Degradé moderno de violeta, rosa y azul';
       case ThemeType.ocean:
         return AppLocalizations.of(context)?.oceanThemeDescription ?? 'Profundos azules marinos';
       case ThemeType.forest:

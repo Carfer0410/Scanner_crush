@@ -129,7 +129,7 @@ class PremiumThemeService {
     
     'sunset_dreams': PremiumTheme(
       id: 'sunset_dreams',
-      name: '🌅 Sueños del Atardecer',
+      name: '🌅 Aurora pastel',
       description: 'Colores cálidos de un atardecer perfecto',
       isPremium: true,
       primaryColor: const Color(0xFFFF6B35),

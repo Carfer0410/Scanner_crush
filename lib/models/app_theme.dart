@@ -55,11 +55,7 @@ class AppTheme {
       backgroundGradientDark: LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
-        colors: [
-          Color(0xFF1A1A2E),
-          Color(0xFF16213E),
-          Color(0xFF0F3460),
-        ],
+        colors: [Color(0xFF1A1A2E), Color(0xFF16213E), Color(0xFF0F3460)],
       ),
       primaryColor: Color(0xFFFF6F91),
       secondaryColor: Color(0xFFFFC0CB),
@@ -70,37 +66,38 @@ class AppTheme {
     // Tema atardecer (premium)
     AppTheme(
       type: ThemeType.sunset,
-      name: '🌅 Atardecer',
-      description: 'Cálidos tonos dorados y naranjas',
+      name: '� Aurora Pastel',
+      description: 'Degradé moderno de violeta, rosa y azul',
       icon: Icons.wb_sunny,
       backgroundGradient: LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
-          Color(0xFFFFE0B2), // Naranja claro
-          Color(0xFFFFB74D), // Naranja medio
-          Color(0xFFFF8F00), // Naranja intenso
+          Color(0xFF8EC5FC), // Azul suave
+          Color(0xFFE0C3FC), // Lila claro
+          Color(0xFFFFA8A8), // Rosa pastel
+          Color(0xFFFF7EB3), // Rosa sunset
         ],
       ),
       backgroundGradientDark: LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
-          Color(0xFF1A0E0A),
-          Color(0xFF2D1B0E),
-          Color(0xFF3E2723),
+          Color(0xFF232526), // Gris azulado oscuro
+          Color(0xFF8F94FB), // Azul violeta
+          Color(0xFFFC67FA), // Rosa violeta
         ],
       ),
-      primaryColor: Color(0xFFFF8F00),
-      secondaryColor: Color(0xFFFFB74D),
-      accentColor: Color(0xFFE65100),
+      primaryColor: Color(0xFF8F94FB), // Violeta azulado
+      secondaryColor: Color(0xFFFF7EB3), // Rosa sunset
+      accentColor: Color(0xFF8EC5FC), // Azul suave
       isPremium: true,
     ),
 
     // Tema océano (premium)
     AppTheme(
       type: ThemeType.ocean,
-      name: '🌊 Océano',
+      name: '🌊 Océan',
       description: 'Profundos azules marinos',
       icon: Icons.waves,
       backgroundGradient: LinearGradient(
@@ -115,11 +112,7 @@ class AppTheme {
       backgroundGradientDark: LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
-        colors: [
-          Color(0xFF0A1A2E),
-          Color(0xFF0E2347),
-          Color(0xFF1565C0),
-        ],
+        colors: [Color(0xFF0A1A2E), Color(0xFF0E2347), Color(0xFF1565C0)],
       ),
       primaryColor: Color(0xFF0277BD),
       secondaryColor: Color(0xFF81D4FA),
@@ -145,11 +138,7 @@ class AppTheme {
       backgroundGradientDark: LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
-        colors: [
-          Color(0xFF0A1A0A),
-          Color(0xFF1B5E20),
-          Color(0xFF2E7D32),
-        ],
+        colors: [Color(0xFF0A1A0A), Color(0xFF1B5E20), Color(0xFF2E7D32)],
       ),
       primaryColor: Color(0xFF388E3C),
       secondaryColor: Color(0xFFA5D6A7),
@@ -175,11 +164,7 @@ class AppTheme {
       backgroundGradientDark: LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
-        colors: [
-          Color(0xFF1A0A1A),
-          Color(0xFF4A148C),
-          Color(0xFF6A1B9A),
-        ],
+        colors: [Color(0xFF1A0A1A), Color(0xFF4A148C), Color(0xFF6A1B9A)],
       ),
       primaryColor: Color(0xFF8E24AA),
       secondaryColor: Color(0xFFCE93D8),
