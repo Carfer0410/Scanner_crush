@@ -597,26 +597,14 @@ class _ThemesScreenState extends State<ThemesScreen>
       ThemeService.instance.changeTheme(theme.type);
       setState(() {}); // Refresca la pantalla para el check
 
-      // Tracking de acción del usuario para anuncios inteligentes
-      await AdMobService.instance.trackUserAction();
-
-      // Mostrar intersticial ocasionalmente para usuarios no premium (sin período de gracia)
-      if (!isPremiumWithGrace && !hasTempAccess) {
-        final shouldShow =
-            await AdMobService.instance.shouldShowInterstitialAd();
-        if (shouldShow) {
-          await MonetizationService.instance.showInterstitialAd();
-        }
-      }
-
-      // Show success message después del cambio visual
+      // Mostrar confirmación INMEDIATA
       String message = 'Tema ${theme.name} aplicado';
       if (hasTempAccess && theme.isPremium) {
         final hoursRemaining = PremiumThemeService.instance
             .getTemporaryHoursRemainingForTheme(theme.type.name);
         message += ' (Acceso temporal: ${hoursRemaining}h restantes)';
       }
-
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(message),
@@ -627,6 +615,18 @@ class _ThemesScreenState extends State<ThemesScreen>
           ),
         ),
       );
+
+      // Tracking de acción del usuario para anuncios inteligentes (no bloquea la UI)
+      AdMobService.instance.trackUserAction();
+
+      // Mostrar intersticial ocasionalmente para usuarios no premium (sin período de gracia)
+      if (!isPremiumWithGrace && !hasTempAccess) {
+        AdMobService.instance.shouldShowInterstitialAd().then((shouldShow) {
+          if (shouldShow) {
+            MonetizationService.instance.showInterstitialAd();
+          }
+        });
+      }
     }
   }
 
