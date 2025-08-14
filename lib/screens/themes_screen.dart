@@ -3,6 +3,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../services/theme_service.dart';
 import '../services/monetization_service.dart';
+import '../services/premium_theme_service.dart';
 import '../services/audio_service.dart';
 import '../services/admob_service.dart';
 import '../models/app_theme.dart';
@@ -253,30 +254,33 @@ class _ThemesScreenState extends State<ThemesScreen>
   }
 
   Widget _buildThemesGrid() {
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      itemCount: AppTheme.availableThemes.length,
-      itemBuilder: (context, index) {
-        final theme = AppTheme.availableThemes[index];
-        final isSelected = theme.type == ThemeService.instance.currentTheme;
-        
-        return FutureBuilder<List<bool>>(
-          future: Future.wait([
-            MonetizationService.instance.hasTemporaryPremiumAccess(),
-            MonetizationService.instance.isPremiumWithGrace(),
-          ]),
-          builder: (context, snapshot) {
-            final data = snapshot.data ?? [false, false];
-            final hasTemporaryAccess = data[0];
-            final isPremiumWithGrace = data[1];
-            final canUse = !theme.isPremium || 
-                          isPremiumWithGrace ||
-                          hasTemporaryAccess;
-        
-            return AnimatedContainer(
-              duration: Duration(milliseconds: 200 + (index * 100)),
-              margin: const EdgeInsets.only(bottom: 16),
-              child: _buildThemeCard(theme, isSelected, canUse, hasTemporaryAccess),
+    return ValueListenableBuilder<int>(
+      valueListenable: PremiumThemeService.instance.tempAccessNotifier,
+      builder: (context, _, __) {
+        return ValueListenableBuilder<String>(
+          valueListenable: ThemeService.instance.themeNotifier,
+          builder: (context, currentTheme, _) {
+            return ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              itemCount: AppTheme.availableThemes.length,
+              itemBuilder: (context, index) {
+                final theme = AppTheme.availableThemes[index];
+                final isSelected = theme.type.name == currentTheme;
+                final hasTemporaryAccess = PremiumThemeService.instance.hasTemporaryAccessToTheme(theme.type.name);
+                return FutureBuilder<bool>(
+                  future: MonetizationService.instance.isPremiumWithGrace(),
+                  builder: (context, snapshot) {
+                    final isPremiumWithGrace = snapshot.data ?? false;
+                    // Permitir seleccionar el tema premium si tiene acceso temporal válido
+                    final canUse = !theme.isPremium || isPremiumWithGrace || hasTemporaryAccess;
+                    return AnimatedContainer(
+                      duration: Duration(milliseconds: 200 + (index * 100)),
+                      margin: const EdgeInsets.only(bottom: 16),
+                      child: _buildThemeCard(theme, isSelected, canUse, hasTemporaryAccess),
+                    );
+                  },
+                );
+              },
             );
           },
         );
@@ -559,8 +563,12 @@ class _ThemesScreenState extends State<ThemesScreen>
     AudioService.instance.playButtonTap();
     
     final isPremiumWithGrace = await MonetizationService.instance.isPremiumWithGrace();
-    
-    if (!canUse) {
+
+    // Permitir seleccionar el tema premium si tiene acceso temporal válido
+    final hasTempAccess = PremiumThemeService.instance.hasTemporaryAccessToTheme(theme.type.name);
+    final canSelect = !theme.isPremium || isPremiumWithGrace || hasTempAccess;
+
+    if (!canSelect) {
       // Si es un tema premium y no tiene acceso, mostrar opción de ver anuncio
       if (theme.isPremium && !isPremiumWithGrace) {
         _showPremiumOrAdOptions(theme);
@@ -569,28 +577,30 @@ class _ThemesScreenState extends State<ThemesScreen>
       }
       return;
     }
-    
-    if (theme.type != ThemeService.instance.currentTheme) {
+
+    if (theme.type.name != ThemeService.instance.themeNotifier.value) {
+      // Cambio inmediato de tema y UI reactiva
+      ThemeService.instance.changeTheme(theme.type);
+      setState(() {}); // Refresca la pantalla para el check
+
       // Tracking de acción del usuario para anuncios inteligentes
       await AdMobService.instance.trackUserAction();
-      
+
       // Mostrar intersticial ocasionalmente para usuarios no premium (sin período de gracia)
-      if (!isPremiumWithGrace && !hasTemporaryAccess) {
+      if (!isPremiumWithGrace && !hasTempAccess) {
         final shouldShow = await AdMobService.instance.shouldShowInterstitialAd();
         if (shouldShow) {
           await MonetizationService.instance.showInterstitialAd();
         }
       }
-      
-      ThemeService.instance.changeTheme(theme.type);
-      
-      // Show success message
+
+      // Show success message después del cambio visual
       String message = 'Tema ${_getThemeName(context, theme.type)} aplicado';
-      if (hasTemporaryAccess && theme.isPremium) {
-        final hoursRemaining = await MonetizationService.instance.getTemporaryPremiumHoursRemaining();
+      if (hasTempAccess && theme.isPremium) {
+        final hoursRemaining = PremiumThemeService.instance.getTemporaryHoursRemainingForTheme(theme.type.name);
         message += ' (Acceso temporal: ${hoursRemaining}h restantes)';
       }
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(message),
@@ -605,142 +615,156 @@ class _ThemesScreenState extends State<ThemesScreen>
   }
 
   void _showPremiumOrAdOptions(AppTheme theme) {
+    bool isProcessing = false;
+    void refreshParent() => setState(() {});
+    bool hasTempAccess = PremiumThemeService.instance.hasTemporaryAccessToTheme(theme.type.name);
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: ThemeService.instance.cardColor,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        title: Text(
-          '🎨 Tema Premium',
-          style: TextStyle(
-            color: ThemeService.instance.textColor,
-            fontWeight: FontWeight.bold,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setStateDialog) => AlertDialog(
+          backgroundColor: ThemeService.instance.cardColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
           ),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Este tema requiere acceso premium. Puedes:',
-              style: TextStyle(
-                color: ThemeService.instance.subtitleColor,
+          title: Text(
+            '🎨 Tema Premium',
+            style: TextStyle(
+              color: ThemeService.instance.textColor,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Este tema requiere acceso premium. Puedes:',
+                style: TextStyle(
+                  color: ThemeService.instance.subtitleColor,
+                ),
+              ),
+              const SizedBox(height: 16),
+              // Opción 1: Ver anuncio para acceso temporal
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                ),
+                child: Column(
+                  children: [
+                    Icon(Icons.tv, color: Colors.orange, size: 32),
+                    const SizedBox(height: 8),
+                    Text(
+                      '📺 Ver Anuncio',
+                      style: TextStyle(
+                        color: Colors.orange,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      PremiumThemeService.instance.hasTemporaryAccessToTheme(theme.type.name)
+                          ? 'Ya tienes acceso temporal activo a este tema.'
+                          : 'Acceso por 24 horas SOLO a este tema',
+                      style: TextStyle(
+                        color: ThemeService.instance.subtitleColor,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              // Opción 2: Comprar premium
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: ThemeService.instance.primaryColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: ThemeService.instance.primaryColor.withOpacity(0.3)),
+                ),
+                child: Column(
+                  children: [
+                    Icon(Icons.star, color: ThemeService.instance.primaryColor, size: 32),
+                    const SizedBox(height: 8),
+                    Text(
+                      '⭐ Premium',
+                      style: TextStyle(
+                        color: ThemeService.instance.primaryColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      'Acceso permanente',
+                      style: TextStyle(
+                        color: ThemeService.instance.subtitleColor,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                'Cancelar',
+                style: TextStyle(
+                  color: ThemeService.instance.subtitleColor,
+                ),
               ),
             ),
-            const SizedBox(height: 16),
-            
-            // Opción 1: Ver anuncio para acceso temporal
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.orange.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.orange.withOpacity(0.3)),
-              ),
-              child: Column(
-                children: [
-                  Icon(Icons.tv, color: Colors.orange, size: 32),
-                  const SizedBox(height: 8),
-                  Text(
-                    '📺 Ver Anuncio',
-                    style: TextStyle(
-                      color: Colors.orange,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    'Acceso por 24 horas',
-                    style: TextStyle(
-                      color: ThemeService.instance.subtitleColor,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
+            TextButton(
+              onPressed: PremiumThemeService.instance.hasTemporaryAccessToTheme(theme.type.name) || isProcessing
+                  ? null
+                  : () async {
+                      setStateDialog(() => isProcessing = true);
+                      final adShown = await AdMobService.instance.showRewardedAd(
+                        onUserEarnedReward: (ad, reward) async {
+                          if (!PremiumThemeService.instance.hasTemporaryAccessToTheme(theme.type.name)) {
+                            await PremiumThemeService.instance.grantTemporaryAccessToTheme(theme.type.name);
+                          }
+                        },
+                      );
+                      setStateDialog(() => isProcessing = false);
+                      if (adShown) {
+                        Navigator.pop(context);
+                        refreshParent(); // Refresca la lista de temas inmediatamente
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('¡Acceso temporal a este tema otorgado por 24 horas! 🎉'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      }
+                    },
+              child: Text(
+                '📺 Ver Anuncio',
+                style: TextStyle(color: Colors.orange),
               ),
             ),
-            
-            const SizedBox(height: 12),
-            
-            // Opción 2: Comprar premium
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: ThemeService.instance.primaryColor.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: ThemeService.instance.primaryColor.withOpacity(0.3)),
-              ),
-              child: Column(
-                children: [
-                  Icon(Icons.star, color: ThemeService.instance.primaryColor, size: 32),
-                  const SizedBox(height: 8),
-                  Text(
-                    '⭐ Premium',
-                    style: TextStyle(
-                      color: ThemeService.instance.primaryColor,
-                      fontWeight: FontWeight.bold,
-                    ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const PremiumScreen(),
                   ),
-                  Text(
-                    'Acceso permanente',
-                    style: TextStyle(
-                      color: ThemeService.instance.subtitleColor,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: ThemeService.instance.primaryColor,
+                foregroundColor: Colors.white,
               ),
+              child: Text('⭐ Premium'),
             ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              'Cancelar',
-              style: TextStyle(
-                color: ThemeService.instance.subtitleColor,
-              ),
-            ),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              final success = await MonetizationService.instance.watchAdForPremiumThemeAccess();
-              if (success) {
-                setState(() {}); // Refrescar para mostrar el acceso temporal
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('¡Acceso temporal otorgado por 24 horas! 🎉'),
-                    backgroundColor: Colors.green,
-                  ),
-                );
-              }
-            },
-            child: Text(
-              '📺 Ver Anuncio',
-              style: TextStyle(color: Colors.orange),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const PremiumScreen(),
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: ThemeService.instance.primaryColor,
-              foregroundColor: Colors.white,
-            ),
-            child: Text('⭐ Premium'),
-          ),
-        ],
       ),
     );
   }

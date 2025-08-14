@@ -18,8 +18,6 @@ import 'celebrity_form_screen.dart';
 import 'daily_love_screen.dart';
 import 'analytics_screen.dart';
 import 'themes_screen.dart';
-import 'ads_test_screen.dart';
-import '../test_grace_period_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -475,61 +473,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
             ),
           ),
         ),
-      ),
-      floatingActionButton: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          // Grace period simulator button
-          FloatingActionButton.small(
-            onPressed: () async {
-              await MonetizationService.instance.simulateNewUser();
-              setState(() {}); // Refresh to show grace period card
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    '🔧 Usuario simulado como nuevo - Card de gracia debería aparecer',
-                    style: GoogleFonts.poppins(fontSize: 12),
-                  ),
-                  backgroundColor: Colors.green,
-                  duration: const Duration(seconds: 3),
-                ),
-              );
-            },
-            backgroundColor: Colors.purple,
-            heroTag: "grace_simulator",
-            child: const Icon(Icons.refresh, color: Colors.white, size: 20),
-          ),
-          const SizedBox(width: 10),
-          // Ads test button
-          FloatingActionButton.small(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const AdsTestScreen(),
-                ),
-              );
-            },
-            backgroundColor: Colors.green,
-            heroTag: "ads_test",
-            child: const Icon(Icons.ads_click, color: Colors.white, size: 20),
-          ),
-          const SizedBox(width: 10),
-          // Grace period test button
-          FloatingActionButton.small(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const TestGracePeriodScreen(),
-                ),
-              );
-            },
-            backgroundColor: Colors.orange,
-            heroTag: "grace_test",
-            child: const Icon(Icons.bug_report, color: Colors.white, size: 20),
-          ),
-        ],
       ),
     );
   }

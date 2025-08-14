@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'monetization_service.dart';
 
 class PremiumThemeService {
   static final PremiumThemeService _instance = PremiumThemeService._internal();
@@ -10,14 +11,83 @@ class PremiumThemeService {
 
   SharedPreferences? _prefs;
   String _currentTheme = 'default';
-  
+
   // Notifier para cambios de tema
   final ValueNotifier<String> themeNotifier = ValueNotifier<String>('default');
+
+  // Mapa de accesos temporales por tema: {themeId: expiryIsoString}
+  Map<String, String> _tempPremiumThemes = {};
+  // Notificador para cambios en accesos temporales
+  final ValueNotifier<int> tempAccessNotifier = ValueNotifier<int>(0);
 
   Future<void> initialize() async {
     _prefs = await SharedPreferences.getInstance();
     _currentTheme = _prefs?.getString('premium_theme') ?? 'default';
     themeNotifier.value = _currentTheme;
+    _loadTempPremiumThemes();
+  }
+
+  void _loadTempPremiumThemes() {
+    final mapString = _prefs?.getString('temp_premium_themes');
+    if (mapString != null && mapString.isNotEmpty) {
+      try {
+        final entries = (mapString.split(';')..removeWhere((e) => e.isEmpty))
+            .map((e) {
+          final parts = e.split(':');
+          if (parts.length == 2) {
+            return MapEntry(parts[0], parts[1]);
+          }
+          return null;
+        }).whereType<MapEntry<String, String>>();
+        _tempPremiumThemes = Map<String, String>.fromEntries(entries);
+      } catch (_) {
+        _tempPremiumThemes = {};
+      }
+    } else {
+      _tempPremiumThemes = {};
+    }
+  }
+
+  Future<void> _saveTempPremiumThemes() async {
+    // Serializa el mapa como string: themeId:expiry;themeId2:expiry2
+    final mapString = _tempPremiumThemes.entries
+        .map((e) => "${e.key}:${e.value}")
+        .join(';');
+    await _prefs?.setString('temp_premium_themes', mapString);
+  }
+
+  /// Otorga acceso temporal a un tema premium por 24h
+  Future<void> grantTemporaryAccessToTheme(String themeId) async {
+    final expiry = DateTime.now().add(const Duration(hours: 24));
+    _tempPremiumThemes[themeId] = expiry.toIso8601String();
+    await _saveTempPremiumThemes();
+    tempAccessNotifier.value++;
+  }
+
+  /// Verifica si el usuario tiene acceso temporal activo a un tema premium
+  bool hasTemporaryAccessToTheme(String themeId) {
+    final expiryString = _tempPremiumThemes[themeId];
+    if (expiryString == null) return false;
+    final expiry = DateTime.tryParse(expiryString);
+    if (expiry == null) return false;
+    if (DateTime.now().isAfter(expiry)) {
+      // Expiró, limpiar
+      _tempPremiumThemes.remove(themeId);
+      _saveTempPremiumThemes();
+      tempAccessNotifier.value++;
+      return false;
+    }
+    return true;
+  }
+
+  /// Devuelve las horas restantes de acceso temporal a un tema premium
+  int getTemporaryHoursRemainingForTheme(String themeId) {
+    final expiryString = _tempPremiumThemes[themeId];
+    if (expiryString == null) return 0;
+    final expiry = DateTime.tryParse(expiryString);
+    if (expiry == null) return 0;
+    final remaining = expiry.difference(DateTime.now()).inHours;
+    return remaining.clamp(0, 24);
   }
 
   String get currentTheme => _currentTheme;
@@ -151,18 +221,26 @@ class PremiumThemeService {
     return _premiumThemes[_currentTheme] ?? _premiumThemes['default']!;
   }
 
-  // Verificar si un tema está disponible
-  bool isThemeAvailable(String themeId) {
+
+  // Verificar si un tema está disponible para el usuario actual
+  Future<bool> isThemeAvailable(String themeId) async {
     final theme = _premiumThemes[themeId];
     if (theme == null) return false;
-    
-    // Temporalmente habilitado para desarrollo - todos los temas disponibles
-    return true;
+    if (!theme.isPremium) return true;
+
+    // Si es premium real o período de gracia, acceso total
+    final monet = MonetizationService.instance;
+    if (await monet.isPremiumWithGrace()) return true;
+
+    // Acceso temporal por anuncio a este tema
+    if (hasTemporaryAccessToTheme(themeId)) return true;
+
+    return false;
   }
 
   // Cambiar tema
   Future<bool> setTheme(String themeId) async {
-    if (!isThemeAvailable(themeId)) {
+    if (!await isThemeAvailable(themeId)) {
       return false;
     }
 

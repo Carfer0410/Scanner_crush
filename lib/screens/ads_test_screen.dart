@@ -97,8 +97,8 @@ class _AdsTestScreenState extends State<AdsTestScreen> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              ThemeService.instance.primaryColor.withOpacity(0.1),
-              ThemeService.instance.secondaryColor.withOpacity(0.1),
+              ThemeService.instance.primaryColor.withAlpha(26),
+              ThemeService.instance.secondaryColor.withAlpha(26),
             ],
           ),
         ),
@@ -114,7 +114,7 @@ class _AdsTestScreenState extends State<AdsTestScreen> {
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withAlpha(26),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -135,7 +135,7 @@ class _AdsTestScreenState extends State<AdsTestScreen> {
                     _status,
                     style: GoogleFonts.poppins(
                       fontSize: 14,
-                      color: ThemeService.instance.textColor.withOpacity(0.8),
+                      color: ThemeService.instance.textColor.withAlpha(204),
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -157,7 +157,7 @@ class _AdsTestScreenState extends State<AdsTestScreen> {
                       height: _bannerAd!.size.height.toDouble(),
                       decoration: BoxDecoration(
                         border: Border.all(
-                          color: ThemeService.instance.primaryColor.withOpacity(0.3),
+                          color: ThemeService.instance.primaryColor.withAlpha(77),
                         ),
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -232,7 +232,7 @@ class _AdsTestScreenState extends State<AdsTestScreen> {
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withAlpha(26),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -256,7 +256,7 @@ class _AdsTestScreenState extends State<AdsTestScreen> {
                               child: Text(
                                 'Presiona los botones para probar los anuncios',
                                 style: GoogleFonts.poppins(
-                                  color: ThemeService.instance.textColor.withOpacity(0.6),
+                                  color: ThemeService.instance.textColor.withAlpha(153),
                                 ),
                                 textAlign: TextAlign.center,
                               ),

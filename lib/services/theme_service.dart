@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/app_theme.dart';
 
+
 class ThemeService extends ChangeNotifier {
   static final ThemeService _instance = ThemeService._internal();
   static ThemeService get instance => _instance;
@@ -9,6 +10,9 @@ class ThemeService extends ChangeNotifier {
 
   bool _isDarkMode = false;
   ThemeType _currentTheme = ThemeType.classic;
+
+  // Notificador reactivo para el nombre del tema actual
+  final ValueNotifier<String> themeNotifier = ValueNotifier<String>(ThemeType.classic.name);
 
   bool get isDarkMode => _isDarkMode;
   ThemeType get currentTheme => _currentTheme;
@@ -19,6 +23,7 @@ class ThemeService extends ChangeNotifier {
     _isDarkMode = prefs.getBool('dark_mode') ?? false;
     final themeIndex = prefs.getInt('current_theme') ?? 0;
     _currentTheme = ThemeType.values[themeIndex];
+    themeNotifier.value = _currentTheme.name;
     notifyListeners();
   }
 
@@ -31,6 +36,7 @@ class ThemeService extends ChangeNotifier {
 
   Future<void> changeTheme(ThemeType newTheme) async {
     _currentTheme = newTheme;
+    themeNotifier.value = newTheme.name;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('current_theme', newTheme.index);
     notifyListeners();

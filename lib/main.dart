@@ -118,7 +118,7 @@ class _ScannerCrushAppState extends State<ScannerCrushApp> {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           elevation: 8,
-          shadowColor: ThemeService.instance.primaryColor.withOpacity(0.3),
+          shadowColor: ThemeService.instance.primaryColor.withAlpha(77),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(25),
           ),
@@ -152,7 +152,7 @@ class _ScannerCrushAppState extends State<ScannerCrushApp> {
       cardTheme: CardTheme(
         color: ThemeService.instance.cardColor,
         elevation: 8,
-        shadowColor: Colors.black.withOpacity(0.1),
+        shadowColor: Colors.black.withAlpha(26),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
       dialogTheme: DialogTheme(
@@ -190,7 +190,7 @@ class _ScannerCrushAppState extends State<ScannerCrushApp> {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           elevation: 8,
-          shadowColor: ThemeService.instance.primaryColor.withOpacity(0.4),
+          shadowColor: ThemeService.instance.primaryColor.withAlpha(102),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(25),
           ),
@@ -231,7 +231,7 @@ class _ScannerCrushAppState extends State<ScannerCrushApp> {
       cardTheme: CardTheme(
         color: ThemeService.instance.cardColor,
         elevation: 8,
-        shadowColor: Colors.black.withOpacity(0.3),
+        shadowColor: Colors.black.withAlpha(77),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
       dialogTheme: DialogTheme(
@@ -260,7 +260,7 @@ class _ScannerCrushAppState extends State<ScannerCrushApp> {
           Set<WidgetState> states,
         ) {
           if (states.contains(WidgetState.selected)) {
-            return ThemeService.instance.primaryColor.withOpacity(0.5);
+            return ThemeService.instance.primaryColor.withAlpha(128);
           }
           return ThemeService.instance.borderColor;
         }),
