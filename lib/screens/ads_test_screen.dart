@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../services/admob_service.dart';
 import '../services/monetization_service.dart';
 import '../services/theme_service.dart';
@@ -16,7 +18,7 @@ class AdsTestScreen extends StatefulWidget {
 class _AdsTestScreenState extends State<AdsTestScreen> {
   BannerAd? _bannerAd;
   bool _isBannerLoaded = false;
-  String _status = "Lista para probar anuncios";
+  String _status = "";
   final List<String> _testResults = [];
 
   @override
@@ -31,12 +33,12 @@ class _AdsTestScreenState extends State<AdsTestScreen> {
       if (mounted) {
         setState(() {
           _isBannerLoaded = true;
-          _status = "Banner Ad cargado correctamente";
+          _status = AppLocalizations.of(context)?.bannerLoaded ?? 'Banner Ad cargado correctamente';
         });
       }
     }).catchError((error) {
       setState(() {
-        _status = "Error cargando Banner Ad: $error";
+        _status = (AppLocalizations.of(context)?.bannerLoadError ?? 'Error cargando Banner Ad:') + ' $error';
       });
     });
   }
@@ -54,30 +56,30 @@ class _AdsTestScreenState extends State<AdsTestScreen> {
   }
 
   Future<void> _testBannerAd() async {
-    _addResult("🎯 Testing Banner Ad...");
+    _addResult(AppLocalizations.of(context)?.testingBannerAd ?? "🎯 Testing Banner Ad...");
     if (_bannerAd != null && _isBannerLoaded) {
-      _addResult("✅ Banner Ad está funcionando");
+      _addResult(AppLocalizations.of(context)?.bannerAdWorking ?? "✅ Banner Ad está funcionando");
     } else {
-      _addResult("❌ Banner Ad no está cargado");
+      _addResult(AppLocalizations.of(context)?.bannerAdNotLoaded ?? "❌ Banner Ad no está cargado");
     }
   }
 
   Future<void> _testInterstitialAd() async {
-    _addResult("🎯 Testing Interstitial Ad...");
+  _addResult(AppLocalizations.of(context)?.testingInterstitialAd ?? "🎯 Testing Interstitial Ad...");
     final isReady = AdMobService.instance.isInterstitialAdReady;
     if (isReady) {
-      _addResult("✅ Interstitial Ad disponible");
+      _addResult(AppLocalizations.of(context)?.interstitialAdAvailable ?? "✅ Interstitial Ad disponible");
       final success = await AdMobService.instance.showInterstitialAd();
-      _addResult(success ? "✅ Interstitial mostrado" : "❌ Error mostrando Interstitial");
+      _addResult(success ? (AppLocalizations.of(context)?.interstitialShown ?? "✅ Interstitial mostrado") : (AppLocalizations.of(context)?.interstitialShowError ?? "❌ Error mostrando Interstitial"));
     } else {
-      _addResult("⚠️ Interstitial Ad no está listo");
+      _addResult(AppLocalizations.of(context)?.interstitialNotReady ?? "⚠️ Interstitial Ad no está listo");
     }
   }
 
   Future<void> _testRewardedAd() async {
-    _addResult("🎯 Testing Rewarded Ad...");
-    final success = await MonetizationService.instance.watchAdForExtraScans();
-    _addResult(success ? "✅ Rewarded Ad mostrado y recompensa otorgada" : "❌ Error con Rewarded Ad");
+  _addResult(AppLocalizations.of(context)?.testingRewardedAd ?? "🎯 Testing Rewarded Ad...");
+  final success = await MonetizationService.instance.watchAdForExtraScans();
+  _addResult(success ? (AppLocalizations.of(context)?.rewardedAdShown ?? "✅ Rewarded Ad mostrado y recompensa otorgada") : (AppLocalizations.of(context)?.rewardedAdError ?? "❌ Error con Rewarded Ad"));
   }
 
   @override
@@ -85,7 +87,7 @@ class _AdsTestScreenState extends State<AdsTestScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Prueba de Anuncios',
+          AppLocalizations.of(context)?.adsTestTitle ?? 'Prueba de Anuncios',
           style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
         ),
         backgroundColor: ThemeService.instance.primaryColor,
@@ -123,7 +125,7 @@ class _AdsTestScreenState extends State<AdsTestScreen> {
               child: Column(
                 children: [
                   Text(
-                    'Estado del Sistema',
+                    AppLocalizations.of(context)?.systemStatus ?? 'Estado del Sistema',
                     style: GoogleFonts.poppins(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -144,7 +146,7 @@ class _AdsTestScreenState extends State<AdsTestScreen> {
                   // Banner Ad Display
                   if (_bannerAd != null && _isBannerLoaded) ...[
                     Text(
-                      '📱 Banner Ad en vivo:',
+                      AppLocalizations.of(context)?.liveBannerAd ?? '📱 Banner Ad en vivo:',
                       style: GoogleFonts.poppins(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -179,7 +181,7 @@ class _AdsTestScreenState extends State<AdsTestScreen> {
                         child: ElevatedButton.icon(
                           onPressed: _testBannerAd,
                           icon: const Icon(Icons.web),
-                          label: const Text('Test Banner'),
+                          label: Text(AppLocalizations.of(context)?.testBanner ?? 'Test Banner'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blue,
                             foregroundColor: Colors.white,
@@ -192,7 +194,7 @@ class _AdsTestScreenState extends State<AdsTestScreen> {
                         child: ElevatedButton.icon(
                           onPressed: _testInterstitialAd,
                           icon: const Icon(Icons.fullscreen),
-                          label: const Text('Test Interstitial'),
+                          label: Text(AppLocalizations.of(context)?.testInterstitial ?? 'Test Interstitial'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.orange,
                             foregroundColor: Colors.white,
@@ -208,7 +210,7 @@ class _AdsTestScreenState extends State<AdsTestScreen> {
                     child: ElevatedButton.icon(
                       onPressed: _testRewardedAd,
                       icon: const Icon(Icons.card_giftcard),
-                      label: const Text('Test Rewarded Ad'),
+                      label: Text(AppLocalizations.of(context)?.testRewardedAd ?? 'Test Rewarded Ad'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
                         foregroundColor: Colors.white,
@@ -242,7 +244,7 @@ class _AdsTestScreenState extends State<AdsTestScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Resultados de Pruebas',
+                      AppLocalizations.of(context)?.testResults ?? 'Resultados de Pruebas',
                       style: GoogleFonts.poppins(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -254,7 +256,7 @@ class _AdsTestScreenState extends State<AdsTestScreen> {
                       child: _testResults.isEmpty
                           ? Center(
                               child: Text(
-                                'Presiona los botones para probar los anuncios',
+                                AppLocalizations.of(context)?.pressButtonsToTestAds ?? 'Presiona los botones para probar los anuncios',
                                 style: GoogleFonts.poppins(
                                   color: ThemeService.instance.textColor.withAlpha(153),
                                 ),

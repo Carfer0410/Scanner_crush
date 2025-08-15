@@ -77,26 +77,31 @@ class _ScannerCrushAppState extends State<ScannerCrushApp> {
         StreakService.instance,
       ]),
       builder: (context, child) {
-        return MaterialApp(
-          title: 'Escáner de Crush 💘',
-          debugShowCheckedModeBanner: false,
-          showPerformanceOverlay: false,
-          showSemanticsDebugger: false,
-          locale: LocaleService.instance.currentLocale,
-          localizationsDelegates: const [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: LocaleService.instance.supportedLocales,
-          theme: _buildLightTheme(),
-          darkTheme: _buildDarkTheme(),
-          themeMode:
-              ThemeService.instance.isDarkMode
-                  ? ThemeMode.dark
-                  : ThemeMode.light,
-          home: const WelcomeScreen(),
+        return Builder(
+          builder: (context) {
+            final localizations = AppLocalizations.of(context);
+            return MaterialApp(
+              title: localizations?.appTitleFull ?? 'Crush Scanner',
+              debugShowCheckedModeBanner: false,
+              showPerformanceOverlay: false,
+              showSemanticsDebugger: false,
+              locale: LocaleService.instance.currentLocale,
+              localizationsDelegates: const [
+                AppLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: LocaleService.instance.supportedLocales,
+              theme: _buildLightTheme(),
+              darkTheme: _buildDarkTheme(),
+              themeMode:
+                  ThemeService.instance.isDarkMode
+                      ? ThemeMode.dark
+                      : ThemeMode.light,
+              home: const WelcomeScreen(),
+            );
+          },
         );
       },
     );

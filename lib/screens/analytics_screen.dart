@@ -104,8 +104,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
                       ),
                     ),
                     const Spacer(),
-                    Text(
-                      AppLocalizations.of(context)?.loveAnalytics ?? '📊 Love Analytics',
+                        Text(
+                          AppLocalizations.of(context)?.loveAnalytics ?? '',
                       style: GoogleFonts.poppins(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -183,8 +183,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
 
               const SizedBox(height: 30),
 
-              Text(
-                AppLocalizations.of(context)?.analyticsPremium ?? '🔒 Analytics Premium',
+                          Text(
+                            AppLocalizations.of(context)?.analyticsPremium ?? '',
                 style: GoogleFonts.poppins(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
@@ -195,8 +195,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
 
               const SizedBox(height: 16),
 
-              Text(
-                AppLocalizations.of(context)?.unlockDeepInsights ?? 'Desbloquea insights profundos sobre tu vida amorosa con analytics avanzados, predicciones y patrones de compatibilidad.',
+                          Text(
+                            AppLocalizations.of(context)?.unlockDeepInsights ?? '',
                 style: GoogleFonts.poppins(
                   fontSize: 16,
                   color: ThemeService.instance.subtitleColor,
@@ -208,7 +208,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
               const SizedBox(height: 40),
 
               GradientButton(
-                text: AppLocalizations.of(context)?.upgradeToPremiumAnalytics ?? 'Upgrade a Premium',
+                            text: AppLocalizations.of(context)?.upgradeToPremiumAnalytics ?? '',
                 icon: Icons.diamond,
                 onPressed: () {
                   Navigator.push(
@@ -238,8 +238,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
               ),
             ),
             const SizedBox(height: 20),
-            Text(
-              AppLocalizations.of(context)?.analyzingLoveLife ?? 'Analizando tu vida amorosa...',
+                Text(
+                  AppLocalizations.of(context)?.analyzingLoveLife ?? '',
               style: GoogleFonts.poppins(
                 fontSize: 16,
                 color: ThemeService.instance.textColor,
@@ -264,7 +264,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
             ),
             const SizedBox(height: 20),
             Text(
-              AppLocalizations.of(context)?.errorLoadingAnalytics ?? 'Error cargando analytics',
+              AppLocalizations.of(context)?.errorLoadingAnalytics ?? '',
               style: GoogleFonts.poppins(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -283,7 +283,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _loadAnalytics,
-              child: Text(AppLocalizations.of(context)?.retry ?? 'Reintentar'),
+              child: Text(AppLocalizations.of(context)?.retry ?? ''),
             ),
           ],
         ),
@@ -311,9 +311,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
               labelColor: Colors.white,
               unselectedLabelColor: ThemeService.instance.subtitleColor,
               tabs: [
-                Tab(text: AppLocalizations.of(context)?.statisticsTab ?? 'Estadísticas'),
-                Tab(text: AppLocalizations.of(context)?.insightsTab ?? 'Insights'),
-                Tab(text: AppLocalizations.of(context)?.predictionsTab ?? 'Predicciones'),
+                    Tab(text: AppLocalizations.of(context)?.statisticsTab ?? ''),
+                    Tab(text: AppLocalizations.of(context)?.insightsTab ?? ''),
+                    Tab(text: AppLocalizations.of(context)?.predictionsTab ?? ''),
               ],
             ),
           ),
@@ -349,7 +349,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
               Expanded(
                 child: _buildStatCard(
                   '💕',
-                  AppLocalizations.of(context)?.totalScansAnalytics ?? 'Total Escaneos',
+                      AppLocalizations.of(context)?.totalScansAnalytics ?? '',
                   _stats!.totalScans.toString(),
                   Colors.pink,
                 ),
@@ -358,7 +358,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
               Expanded(
                 child: _buildStatCard(
                   '📊',
-                  AppLocalizations.of(context)?.averageAnalytics ?? 'Promedio',
+                      AppLocalizations.of(context)?.averageAnalytics ?? '',
                   '${_stats!.averageCompatibility.toInt()}%',
                   Colors.purple,
                 ),
@@ -373,7 +373,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
               Expanded(
                 child: _buildStatCard(
                   '🔥',
-                  AppLocalizations.of(context)?.bestMatch ?? 'Mejor Match',
+                      AppLocalizations.of(context)?.bestMatch ?? '',
                   '${_stats!.highestCompatibility}%',
                   Colors.orange,
                 ),
@@ -382,7 +382,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
               Expanded(
                 child: _buildStatCard(
                   '⭐',
-                  AppLocalizations.of(context)?.celebritiesAnalytics ?? 'Celebridades',
+                      AppLocalizations.of(context)?.celebritiesAnalytics ?? '',
                   _stats!.celebrityScans.toString(),
                   Colors.amber,
                 ),
@@ -417,7 +417,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
             ),
             const SizedBox(height: 16),
             Text(
-              'No hay insights todavía',
+              AppLocalizations.of(context)?.noInsightsYet ?? 'No hay insights todavía',
               style: GoogleFonts.poppins(
                 fontSize: 18,
                 color: ThemeService.instance.textColor,
@@ -425,7 +425,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
             ),
             const SizedBox(height: 8),
             Text(
-              'Realiza más escaneos para obtener insights personalizados',
+              AppLocalizations.of(context)?.scanMoreForInsights ?? 'Realiza más escaneos para obtener insights personalizados',
               style: GoogleFonts.poppins(
                 fontSize: 14,
                 color: ThemeService.instance.subtitleColor,
@@ -509,7 +509,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
             ),
             const SizedBox(height: 16),
             Text(
-              'No hay predicciones disponibles',
+              AppLocalizations.of(context)?.noPredictionsYet ?? 'No hay predicciones disponibles',
               style: GoogleFonts.poppins(
                 fontSize: 18,
                 color: ThemeService.instance.textColor,
@@ -517,7 +517,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
             ),
             const SizedBox(height: 8),
             Text(
-              'Realiza más escaneos para generar predicciones sobre tu vida amorosa',
+              AppLocalizations.of(context)?.scanMoreForPredictions ?? 'Realiza más escaneos para generar predicciones sobre tu vida amorosa',
               style: GoogleFonts.poppins(
                 fontSize: 14,
                 color: ThemeService.instance.subtitleColor,

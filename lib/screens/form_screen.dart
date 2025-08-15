@@ -161,9 +161,10 @@ class _FormScreenState extends State<FormScreen> {
       }
     } catch (e) {
       if (mounted) {
+        final localizations = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error al escanear: ${e.toString()}'),
+            content: Text(localizations?.unknownError ?? 'Error desconocido'),
             backgroundColor: Colors.red,
           ),
         );
@@ -202,6 +203,7 @@ class _FormScreenState extends State<FormScreen> {
   }
 
   void _showNewUserMessage(int daysRemaining) {
+    final localizations = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -210,17 +212,19 @@ class _FormScreenState extends State<FormScreen> {
           children: [
             Icon(Icons.celebration, color: Colors.amber, size: 28),
             const SizedBox(width: 8),
-            Text('¡Bienvenido!', style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
+            Text(localizations?.welcomeToPremium ?? '¡Bienvenido!', style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
           ],
         ),
         content: Text(
-          '🎉 ¡Estás en período de prueba!\n\nTienes $daysRemaining días con escaneos ILIMITADOS para probar todas las funciones.\n\n¡Disfrútalo! 💕',
+          localizations?.trialPeriod != null
+            ? '🎉 ${localizations!.trialPeriod}\n\n${localizations.unlimitedScansRemaining(daysRemaining)}\n\n${localizations.enjoyAllFeatures}'
+            : '🎉 ¡Estás en período de prueba!\n\nTienes $daysRemaining días con escaneos ILIMITADOS para probar todas las funciones.\n\n¡Disfrútalo! 💕',
           style: GoogleFonts.poppins(fontSize: 16),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('¡Genial!', style: GoogleFonts.poppins(
+            child: Text(localizations?.great ?? '¡Genial!', style: GoogleFonts.poppins(
               fontWeight: FontWeight.bold,
               color: ThemeService.instance.primaryColor,
             )),
@@ -231,6 +235,7 @@ class _FormScreenState extends State<FormScreen> {
   }
 
   Future<void> _watchAdForScans() async {
+    final localizations = AppLocalizations.of(context);
     Navigator.pop(context); // Cerrar diálogo
     
     // Mostrar loading
@@ -248,7 +253,7 @@ class _FormScreenState extends State<FormScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              'Cargando anuncio...',
+              localizations?.processing ?? 'Cargando anuncio...',
               style: GoogleFonts.poppins(
                 color: Colors.white,
                 fontSize: 16,
@@ -271,7 +276,7 @@ class _FormScreenState extends State<FormScreen> {
             children: [
               Icon(Icons.celebration, color: Colors.white),
               const SizedBox(width: 8),
-              Text('¡+2 escaneos ganados! 🎉'),
+              Text(localizations?.extraScansWon ?? '¡+2 escaneos ganados! 🎉'),
             ],
           ),
           backgroundColor: Colors.green,
@@ -282,7 +287,7 @@ class _FormScreenState extends State<FormScreen> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('No hay anuncios disponibles. Intenta más tarde.'),
+          content: Text(localizations?.unknownError ?? 'No hay anuncios disponibles. Intenta más tarde.'),
           backgroundColor: Colors.orange,
         ),
       );
@@ -437,7 +442,7 @@ class _FormScreenState extends State<FormScreen> {
                             CustomTextField(
                               hintText:
                                   localizations?.enterCrushName ??
-                                  'Enter crush name',
+                                  'Enter your crush\'s name',
                               icon: Icons.favorite,
                               controller: _crushNameController,
                             ),

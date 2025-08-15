@@ -148,7 +148,7 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context)?.errorGeneratingResult ?? 'Error generating result'),
+            content: Text(AppLocalizations.of(context)!.errorGeneratingResult),
             backgroundColor: Colors.red,
           ),
         );
@@ -178,7 +178,7 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
                     ),
                     const Spacer(),
                     Text(
-                      AppLocalizations.of(context)?.celebrityCrush ?? 'Celebrity Crush',
+                      AppLocalizations.of(context)!.celebrityCrush,
                       style: GoogleFonts.poppins(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -205,7 +205,7 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
                     ),
                     const SizedBox(height: 20),
                     Text(
-                          AppLocalizations.of(context)?.helloCelebrity(widget.userName) ?? 'Hello ${widget.userName}!',
+                          AppLocalizations.of(context)!.helloCelebrity(widget.userName),
                           style: GoogleFonts.poppins(
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
@@ -221,7 +221,7 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
                         ),
                     const SizedBox(height: 10),
                     Text(
-                          AppLocalizations.of(context)?.chooseCelebrityDescription ?? 'Choose your favorite celebrity to see your compatibility!',
+                          AppLocalizations.of(context)!.chooseCelebrityDescription,
                           style: GoogleFonts.poppins(
                             fontSize: 16,
                             color: ThemeService.instance.textColor.withOpacity(
@@ -249,7 +249,7 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
                       controller: _searchController,
                       onChanged: _filterCelebrities,
                       decoration: InputDecoration(
-                        hintText: AppLocalizations.of(context)?.searchCelebrity ?? 'Search celebrity...',
+                        hintText: AppLocalizations.of(context)!.searchCelebrity,
                         hintStyle: GoogleFonts.poppins(color: Colors.grey[600]),
                         prefixIcon: const Icon(
                           Icons.search,

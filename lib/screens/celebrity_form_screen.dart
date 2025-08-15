@@ -65,6 +65,7 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
   }
 
   void _showLimitDialog() {
+    final localizations = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -82,7 +83,7 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                '¡Límite alcanzado!',
+                localizations.limitReachedTitle,
                 style: GoogleFonts.poppins(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -97,7 +98,7 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Has usado todos tus escaneos gratuitos de hoy.',
+              localizations.limitReachedBody,
               style: GoogleFonts.poppins(
                 fontSize: 16,
                 color: ThemeService.instance.textColor,
@@ -106,7 +107,7 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              '¿Qué puedes hacer?',
+              localizations.limitReachedWhatToDo,
               style: GoogleFonts.poppins(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -116,8 +117,8 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
             const SizedBox(height: 8),
             _buildDialogOption(
               icon: Icons.play_circle,
-              title: 'Ver anuncio',
-              subtitle: 'Gana +2 escaneos más',
+              title: localizations.watchAd,
+              subtitle: localizations.winExtraScans,
               onTap: () async {
                 Navigator.pop(context);
                 final success = await MonetizationService.instance.watchAdForExtraScans();
@@ -125,7 +126,7 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
-                        '¡+2 escaneos ganados!',
+                        localizations.extraScansWon,
                         style: GoogleFonts.poppins(color: Colors.white),
                       ),
                       backgroundColor: Colors.green,
@@ -138,8 +139,8 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
             const SizedBox(height: 8),
             _buildDialogOption(
               icon: Icons.diamond,
-              title: 'Ir a Premium',
-              subtitle: 'Escaneos ilimitados',
+              title: localizations.goPremium,
+              subtitle: localizations.unlimitedScans,
               onTap: () {
                 Navigator.pop(context);
                 // TODO: Navegar a pantalla de premium
@@ -148,8 +149,8 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
             const SizedBox(height: 8),
             _buildDialogOption(
               icon: Icons.schedule,
-              title: 'Esperar',
-              subtitle: 'Más escaneos mañana',
+              title: localizations.wait,
+              subtitle: localizations.moreScansTomorrow,
               onTap: () => Navigator.pop(context),
             ),
           ],
@@ -158,7 +159,7 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
-              'Cerrar',
+              localizations.close,
               style: GoogleFonts.poppins(
                 color: ThemeService.instance.subtitleColor,
               ),
@@ -391,8 +392,7 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
-                                    localizations?.celebrityModeDescription ??
-                                        '',
+                                    localizations?.celebrityModeDescription ?? '',
                                     style: GoogleFonts.poppins(
                                       fontSize: 14,
                                       color: ThemeService.instance.textColor

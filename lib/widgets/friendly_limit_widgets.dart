@@ -1,3 +1,4 @@
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/theme_service.dart';
@@ -49,9 +50,9 @@ class FriendlyLimitDialog extends StatelessWidget {
             
             // Título amigable
             Text(
-              remainingScans > 0 
-                ? '¡Te quedan $remainingScans escaneos hoy! 💕'
-                : '¡Has explorado mucho amor hoy! 🌟',
+        remainingScans > 0
+          ? (AppLocalizations.of(context)?.remainingScans(remainingScans) ?? '¡Te quedan $remainingScans escaneos hoy! 💕')
+          : (AppLocalizations.of(context)?.noScansLeft ?? '¡Has explorado mucho amor hoy! 🌟'),
               style: GoogleFonts.poppins(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -65,8 +66,8 @@ class FriendlyLimitDialog extends StatelessWidget {
             // Mensaje motivacional
             Text(
               remainingScans > 0
-                ? 'Úsalos sabiamente o consigue más abajo 😉'
-                : 'Mañana tendrás 5 escaneos frescos esperándote, o puedes conseguir más ahora:',
+                  ? (AppLocalizations.of(context)?.useWisely ?? 'Úsalos sabiamente o consigue más abajo 😉')
+                  : (AppLocalizations.of(context)?.moreTomorrow ?? 'Mañana tendrás 5 escaneos frescos esperándote, o puedes conseguir más ahora:'),
               style: GoogleFonts.poppins(
                 fontSize: 14,
                 color: ThemeService.instance.subtitleColor,
@@ -81,8 +82,8 @@ class FriendlyLimitDialog extends StatelessWidget {
               // Opción 1: Ver anuncio
               _buildOption(
                 icon: Icons.play_circle_outline,
-                title: 'Ver anuncio corto',
-                subtitle: '+2 escaneos gratis',
+                title: AppLocalizations.of(context)?.watchShortAd ?? 'Ver anuncio corto',
+                subtitle: AppLocalizations.of(context)?.extraScansFree ?? '+2 escaneos gratis',
                 color: Colors.green,
                 onTap: onWatchAd,
               ),
@@ -92,8 +93,8 @@ class FriendlyLimitDialog extends StatelessWidget {
               // Opción 2: Premium
               _buildOption(
                 icon: Icons.star_border,
-                title: 'Escaneos ilimitados',
-                subtitle: 'Premium por \$2.99/mes',
+                title: AppLocalizations.of(context)?.unlimitedScans ?? 'Escaneos ilimitados',
+                subtitle: AppLocalizations.of(context)?.premiumPriceText ?? 'Premium por \$2.99/mes',
                 color: Colors.purple,
                 onTap: onUpgrade,
               ),
@@ -103,8 +104,8 @@ class FriendlyLimitDialog extends StatelessWidget {
               // Opción 3: Esperar
               _buildOption(
                 icon: Icons.schedule,
-                title: 'Esperar hasta mañana',
-                subtitle: '5 escaneos frescos gratis',
+                title: AppLocalizations.of(context)?.waitUntilTomorrow ?? 'Esperar hasta mañana',
+                subtitle: AppLocalizations.of(context)?.freshScans ?? '5 escaneos frescos gratis',
                 color: Colors.blue,
                 onTap: () => Navigator.pop(context),
               ),
@@ -114,7 +115,7 @@ class FriendlyLimitDialog extends StatelessWidget {
               TextButton(
                 onPressed: () => Navigator.pop(context),
                 child: Text(
-                  '¡Perfecto, a escanear! 💘',
+                  AppLocalizations.of(context)?.perfectScan ?? '¡Perfecto, a escanear! 💘',
                   style: GoogleFonts.poppins(
                     fontWeight: FontWeight.bold,
                     color: ThemeService.instance.primaryColor,
@@ -212,7 +213,7 @@ class ScanCounterWidget extends StatelessWidget {
             const SizedBox(width: 4),
             Flexible(
               child: Text(
-                'ILIMITADO',
+                  AppLocalizations.of(context)?.unlimitedScans.toUpperCase() ?? 'ILIMITADO',
                 style: GoogleFonts.poppins(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,

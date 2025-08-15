@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../services/theme_service.dart';
 import '../services/monetization_service.dart';
 import '../screens/premium_screen.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 /// Widget promocional sutil para Premium
 class SubtlePremiumPromo extends StatelessWidget {
@@ -12,7 +13,7 @@ class SubtlePremiumPromo extends StatelessWidget {
   const SubtlePremiumPromo({
     Key? key,
     required this.message,
-    this.ctaText = 'Upgrade',
+    this.ctaText = '',
   }) : super(key: key);
 
   @override
@@ -22,6 +23,7 @@ class SubtlePremiumPromo extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
+    final localizations = AppLocalizations.of(context);
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       padding: const EdgeInsets.all(16),
@@ -72,7 +74,7 @@ class SubtlePremiumPromo extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
-                ctaText,
+                ctaText.isNotEmpty ? ctaText : (localizations?.upgrade ?? 'Upgrade'),
                 style: GoogleFonts.poppins(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
@@ -209,7 +211,7 @@ class PremiumOverlay extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Solo Premium',
+                    AppLocalizations.of(context)?.premiumOnly ?? 'Premium Only',
                     style: GoogleFonts.poppins(
                       color: Colors.white.withOpacity(0.8),
                       fontSize: 12,

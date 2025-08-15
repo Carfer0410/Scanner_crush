@@ -99,14 +99,13 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                             showDialog(
                               context: context,
                               barrierDismissible: false,
-                              builder:
-                                  (context) => Center(
-                                    child: CircularProgressIndicator(
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                        ThemeService.instance.primaryColor,
-                                      ),
-                                    ),
+                              builder: (context) => Center(
+                                child: CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    ThemeService.instance.primaryColor,
                                   ),
+                                ),
+                              ),
                             );
                             await DailyLoveService.instance.updateStreak();
 
@@ -129,45 +128,35 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                             if (mounted) {
                               showDialog(
                                 context: context,
-                                builder:
-                                    (context) => AlertDialog(
-                                      backgroundColor:
-                                          ThemeService.instance.cardColor,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
-                                      title: Text(
-                                        'Error',
-                                        style: TextStyle(
-                                          color:
-                                              ThemeService.instance.textColor,
-                                        ),
-                                      ),
-                                      content: Text(
-                                        'No se pudo cargar tu día del amor: $e',
-                                        style: TextStyle(
-                                          color:
-                                              ThemeService
-                                                  .instance
-                                                  .subtitleColor,
-                                        ),
-                                      ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed:
-                                              () => Navigator.pop(context),
-                                          child: Text(
-                                            'OK',
-                                            style: TextStyle(
-                                              color:
-                                                  ThemeService
-                                                      .instance
-                                                      .primaryColor,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
+                                builder: (context) => AlertDialog(
+                                  backgroundColor: ThemeService.instance.cardColor,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  title: Text(
+                                    AppLocalizations.of(context)!.errorTitle,
+                                    style: TextStyle(
+                                      color: ThemeService.instance.textColor,
                                     ),
+                                  ),
+                                  content: Text(
+                                    AppLocalizations.of(context)!.errorLoadingLoveDay(e.toString()),
+                                    style: TextStyle(
+                                      color: ThemeService.instance.subtitleColor,
+                                    ),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(context),
+                                      child: Text(
+                                        AppLocalizations.of(context)!.ok,
+                                        style: TextStyle(
+                                          color: ThemeService.instance.primaryColor,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               );
                             }
                           }
@@ -199,8 +188,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                               const Text('✨', style: TextStyle(fontSize: 16)),
                               const SizedBox(width: 6),
                               Text(
-                                AppLocalizations.of(context)?.dailyLove ??
-                                    'Tu Día',
+                                AppLocalizations.of(context)!.dailyLove,
                                 style: GoogleFonts.poppins(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
@@ -1244,9 +1232,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                         ),
                         Expanded(
                           child: Text(
-                            (LocaleService.instance.currentLocale.languageCode == 'en')
-                              ? 'FREE Trial Period!'
-                              : '¡Período de Prueba GRATIS!',
+                            AppLocalizations.of(context)!.freeTrialBannerTitle,
                             style: GoogleFonts.poppins(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -1266,13 +1252,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
-                            daysRemaining == 1 
-                              ? (LocaleService.instance.currentLocale.languageCode == 'en')
-                                ? '1 DAY LEFT'
-                                : '1 DÍA RESTANTE'
-                              : (LocaleService.instance.currentLocale.languageCode == 'en')
-                                ? '$daysRemaining DAYS LEFT'
-                                : '$daysRemaining DÍAS RESTANTES',
+                            daysRemaining == 1
+                              ? AppLocalizations.of(context)!.freeTrialBannerDayLeft
+                              : AppLocalizations.of(context)!.freeTrialBannerDaysLeft(daysRemaining.toString()),
                             style: GoogleFonts.poppins(
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
@@ -1283,9 +1265,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            (LocaleService.instance.currentLocale.languageCode == 'en')
-                              ? 'Unlimited scans!'
-                              : '¡Escaneos ilimitados!',
+                            AppLocalizations.of(context)!.freeTrialBannerUnlimited,
                             style: GoogleFonts.poppins(
                               fontSize: 12,
                               color: Colors.white.withOpacity(0.9),
@@ -1297,9 +1277,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      (LocaleService.instance.currentLocale.languageCode == 'en')
-                        ? 'Enjoy unlimited love scans during your trial'
-                        : 'Disfruta escaneos de amor ilimitados durante tu prueba',
+                      AppLocalizations.of(context)!.freeTrialBannerEnjoy,
                       style: GoogleFonts.poppins(
                         fontSize: 11,
                         color: Colors.white.withOpacity(0.8),
