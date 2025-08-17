@@ -1025,11 +1025,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
               (LocaleService.instance.currentLocale.languageCode == 'en')
                   ? 'Crush Scanner v1.0.0\n\n'
                       'A fun app to discover love compatibility.\n\n'
-                      'Developed with Flutter and lots of love 💕\n\n'
+                      'Made with love by Perlaza Studio\n\n'
                       '© 2025 Crush Scanner'
                   : 'Escáner de Crush v1.0.0\n\n'
                       'Una aplicación divertida para descubrir la compatibilidad amorosa.\n\n'
-                      'Desarrollada con Flutter y mucho amor 💕\n\n'
+                      'Hecha con amor por Perlaza Studio\n\n'
                       '© 2025 Escáner de Crush',
               style: GoogleFonts.poppins(fontSize: 14),
             ),
