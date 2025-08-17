@@ -56,9 +56,9 @@ class PremiumThemeService {
     await _prefs?.setString('temp_premium_themes', mapString);
   }
 
-  /// Otorga acceso temporal a un tema premium por 24h
+  /// Otorga acceso temporal a un tema premium por 1 hora
   Future<void> grantTemporaryAccessToTheme(String themeId) async {
-    final expiry = DateTime.now().add(const Duration(hours: 24));
+    final expiry = DateTime.now().add(const Duration(hours: 1));
     _tempPremiumThemes[themeId] = expiry.toIso8601String();
     await _saveTempPremiumThemes();
     tempAccessNotifier.value++;

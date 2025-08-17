@@ -631,11 +631,8 @@ class _ThemesScreenState extends State<ThemesScreen>
   }
 
   void _showPremiumOrAdOptions(AppTheme theme) {
-    bool isProcessing = false;
-    void refreshParent() => setState(() {});
-    bool hasTempAccess = PremiumThemeService.instance.hasTemporaryAccessToTheme(
-      theme.type.name,
-    );
+  bool isProcessing = false;
+  void refreshParent() => setState(() {});
     showDialog(
       context: context,
       builder:
@@ -691,7 +688,7 @@ class _ThemesScreenState extends State<ThemesScreen>
                                         theme.type.name,
                                       )
                                   ? 'Ya tienes acceso temporal activo a este tema.'
-                                  : 'Acceso por 24 horas SOLO a este tema',
+                                  : 'Acceso por 1 hora SOLO a este tema',
                               style: TextStyle(
                                 color: ThemeService.instance.subtitleColor,
                                 fontSize: 12,
@@ -783,7 +780,7 @@ class _ThemesScreenState extends State<ThemesScreen>
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text(
-                                        '¡Acceso temporal a este tema otorgado por 24 horas! 🎉',
+                                        '¡Acceso temporal a este tema otorgado por 1 hora! 🎉',
                                       ),
                                       backgroundColor: Colors.green,
                                     ),
