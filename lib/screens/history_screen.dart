@@ -26,12 +26,25 @@ class _HistoryScreenState extends State<HistoryScreen> {
   BannerAd? _bannerAd;
   bool _isBannerAdReady = false;
   static const int _freeHistoryLimit = 10; // Límite para usuarios gratuitos
+  bool _isPremiumWithGrace = false;
 
   @override
   void initState() {
     super.initState();
+    _checkPremiumWithGrace();
     _loadHistory();
-    _loadBannerAd();
+  }
+
+  Future<void> _checkPremiumWithGrace() async {
+    final isPremiumGrace = await MonetizationService.instance.isPremiumWithGrace();
+    if (mounted) {
+      setState(() {
+        _isPremiumWithGrace = isPremiumGrace;
+      });
+      if (!isPremiumGrace) {
+        _loadBannerAd();
+      }
+    }
   }
 
   void _loadBannerAd() {
@@ -174,8 +187,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     ),
                   ),
 
-                  // Banner Ad for non-premium users
-                  if (_bannerAd != null && _isBannerAdReady && !MonetizationService.instance.isPremium) ...[
+                  // Banner Ad solo si NO está en periodo de prueba ni premium
+                  if (_bannerAd != null && _isBannerAdReady && !_isPremiumWithGrace) ...[
                     Container(
                       alignment: Alignment.center,
                       width: _bannerAd!.size.width.toDouble(),
@@ -300,8 +313,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   bool _shouldShowUpgradePrompt() {
-    return !MonetizationService.instance.isPremium && 
-           _results.length >= _freeHistoryLimit;
+  return !_isPremiumWithGrace && _results.length >= _freeHistoryLimit;
   }
 
   Widget _buildUpgradePrompt() {

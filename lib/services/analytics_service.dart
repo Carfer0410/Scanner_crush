@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import '../models/crush_result.dart';
 import 'monetization_service.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AnalyticsService {
   static final AnalyticsService _instance = AnalyticsService._internal();
@@ -229,7 +230,7 @@ class AnalyticsService {
   }
 
   // Obtener insights personalizados
-  Future<List<PersonalInsight>> getPersonalInsights() async {
+  Future<List<PersonalInsight>> getPersonalInsights(AppLocalizations loc) async {
     if (!await MonetizationService.instance.isPremiumWithGrace()) {
       throw Exception('Personal Insights require Premium subscription');
     }
@@ -243,22 +244,22 @@ class AnalyticsService {
       if (stats.averageCompatibility >= 80) {
         insights.add(PersonalInsight(
           icon: '🔥',
-          title: 'Master del Amor',
-          description: 'Tu compatibilidad promedio es excepcional (${stats.averageCompatibility.toInt()}%). ¡Tienes un don natural para el amor!',
+          title: loc.insightMasterLove,
+          description: '⭐ Your average compatibility is exceptional (${stats.averageCompatibility.toInt()}%). You have a natural gift for love!',
           type: InsightType.positive,
         ));
       } else if (stats.averageCompatibility >= 60) {
         insights.add(PersonalInsight(
           icon: '💫',
-          title: 'Buen Radar Amoroso',
-          description: 'Tu compatibilidad promedio es sólida (${stats.averageCompatibility.toInt()}%). Confías en tus instintos.',
+          title: loc.insightGoodRadar,
+          description: 'Your average compatibility is solid (${stats.averageCompatibility.toInt()}%). You trust your instincts.',
           type: InsightType.neutral,
         ));
       } else {
         insights.add(PersonalInsight(
           icon: '🌱',
-          title: 'Explorador del Amor',
-          description: 'Estás explorando diferentes tipos de conexiones. ¡Cada escaneo te acerca más a tu match perfecto!',
+          title: loc.insightExplorerLove,
+          description: loc.insightExplorerLoveDesc,
           type: InsightType.motivational,
         ));
       }
@@ -269,15 +270,15 @@ class AnalyticsService {
       if (stats.celebrityScans > stats.personalScans) {
         insights.add(PersonalInsight(
           icon: '⭐',
-          title: 'Celebrity Crusher',
-          description: 'Prefieres las celebridades (${((stats.celebrityScans / stats.totalScans) * 100).toInt()}% de tus escaneos). ¡Te gustan los estándares altos!',
+          title: loc.insightCelebrityCrusher,
+          description: 'You prefer celebrities (${((stats.celebrityScans / stats.totalScans) * 100).toInt()}% of your scans). You like high standards!',
           type: InsightType.fun,
         ));
       } else if (stats.personalScans > 0) {
         insights.add(PersonalInsight(
           icon: '💝',
-          title: 'Romántico Auténtico',
-          description: 'Prefieres conexiones reales (${((stats.personalScans / stats.totalScans) * 100).toInt()}% de tus escaneos). El amor verdadero te llama.',
+          title: loc.insightTrueRomantic,
+          description: 'You prefer real connections (${((stats.personalScans / stats.totalScans) * 100).toInt()}% of your scans). True love calls you.',
           type: InsightType.positive,
         ));
       }
@@ -287,29 +288,29 @@ class AnalyticsService {
     if (stats.totalScans >= 50) {
       insights.add(PersonalInsight(
         icon: '🏆',
-        title: 'Experto en Compatibilidad',
-        description: 'Con ${stats.totalScans} escaneos, eres todo un experto. Tu experiencia es invaluable.',
+        title: loc.insightExpert,
+  description: 'With ${stats.totalScans} scans, you are an expert. Your experience is invaluable.',
         type: InsightType.achievement,
       ));
     } else if (stats.totalScans >= 20) {
       insights.add(PersonalInsight(
         icon: '📈',
-        title: 'Usuario Dedicado',
-        description: 'Ya llevas ${stats.totalScans} escaneos. ¡Tu dedicación al amor es admirable!',
+        title: loc.insightDedicatedUser,
+  description: 'You already have ${stats.totalScans} scans. Your dedication to love is admirable!',
         type: InsightType.positive,
       ));
     } else if (stats.totalScans >= 5) {
       insights.add(PersonalInsight(
         icon: '🌟',
-        title: 'Explorador Comprometido',
-        description: 'Con ${stats.totalScans} escaneos, estás construyendo un perfil sólido. ¡Sigue así!',
+        title: loc.insightCommittedExplorer,
+  description: 'With ${stats.totalScans} scans, you are building a solid profile. Keep it up!',
         type: InsightType.motivational,
       ));
     } else if (stats.totalScans >= 1) {
       insights.add(PersonalInsight(
         icon: '🚀',
-        title: 'Nuevo Aventurero',
-        description: 'Has comenzado tu viaje de descubrimiento amoroso. ¡Cada escaneo revela algo nuevo!',
+        title: loc.insightNewAdventurer,
+        description: loc.insightNewAdventurerDesc,
         type: InsightType.motivational,
       ));
     }
@@ -318,7 +319,7 @@ class AnalyticsService {
   }
 
   // Predicciones basadas en patrones
-  Future<List<LovePrediction>> getLovePredictions() async {
+  Future<List<LovePrediction>> getLovePredictions(AppLocalizations loc) async {
     if (!await MonetizationService.instance.isPremiumWithGrace()) {
       throw Exception('Love Predictions require Premium subscription');
     }
@@ -357,24 +358,24 @@ class AnalyticsService {
         if (recentAvg > olderAvg + 5) {
           predictions.add(LovePrediction(
             icon: '📈',
-            title: 'Amor en Ascenso',
-            description: 'Tu compatibilidad ha mejorado últimamente. Las próximas semanas serán prometedoras para el amor.',
+            title: loc.predictionLoveRising,
+            description: loc.predictionLoveRisingDesc,
             confidence: 85,
             timeframe: 'Próximas 2 semanas',
           ));
         } else if (recentAvg < olderAvg - 5) {
           predictions.add(LovePrediction(
             icon: '🔄',
-            title: 'Tiempo de Reflexión',
-            description: 'Es un buen momento para reflexionar sobre qué buscas en el amor. La claridad traerá mejores conexiones.',
+            title: loc.predictionTimeReflection,
+            description: loc.predictionTimeReflectionDesc,
             confidence: 70,
             timeframe: 'Próximo mes',
           ));
         } else {
           predictions.add(LovePrediction(
             icon: '💫',
-            title: 'Amor Estable',
-            description: 'Tu compatibilidad se mantiene consistente. Es un buen momento para consolidar conexiones.',
+            title: loc.predictionStableLove,
+            description: loc.predictionStableLoveDesc,
             confidence: 75,
             timeframe: 'Próximas 3 semanas',
           ));
@@ -384,8 +385,8 @@ class AnalyticsService {
       // Predicciones para usuarios con pocos datos
       predictions.add(LovePrediction(
         icon: '🌱',
-        title: 'Descubriendo Tu Patrón',
-        description: 'Estás construyendo tu perfil amoroso. Cada escaneo nos ayuda a entender mejor tus preferencias.',
+        title: loc.predictionDiscoveringPattern,
+        description: loc.predictionDiscoveringPatternDesc,
         confidence: 60,
         timeframe: 'Próximas semanas',
       ));
@@ -393,8 +394,8 @@ class AnalyticsService {
       // Predicciones para usuarios muy nuevos
       predictions.add(LovePrediction(
         icon: '✨',
-        title: 'Inicio de Tu Viaje',
-        description: 'Has comenzado tu exploración amorosa. ¡Sigue escaneando para descubrir patrones fascinantes!',
+        title: loc.predictionJourneyStart,
+        description: loc.predictionJourneyStartDesc,
         confidence: 50,
         timeframe: 'A medida que explores',
       ));
@@ -404,16 +405,16 @@ class AnalyticsService {
     if (stats.totalScans >= 3 && stats.averageCompatibility >= 75) {
       predictions.add(LovePrediction(
         icon: '💕',
-        title: 'Match Perfecto Cerca',
-        description: 'Tu alta compatibilidad promedio (${stats.averageCompatibility.toInt()}%) sugiere que tu match perfecto está muy cerca. Mantén los ojos abiertos.',
+        title: loc.predictionPerfectMatchNear,
+  description: 'Your high average compatibility (${stats.averageCompatibility.toInt()}%) suggests your perfect match is very close. Keep your eyes open.',
         confidence: 90,
         timeframe: 'Próximos 3 meses',
       ));
     } else if (stats.totalScans >= 3 && stats.averageCompatibility >= 60) {
       predictions.add(LovePrediction(
         icon: '🎯',
-        title: 'Buen Camino Amoroso',
-        description: 'Tu compatibilidad promedio (${stats.averageCompatibility.toInt()}%) muestra que tienes buen criterio. Confía en tus instintos.',
+        title: loc.predictionGoodLovePath,
+  description: 'Your average compatibility (${stats.averageCompatibility.toInt()}%) shows you have good judgment. Trust your instincts.',
         confidence: 75,
         timeframe: 'Próximos 2 meses',
       ));
@@ -423,8 +424,8 @@ class AnalyticsService {
     if (predictions.isEmpty && stats.totalScans >= 1) {
       predictions.add(LovePrediction(
         icon: '🔮',
-        title: 'El Amor Te Espera',
-        description: 'Cada escaneo te acerca más a entender el amor. ¡Sigue explorando y descubriendo tu camino!',
+        title: loc.predictionLoveAwaits,
+        description: loc.predictionLoveAwaitsDesc,
         confidence: 65,
         timeframe: 'En tu viaje amoroso',
       ));

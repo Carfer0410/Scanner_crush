@@ -56,11 +56,12 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
 
   Future<void> _loadAnalytics() async {
     try {
+      final loc = AppLocalizations.of(context)!;
       // Agregar timeout para evitar carga infinita
       final results = await Future.wait([
         AnalyticsService.instance.getCompatibilityStats(),
-        AnalyticsService.instance.getPersonalInsights(),
-        AnalyticsService.instance.getLovePredictions(),
+        AnalyticsService.instance.getPersonalInsights(loc),
+        AnalyticsService.instance.getLovePredictions(loc),
       ]).timeout(
         const Duration(seconds: 10),
         onTimeout: () {
