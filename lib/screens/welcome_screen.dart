@@ -597,7 +597,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
           );
         },
       ),
-    );
+    ).then((_) {
+      if (mounted) setState(() {});
+    });
   }
 
   void _navigateToCelebrityScanner(BuildContext context) {
@@ -623,7 +625,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
           );
         },
       ),
-    );
+    ).then((_) {
+      if (mounted) setState(() {});
+    });
   }
 
   void _navigateToAnalytics(BuildContext context) async {
