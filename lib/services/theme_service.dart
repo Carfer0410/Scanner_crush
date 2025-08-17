@@ -68,11 +68,10 @@ class ThemeService extends ChangeNotifier {
 
   // Colores de texto basados en el tema actual
   Color get textColor {
-    // Para temas inherentemente oscuros como cósmico
-    if (isInherentlyDarkTheme() || _isDarkMode) {
+    // Forzar texto blanco en tema lavanda o temas inherentemente oscuros
+    if (_currentTheme == ThemeType.lavender || isInherentlyDarkTheme() || _isDarkMode) {
       return Colors.white.withOpacity(0.95);
     }
-    
     // Para temas claros, usar texto oscuro
     return currentAppTheme.primaryColor.computeLuminance() > 0.5 
       ? const Color(0xFF2C1810) // Texto oscuro para temas claros
@@ -80,11 +79,10 @@ class ThemeService extends ChangeNotifier {
   }
     
   Color get subtitleColor {
-    // Para temas inherentemente oscuros como cósmico
-    if (isInherentlyDarkTheme() || _isDarkMode) {
+    // Forzar subtítulo blanco en tema lavanda o temas inherentemente oscuros
+    if (_currentTheme == ThemeType.lavender || isInherentlyDarkTheme() || _isDarkMode) {
       return Colors.white.withOpacity(0.7);
     }
-    
     // Para temas claros
     return currentAppTheme.primaryColor.withOpacity(0.8);
   }

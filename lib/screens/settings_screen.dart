@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../widgets/custom_widgets.dart';
 import '../services/theme_service.dart';
+import '../models/app_theme.dart';
 import '../services/ad_service.dart';
 import '../services/audio_service.dart';
 import '../services/locale_service.dart';
@@ -897,65 +898,72 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void _showLanguageSelector() {
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            title: Text(
-              AppLocalizations.of(context)!.language,
-              style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ListTile(
-                  leading: const Text('🇪🇸'),
-                  title: Text(AppLocalizations.of(context)!.spanish),
-                  trailing:
-                      LocaleService.instance.currentLocale.languageCode == 'es'
-                          ? Icon(
-                            Icons.check,
-                            color: ThemeService.instance.primaryColor,
-                          )
-                          : null,
-                  onTap: () {
-                    LocaleService.instance.setLocale('es');
-                    Navigator.pop(context);
-                    setState(() {});
-                  },
+      builder: (context) {
+        final isLavender = ThemeService.instance.currentTheme == ThemeType.lavender;
+        final textColor = isLavender ? Colors.white : ThemeService.instance.textColor;
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Text(
+            AppLocalizations.of(context)!.language,
+            style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: textColor),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Text('🇪🇸'),
+                title: Text(
+                  AppLocalizations.of(context)!.spanish,
+                  style: TextStyle(color: textColor),
                 ),
-                ListTile(
-                  leading: const Text('🇺🇸'),
-                  title: Text(AppLocalizations.of(context)!.english),
-                  trailing:
-                      LocaleService.instance.currentLocale.languageCode == 'en'
-                          ? Icon(
-                            Icons.check,
-                            color: ThemeService.instance.primaryColor,
-                          )
-                          : null,
-                  onTap: () {
-                    LocaleService.instance.setLocale('en');
-                    Navigator.pop(context);
-                    setState(() {});
-                  },
+                trailing: LocaleService.instance.currentLocale.languageCode == 'es'
+                    ? Icon(
+                        Icons.check,
+                        color: ThemeService.instance.primaryColor,
+                      )
+                    : null,
+                onTap: () {
+                  LocaleService.instance.setLocale('es');
+                  Navigator.pop(context);
+                  setState(() {});
+                },
+              ),
+              ListTile(
+                leading: const Text('🇺🇸'),
+                title: Text(
+                  AppLocalizations.of(context)!.english,
+                  style: TextStyle(color: textColor),
                 ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(
-                  AppLocalizations.of(context)!.cancel,
-                  style: GoogleFonts.poppins(
-                    fontWeight: FontWeight.bold,
-                    color: ThemeService.instance.primaryColor,
-                  ),
-                ),
+                trailing: LocaleService.instance.currentLocale.languageCode == 'en'
+                    ? Icon(
+                        Icons.check,
+                        color: ThemeService.instance.primaryColor,
+                      )
+                    : null,
+                onTap: () {
+                  LocaleService.instance.setLocale('en');
+                  Navigator.pop(context);
+                  setState(() {});
+                },
               ),
             ],
           ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                AppLocalizations.of(context)!.cancel,
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.bold,
+                  color: ThemeService.instance.primaryColor,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
