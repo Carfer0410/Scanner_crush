@@ -1,4 +1,8 @@
 {
+  "predictionInfoExplanation": "El porcentaje en la frase es tu compatibilidad promedio real. El número en la esquina es la confianza de la predicción.",
+  "@predictionInfoExplanation": {
+    "description": "Explicación de la diferencia entre el porcentaje de compatibilidad y el de confianza en las predicciones."
+  },
   "insightMasterLove": "Master del Amor",
   "insightMasterLoveDesc": "Tu compatibilidad promedio es excepcional ({percent}%). ¡Tienes un don natural para el amor!",
   "insightGoodRadar": "Buen Radar Amoroso",

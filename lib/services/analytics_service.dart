@@ -245,14 +245,14 @@ class AnalyticsService {
         insights.add(PersonalInsight(
           icon: '🔥',
           title: loc.insightMasterLove,
-          description: '⭐ Your average compatibility is exceptional (${stats.averageCompatibility.toInt()}%). You have a natural gift for love!',
+          description: loc.insightMasterLoveDesc(stats.averageCompatibility.toInt()),
           type: InsightType.positive,
         ));
       } else if (stats.averageCompatibility >= 60) {
         insights.add(PersonalInsight(
           icon: '💫',
           title: loc.insightGoodRadar,
-          description: 'Your average compatibility is solid (${stats.averageCompatibility.toInt()}%). You trust your instincts.',
+          description: loc.insightGoodRadarDesc(stats.averageCompatibility.toInt()),
           type: InsightType.neutral,
         ));
       } else {
@@ -271,14 +271,14 @@ class AnalyticsService {
         insights.add(PersonalInsight(
           icon: '⭐',
           title: loc.insightCelebrityCrusher,
-          description: 'You prefer celebrities (${((stats.celebrityScans / stats.totalScans) * 100).toInt()}% of your scans). You like high standards!',
+          description: loc.insightCelebrityCrusherDesc(((stats.celebrityScans / stats.totalScans) * 100).toInt()),
           type: InsightType.fun,
         ));
       } else if (stats.personalScans > 0) {
         insights.add(PersonalInsight(
           icon: '💝',
           title: loc.insightTrueRomantic,
-          description: 'You prefer real connections (${((stats.personalScans / stats.totalScans) * 100).toInt()}% of your scans). True love calls you.',
+          description: loc.insightTrueRomanticDesc(((stats.personalScans / stats.totalScans) * 100).toInt()),
           type: InsightType.positive,
         ));
       }
@@ -289,21 +289,21 @@ class AnalyticsService {
       insights.add(PersonalInsight(
         icon: '🏆',
         title: loc.insightExpert,
-  description: 'With ${stats.totalScans} scans, you are an expert. Your experience is invaluable.',
+        description: loc.insightExpertDesc(stats.totalScans),
         type: InsightType.achievement,
       ));
     } else if (stats.totalScans >= 20) {
       insights.add(PersonalInsight(
         icon: '📈',
         title: loc.insightDedicatedUser,
-  description: 'You already have ${stats.totalScans} scans. Your dedication to love is admirable!',
+        description: loc.insightDedicatedUserDesc(stats.totalScans),
         type: InsightType.positive,
       ));
     } else if (stats.totalScans >= 5) {
       insights.add(PersonalInsight(
         icon: '🌟',
         title: loc.insightCommittedExplorer,
-  description: 'With ${stats.totalScans} scans, you are building a solid profile. Keep it up!',
+        description: loc.insightCommittedExplorerDesc(stats.totalScans),
         type: InsightType.motivational,
       ));
     } else if (stats.totalScans >= 1) {
@@ -414,7 +414,7 @@ class AnalyticsService {
       predictions.add(LovePrediction(
         icon: '🎯',
         title: loc.predictionGoodLovePath,
-        description: 'Your average compatibility (${stats.averageCompatibility.toInt()}%) shows you have good judgment. Trust your instincts.',
+        description: loc.predictionGoodLovePathDesc(stats.averageCompatibility.toInt()),
         confidence: 75,
         timeframe: loc.predictionTimeframeNext2Months,
       ));

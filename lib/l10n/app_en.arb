@@ -1,4 +1,8 @@
 {
+  "predictionInfoExplanation": "The percentage in the phrase is your real average compatibility. The number in the corner is the confidence of the prediction.",
+  "@predictionInfoExplanation": {
+    "description": "Explanation for the difference between compatibility percentage and confidence in prediction cards."
+  },
   "insightMasterLove": "Master of Love",
   "insightMasterLoveDesc": "Your average compatibility is exceptional ({percent}%). You have a natural gift for love!",
   "insightGoodRadar": "Good Love Radar",

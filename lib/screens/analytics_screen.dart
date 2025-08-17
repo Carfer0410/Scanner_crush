@@ -530,91 +530,116 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: _predictions!.length,
-      itemBuilder: (context, index) {
-        final prediction = _predictions![index];
-        return Container(
-          margin: const EdgeInsets.only(bottom: 16),
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Colors.indigo.withOpacity(0.8),
-                Colors.purple.withOpacity(0.8),
-              ],
-            ),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: Colors.white.withOpacity(0.2),
-              width: 1,
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
+          child: Row(
             children: [
-              Row(
-                children: [
-                  Text(
-                    prediction.icon,
-                    style: const TextStyle(fontSize: 28),
+              Icon(Icons.info_outline, color: ThemeService.instance.subtitleColor, size: 20),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  AppLocalizations.of(context)?.predictionInfoExplanation ??
+                  'El porcentaje en la frase es tu compatibilidad promedio real. El número en la esquina es la confianza de la predicción.',
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    color: ThemeService.instance.subtitleColor,
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          prediction.title,
-                          style: GoogleFonts.poppins(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        Text(
-                          prediction.timeframe,
-                          style: GoogleFonts.poppins(
-                            fontSize: 12,
-                            color: Colors.white.withOpacity(0.7),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      '${prediction.confidence}%',
-                      style: GoogleFonts.poppins(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Text(
-                prediction.description,
-                style: GoogleFonts.poppins(
-                  fontSize: 15,
-                  color: Colors.white.withOpacity(0.9),
-                  height: 1.4,
                 ),
               ),
             ],
           ),
-        ).animate()
-          .fadeIn(delay: Duration(milliseconds: 300 * index))
-          .slideY(begin: 0.3, duration: 600.ms);
-      },
+        ),
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: _predictions!.length,
+            itemBuilder: (context, index) {
+              final prediction = _predictions![index];
+              return Container(
+                margin: const EdgeInsets.only(bottom: 16),
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.indigo.withOpacity(0.8),
+                      Colors.purple.withOpacity(0.8),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.2),
+                    width: 1,
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          prediction.icon,
+                          style: const TextStyle(fontSize: 28),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                prediction.title,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              Text(
+                                prediction.timeframe,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 12,
+                                  color: Colors.white.withOpacity(0.7),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            '${prediction.confidence}%',
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      prediction.description,
+                      style: GoogleFonts.poppins(
+                        fontSize: 15,
+                        color: Colors.white.withOpacity(0.9),
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
+                ),
+              ).animate()
+                .fadeIn(delay: Duration(milliseconds: 300 * index))
+                .slideY(begin: 0.3, duration: 600.ms);
+            },
+          ),
+        ),
+      ],
     );
   }
 
