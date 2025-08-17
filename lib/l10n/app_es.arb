@@ -32,7 +32,15 @@
   "predictionGoodLovePath": "Buen Camino Amoroso",
   "predictionGoodLovePathDesc": "Tu compatibilidad promedio ({percent}%) muestra que tienes buen criterio. Confía en tus instintos.",
   "predictionLoveAwaits": "El Amor Te Espera",
-  "predictionLoveAwaitsDesc": "Cada escaneo te acerca más a entender el amor. ¡Sigue explorando y descubriendo tu camino!"
+  "predictionLoveAwaitsDesc": "Cada escaneo te acerca más a entender el amor. ¡Sigue explorando y descubriendo tu camino!",
+  "predictionTimeframeNext2Weeks": "Próximas 2 semanas",
+  "predictionTimeframeNextMonth": "Próximo mes",
+  "predictionTimeframeNext3Weeks": "Próximas 3 semanas",
+  "predictionTimeframeNextWeeks": "Próximas semanas",
+  "predictionTimeframeAsYouExplore": "A medida que explores",
+  "predictionTimeframeNext3Months": "Próximos 3 meses",
+  "predictionTimeframeNext2Months": "Próximos 2 meses",
+  "predictionTimeframeLoveJourney": "En tu viaje amoroso"
 ,
   "errorGeneratingResult": "Error generando resultado",
   "celebrityCrush": "Crush de Celebridad",

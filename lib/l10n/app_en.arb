@@ -32,7 +32,15 @@
   "predictionGoodLovePath": "Good Love Path",
   "predictionGoodLovePathDesc": "Your average compatibility ({percent}%) shows you have good judgment. Trust your instincts.",
   "predictionLoveAwaits": "Love Awaits You",
-  "predictionLoveAwaitsDesc": "Each scan brings you closer to understanding love. Keep exploring and discovering your path!"
+  "predictionLoveAwaitsDesc": "Each scan brings you closer to understanding love. Keep exploring and discovering your path!",
+  "predictionTimeframeNext2Weeks": "Next 2 weeks",
+  "predictionTimeframeNextMonth": "Next month",
+  "predictionTimeframeNext3Weeks": "Next 3 weeks",
+  "predictionTimeframeNextWeeks": "Next weeks",
+  "predictionTimeframeAsYouExplore": "As you explore",
+  "predictionTimeframeNext3Months": "Next 3 months",
+  "predictionTimeframeNext2Months": "Next 2 months",
+  "predictionTimeframeLoveJourney": "On your love journey"
 ,
   "errorGeneratingResult": "Error generating result",
   "celebrityCrush": "Celebrity Crush",

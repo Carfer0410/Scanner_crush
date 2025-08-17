@@ -361,7 +361,7 @@ class AnalyticsService {
             title: loc.predictionLoveRising,
             description: loc.predictionLoveRisingDesc,
             confidence: 85,
-            timeframe: 'Próximas 2 semanas',
+            timeframe: loc.predictionTimeframeNext2Weeks,
           ));
         } else if (recentAvg < olderAvg - 5) {
           predictions.add(LovePrediction(
@@ -369,7 +369,7 @@ class AnalyticsService {
             title: loc.predictionTimeReflection,
             description: loc.predictionTimeReflectionDesc,
             confidence: 70,
-            timeframe: 'Próximo mes',
+            timeframe: loc.predictionTimeframeNextMonth,
           ));
         } else {
           predictions.add(LovePrediction(
@@ -377,7 +377,7 @@ class AnalyticsService {
             title: loc.predictionStableLove,
             description: loc.predictionStableLoveDesc,
             confidence: 75,
-            timeframe: 'Próximas 3 semanas',
+            timeframe: loc.predictionTimeframeNext3Weeks,
           ));
         }
       }
@@ -388,7 +388,7 @@ class AnalyticsService {
         title: loc.predictionDiscoveringPattern,
         description: loc.predictionDiscoveringPatternDesc,
         confidence: 60,
-        timeframe: 'Próximas semanas',
+        timeframe: loc.predictionTimeframeNextWeeks,
       ));
     } else if (stats.totalScans >= 1 && stats.totalScans < 5) {
       // Predicciones para usuarios muy nuevos
@@ -397,7 +397,7 @@ class AnalyticsService {
         title: loc.predictionJourneyStart,
         description: loc.predictionJourneyStartDesc,
         confidence: 50,
-        timeframe: 'A medida que explores',
+        timeframe: loc.predictionTimeframeAsYouExplore,
       ));
     }
 
@@ -406,17 +406,17 @@ class AnalyticsService {
       predictions.add(LovePrediction(
         icon: '💕',
         title: loc.predictionPerfectMatchNear,
-  description: 'Your high average compatibility (${stats.averageCompatibility.toInt()}%) suggests your perfect match is very close. Keep your eyes open.',
+        description: 'Your high average compatibility (${stats.averageCompatibility.toInt()}%) suggests your perfect match is very close. Keep your eyes open.',
         confidence: 90,
-        timeframe: 'Próximos 3 meses',
+        timeframe: loc.predictionTimeframeNext3Months,
       ));
     } else if (stats.totalScans >= 3 && stats.averageCompatibility >= 60) {
       predictions.add(LovePrediction(
         icon: '🎯',
         title: loc.predictionGoodLovePath,
-  description: 'Your average compatibility (${stats.averageCompatibility.toInt()}%) shows you have good judgment. Trust your instincts.',
+        description: 'Your average compatibility (${stats.averageCompatibility.toInt()}%) shows you have good judgment. Trust your instincts.',
         confidence: 75,
-        timeframe: 'Próximos 2 meses',
+        timeframe: loc.predictionTimeframeNext2Months,
       ));
     }
 
@@ -427,7 +427,7 @@ class AnalyticsService {
         title: loc.predictionLoveAwaits,
         description: loc.predictionLoveAwaitsDesc,
         confidence: 65,
-        timeframe: 'En tu viaje amoroso',
+        timeframe: loc.predictionTimeframeLoveJourney,
       ));
     }
 
