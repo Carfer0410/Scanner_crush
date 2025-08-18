@@ -74,6 +74,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    Color getTextColor([Color? fallback]) => isDark ? Colors.white : (fallback ?? ThemeService.instance.textColor);
+    Color getSubtitleColor([Color? fallback]) => isDark ? Colors.white70 : (fallback ?? ThemeService.instance.textColor.withOpacity(0.7));
     return Scaffold(
       body: AnimatedBackground(
         child: SafeArea(
@@ -308,7 +311,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                 style: GoogleFonts.poppins(
                                   fontSize: 32,
                                   fontWeight: FontWeight.bold,
-                                  color: ThemeService.instance.textColor,
+                                  color: getTextColor(),
                                   shadows: [
                                     Shadow(
                                       color: Colors.black.withOpacity(0.2),
@@ -330,8 +333,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                 AppLocalizations.of(context)!.welcomeTitle,
                                 style: GoogleFonts.poppins(
                                   fontSize: 18,
-                                  color: ThemeService.instance.textColor
-                                      .withOpacity(0.8),
+                                  color: getTextColor(ThemeService.instance.textColor.withOpacity(0.8)),
                                   fontWeight: FontWeight.w500,
                                 ),
                                 textAlign: TextAlign.center,
@@ -348,9 +350,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                           AppLocalizations.of(context)!.welcomeSubtitle,
                           style: GoogleFonts.poppins(
                             fontSize: 16,
-                            color: ThemeService.instance.textColor.withOpacity(
-                              0.7,
-                            ),
+                            color: getSubtitleColor(),
                             height: 1.5,
                           ),
                           textAlign: TextAlign.center,

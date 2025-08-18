@@ -4,6 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'screens/welcome_screen.dart';
+import 'screens/splash_screen.dart';
 import 'services/ad_service.dart';
 import 'services/theme_service.dart';
 import 'services/daily_love_service.dart';
@@ -99,7 +100,11 @@ class _ScannerCrushAppState extends State<ScannerCrushApp> {
                   ThemeService.instance.isDarkMode
                       ? ThemeMode.dark
                       : ThemeMode.light,
-              home: const WelcomeScreen(),
+              initialRoute: '/',
+              routes: {
+                '/': (context) => const SplashScreen(),
+                '/welcome': (context) => const WelcomeScreen(),
+              },
             );
           },
         );
