@@ -201,7 +201,7 @@ class ScanCounterWidget extends StatelessWidget {
     // Si es premium O tiene escaneos ilimitados (-1), mostrar ILIMITADO
     if (isPremium || remainingScans == -1) {
       return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
           gradient: LinearGradient(colors: [Colors.amber, Colors.orange]),
           borderRadius: BorderRadius.circular(20),
@@ -213,13 +213,16 @@ class ScanCounterWidget extends StatelessWidget {
             const SizedBox(width: 4),
             Flexible(
               child: Text(
-                  AppLocalizations.of(context)?.unlimitedScans.toUpperCase() ?? 'ILIMITADO',
+                AppLocalizations.of(context)?.unlimitedScans.toUpperCase() ?? 'ESCANEOS ILIMITADOS',
                 style: GoogleFonts.poppins(
-                  fontSize: 12,
+                  fontSize: 10,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
+                softWrap: true,
+                textAlign: TextAlign.center,
               ),
             ),
           ],
