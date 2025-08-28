@@ -5,7 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'screens/welcome_screen.dart';
 import 'screens/splash_screen.dart';
-import 'services/ad_service.dart';
+
 import 'services/theme_service.dart';
 import 'services/daily_love_service.dart';
 import 'services/audio_service.dart';
@@ -38,7 +38,7 @@ void main() async {
   );
 
   // Initialize services
-  await AdService.instance.initialize();
+ 
   await ThemeService.instance.initialize();
   await DailyLoveService.instance.initialize();
   await AudioService.instance.initialize();
@@ -54,6 +54,9 @@ void main() async {
   // Initialize premium services
   await PremiumThemeService.instance.initialize();
   await AnalyticsService.instance.initialize();
+
+  // Check for expired premium theme access and clean up
+  await PremiumThemeService.instance.checkAndHandleExpiredPremium();
 
   // Fix any invalid compatibility results from previous versions
   await CrushService.instance.fixInvalidResults();

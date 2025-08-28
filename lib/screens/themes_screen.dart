@@ -34,6 +34,23 @@ class _ThemesScreenState extends State<ThemesScreen>
     );
     _animationController.forward();
     _loadBannerAd();
+
+    // Verificar expiraciones al abrir la pantalla de temas
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      PremiumThemeService.instance.checkAndHandleExpiredPremium();
+    });
+
+    // Escuchar cambios en accesos temporales para mostrar notificaciones
+    PremiumThemeService.instance.tempAccessNotifier.addListener(_onTempAccessChanged);
+  }
+
+  // Método para manejar cambios en accesos temporales
+  void _onTempAccessChanged() {
+    // Esta función se llama cuando cambian los accesos temporales
+    // Podríamos mostrar una notificación aquí si es necesario
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   void _loadBannerAd() async {
@@ -46,6 +63,7 @@ class _ThemesScreenState extends State<ThemesScreen>
 
   @override
   void dispose() {
+    PremiumThemeService.instance.tempAccessNotifier.removeListener(_onTempAccessChanged);
     _animationController.dispose();
     _bannerAd?.dispose();
     super.dispose();
@@ -631,8 +649,8 @@ class _ThemesScreenState extends State<ThemesScreen>
   }
 
   void _showPremiumOrAdOptions(AppTheme theme) {
-  bool isProcessing = false;
-  void refreshParent() => setState(() {});
+    bool isProcessing = false;
+    void refreshParent() => setState(() {});
     showDialog(
       context: context,
       builder:
@@ -770,6 +788,8 @@ class _ThemesScreenState extends State<ThemesScreen>
                                               .grantTemporaryAccessToTheme(
                                                 theme.type.name,
                                               );
+                                          // Cambiar automáticamente al tema después de otorgar acceso temporal
+                                          await ThemeService.instance.changeTheme(theme.type);
                                         }
                                       },
                                     );

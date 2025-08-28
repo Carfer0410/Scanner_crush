@@ -4,6 +4,20 @@ import '../models/app_theme.dart';
 
 
 class ThemeService extends ChangeNotifier {
+  /// Cambia el tema usando el nombre (string) del tema
+  Future<void> setThemeByName(String themeName) async {
+    try {
+      final themeType = ThemeType.values.firstWhere(
+        (t) => t.name == themeName,
+        orElse: () => ThemeType.classic,
+      );
+      _currentTheme = themeType;
+      themeNotifier.value = themeType.name;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt('current_theme', themeType.index);
+      notifyListeners();
+    } catch (_) {}
+  }
   static final ThemeService _instance = ThemeService._internal();
   static ThemeService get instance => _instance;
   ThemeService._internal();

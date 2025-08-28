@@ -1,8 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'monetization_service.dart';
+import 'theme_service.dart';
 
 class PremiumThemeService {
+  /// Verifica si el acceso temporal al tema premium actual expiró y fuerza el cambio a classic si es necesario
+  Future<void> checkAndHandleExpiredPremium() async {
+    final now = DateTime.now();
+    final currentTheme = ThemeService.instance.currentTheme.name;
+
+    // Verificar si el tema actual tiene acceso temporal expirado
+    final expiryString = _tempPremiumThemes[currentTheme];
+    if (expiryString != null) {
+      final expiry = DateTime.tryParse(expiryString);
+      if (expiry != null && expiry.isBefore(now)) {
+        // Acceso expirado, cambiar al tema clásico
+        _tempPremiumThemes.remove(currentTheme);
+        await _saveTempPremiumThemes();
+
+        // Cambiar al tema clásico usando ThemeService
+        await ThemeService.instance.setThemeByName('classic');
+
+        // Notificar cambios
+        tempAccessNotifier.value++;
+      }
+    }
+
+    // También verificar todos los accesos temporales expirados y limpiarlos
+    final expiredThemes = <String>[];
+    _tempPremiumThemes.forEach((themeId, expiryString) {
+      final expiry = DateTime.tryParse(expiryString);
+      if (expiry != null && expiry.isBefore(now)) {
+        expiredThemes.add(themeId);
+      }
+    });
+
+    // Limpiar temas expirados
+    for (final themeId in expiredThemes) {
+      _tempPremiumThemes.remove(themeId);
+    }
+
+    if (expiredThemes.isNotEmpty) {
+      await _saveTempPremiumThemes();
+      tempAccessNotifier.value++;
+    }
+  }
   static final PremiumThemeService _instance = PremiumThemeService._internal();
   factory PremiumThemeService() => _instance;
   PremiumThemeService._internal();
@@ -25,6 +67,17 @@ class PremiumThemeService {
     _currentTheme = _prefs?.getString('premium_theme') ?? 'default';
     themeNotifier.value = _currentTheme;
     _loadTempPremiumThemes();
+
+    // Iniciar temporizador para verificar expiraciones cada 5 minutos
+    _startExpirationTimer();
+  }
+
+  void _startExpirationTimer() {
+    // Verificar expiraciones cada 5 minutos
+    Future.delayed(const Duration(minutes: 5), () async {
+      await checkAndHandleExpiredPremium();
+      _startExpirationTimer(); // Reiniciar el temporizador
+    });
   }
 
   void _loadTempPremiumThemes() {
@@ -59,6 +112,13 @@ class PremiumThemeService {
   /// Otorga acceso temporal a un tema premium por 1 hora
   Future<void> grantTemporaryAccessToTheme(String themeId) async {
     final expiry = DateTime.now().add(const Duration(hours: 1));
+    _tempPremiumThemes[themeId] = expiry.toIso8601String();
+    await _saveTempPremiumThemes();
+    tempAccessNotifier.value++;
+  }
+
+  /// Método de debug para otorgar acceso temporal con duración específica
+  Future<void> grantDebugAccess(String themeId, DateTime expiry) async {
     _tempPremiumThemes[themeId] = expiry.toIso8601String();
     await _saveTempPremiumThemes();
     tempAccessNotifier.value++;
@@ -249,11 +309,6 @@ class PremiumThemeService {
     themeNotifier.value = themeId;
     return true;
   }
-
-  // Obtener tema por ID
-  PremiumTheme? getTheme(String themeId) {
-    return _premiumThemes[themeId];
-  }
 }
 
 // 🎨 Clase para definir un tema premium
@@ -315,8 +370,8 @@ class PremiumTheme {
 
   // Color de texto principal
   Color get textColor {
-    return primaryColor.computeLuminance() > 0.5 
-        ? Colors.black87 
+    return primaryColor.computeLuminance() > 0.5
+        ? Colors.black87
         : Colors.white;
   }
 

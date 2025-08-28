@@ -6,7 +6,6 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../widgets/custom_widgets.dart';
 import '../services/theme_service.dart';
 import '../models/app_theme.dart';
-import '../services/ad_service.dart';
 import '../services/audio_service.dart';
 import '../services/locale_service.dart';
 import '../services/daily_love_service.dart';
@@ -115,10 +114,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     const SizedBox(height: 20),
 
                     // Premium status card
-                    if (AdService.instance.isPremiumUser)
-                      _buildPremiumCard()
-                    else
-                      _buildUpgradeCard(),
+                    FutureBuilder<bool>(
+                      future: MonetizationService.instance.isPremiumWithGrace(),
+                      builder: (context, snapshot) {
+                        final isPremiumWithGrace = snapshot.data ?? false;
+                        if (isPremiumWithGrace) {
+                          return _buildPremiumCard();
+                        } else {
+                          return _buildUpgradeCard();
+                        }
+                      },
+                    ),
 
                     const SizedBox(height: 30),
 
@@ -214,44 +220,48 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                     const SizedBox(height: 30),
 
-                    _buildSettingsSection(
-                      title: AppLocalizations.of(context)?.premium ?? 'Premium',
-                      items: [
-                        if (!AdService.instance.isPremiumUser)
-                          _buildSettingsItem(
-                            icon: Icons.star,
-                            title:
-                                AppLocalizations.of(context)?.upgradeSettings ??
-                                'Actualizar a Premium',
-                            subtitle:
-                                AppLocalizations.of(
-                                  context,
-                                )?.unlockAllFeaturesSettings ??
-                                'Desbloquea todas las funciones',
-                            onTap: () => _navigateToPremium(),
-                            trailing: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.orange,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Text(
-                                'NUEVO',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 30),
+                        FutureBuilder<bool>(
+                          future: MonetizationService.instance.isPremiumWithGrace(),
+                          builder: (context, snapshot) {
+                            final isPremiumWithGrace = snapshot.data ?? false;
+                            return _buildSettingsSection(
+                              title: AppLocalizations.of(context)?.premium ?? 'Premium',
+                              items: [
+                                if (!isPremiumWithGrace)
+                                  _buildSettingsItem(
+                                    icon: Icons.star,
+                                    title:
+                                        AppLocalizations.of(context)?.upgradeSettings ??
+                                        'Actualizar a Premium',
+                                    subtitle:
+                                        AppLocalizations.of(
+                                          context,
+                                        )?.unlockAllFeaturesSettings ??
+                                        'Desbloquea todas las funciones',
+                                    onTap: () => _navigateToPremium(),
+                                    trailing: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.orange,
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: Text(
+                                        'NUEVO',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            );
+                          },
+                        ),                    const SizedBox(height: 30),
 
                     // Data section
                     _buildSettingsSection(
