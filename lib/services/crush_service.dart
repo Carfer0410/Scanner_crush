@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/crush_result.dart';
 import 'daily_love_service.dart';
+import 'secure_time_service.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CrushService {
@@ -492,7 +493,7 @@ class CrushService {
       percentage: percentage,
       message: message,
       emoji: emoji,
-      timestamp: DateTime.now(),
+      timestamp: SecureTimeService.instance.getSecureTime(),
       isCelebrity: isCelebrity,
     );
 
@@ -533,7 +534,7 @@ class CrushService {
       percentage: percentage,
       message: message,
       emoji: emoji,
-      timestamp: DateTime.now(),
+      timestamp: SecureTimeService.instance.getSecureTime(),
       isCelebrity: isCelebrity,
     );
 

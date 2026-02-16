@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'admob_service.dart';
+import 'secure_time_service.dart';
 
 // Tipos de suscripción
 enum SubscriptionTier { free, premium, premiumPlus }
@@ -43,8 +44,8 @@ class MonetizationService {
       _subscriptionExpiry = DateTime.parse(expiryString);
     }
     
-    // Verificar si la suscripción expiró
-    if (_subscriptionExpiry != null && DateTime.now().isAfter(_subscriptionExpiry!)) {
+    // Verificar si la suscripción expiró usando tiempo seguro
+    if (_subscriptionExpiry != null && SecureTimeService.instance.getSecureTime().isAfter(_subscriptionExpiry!)) {
       _currentTier = SubscriptionTier.free;
       await _saveSubscriptionData();
     }
@@ -104,19 +105,19 @@ class MonetizationService {
   Future<bool> _isInGracePeriod() async {
     final firstInstallDate = _prefs?.getString('first_install_date');
     if (firstInstallDate == null) {
-      // Primera vez, marcar fecha de instalación
-      final today = DateTime.now().toIso8601String().split('T')[0];
+      // Primera vez, marcar fecha de instalación usando tiempo seguro
+      final today = SecureTimeService.instance.getSecureDate().toIso8601String().split('T')[0];
       await _prefs?.setString('first_install_date', today);
       return true;
     }
     
     final install = DateTime.parse(firstInstallDate);
-    final daysSinceInstall = DateTime.now().difference(install).inDays;
+    final daysSinceInstall = SecureTimeService.instance.getSecureDaysSince(install);
     return daysSinceInstall < _newUserGracePeriod;
   }
   
   Future<int> _getTotalScansToday() async {
-    final today = DateTime.now().toIso8601String().split('T')[0];
+    final today = SecureTimeService.instance.getSecureDate().toIso8601String().split('T')[0];
     final lastScanDate = _prefs?.getString('last_scan_date');
     
     if (lastScanDate != today) {
@@ -163,7 +164,7 @@ class MonetizationService {
     if (firstInstallDate == null) return _newUserGracePeriod;
     
     final install = DateTime.parse(firstInstallDate);
-    final daysSinceInstall = DateTime.now().difference(install).inDays;
+    final daysSinceInstall = SecureTimeService.instance.getSecureTime().difference(install).inDays;
     return (_newUserGracePeriod - daysSinceInstall).clamp(0, _newUserGracePeriod);
   }
   
@@ -189,7 +190,7 @@ class MonetizationService {
   Future<bool> canShareToday() async {
     if (await isPremiumWithGrace()) return true;
     
-    final today = DateTime.now().toIso8601String().split('T')[0];
+    final today = SecureTimeService.instance.getSecureDate().toIso8601String().split('T')[0];
     final lastShareDate = _prefs?.getString('last_share_date');
     final todayShares = _prefs?.getInt('today_shares') ?? 0;
     
@@ -224,8 +225,8 @@ class MonetizationService {
         final newExtra = (currentExtra + 2).clamp(0, _maxAdBonusScans);
         await _prefs?.setInt('extra_scans_today', newExtra);
         
-        // Marcar la fecha del último anuncio visto
-        final today = DateTime.now().toIso8601String().split('T')[0];
+        // Marcar la fecha del último anuncio visto usando tiempo seguro
+        final today = SecureTimeService.instance.getSecureDate().toIso8601String().split('T')[0];
         await _prefs?.setString('last_ad_date', today);
       },
     );
@@ -250,7 +251,7 @@ class MonetizationService {
   }
   
   Future<int> getExtraScansFromAds() async {
-    final today = DateTime.now().toIso8601String().split('T')[0];
+    final today = SecureTimeService.instance.getSecureDate().toIso8601String().split('T')[0];
     final lastAdDate = _prefs?.getString('last_ad_date');
     
     if (lastAdDate != today) {
@@ -262,16 +263,16 @@ class MonetizationService {
     return _prefs?.getInt('extra_scans_today') ?? 0;
   }
   
-  // Suscripciones
+  // Suscripciones usando tiempo seguro
   Future<void> upgradeToPremium({int months = 1}) async {
     _currentTier = SubscriptionTier.premium;
-    _subscriptionExpiry = DateTime.now().add(Duration(days: 30 * months));
+    _subscriptionExpiry = SecureTimeService.instance.getSecureTime().add(Duration(days: 30 * months));
     await _saveSubscriptionData();
   }
   
   Future<void> upgradeToPremiumPlus({int months = 1}) async {
     _currentTier = SubscriptionTier.premiumPlus;
-    _subscriptionExpiry = DateTime.now().add(Duration(days: 30 * months));
+    _subscriptionExpiry = SecureTimeService.instance.getSecureTime().add(Duration(days: 30 * months));
     await _saveSubscriptionData();
   }
   
@@ -282,7 +283,7 @@ class MonetizationService {
   // Ofertas especiales
   bool hasActivePromotion() {
     // Lógica para promociones especiales
-    final now = DateTime.now();
+    final now = SecureTimeService.instance.getSecureTime();
     // Ejemplo: Promoción de San Valentín
     if (now.month == 2 && now.day >= 10 && now.day <= 16) {
       return true;
@@ -303,7 +304,7 @@ class MonetizationService {
     
     return {
       'subscription_tier': _currentTier.toString(),
-      'days_remaining': _subscriptionExpiry?.difference(DateTime.now()).inDays ?? 0,
+      'days_remaining': _subscriptionExpiry?.difference(SecureTimeService.instance.getSecureTime()).inDays ?? 0,
       'is_premium_plus': isPremiumPlus,
     };
   }

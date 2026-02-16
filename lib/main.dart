@@ -17,51 +17,93 @@ import 'services/admob_service.dart';
 import 'services/purchase_service.dart';
 import 'services/premium_theme_service.dart';
 import 'services/analytics_service.dart';
+import 'services/secure_time_service.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize AdMob
-  await MobileAds.instance.initialize();
-  
-  // Initialize AdMob Service
-  await AdMobService.instance.initialize();
+  try {
+    print("🚀 Iniciando Scanner Crush...");
 
-  // Set system UI overlay style
-  SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.light,
-      systemNavigationBarColor: Colors.transparent,
-    ),
-  );
+    // Initialize AdMob (con manejo de errores)
+    try {
+      await MobileAds.instance.initialize();
+      print("✅ AdMob inicializado");
+    } catch (e) {
+      print("⚠️ Error en AdMob: $e");
+    }
 
-  // Initialize services
- 
-  await ThemeService.instance.initialize();
-  await DailyLoveService.instance.initialize();
-  await AudioService.instance.initialize();
-  await LocaleService.instance.initialize();
-  await StreakService.instance.initialize();
+    // Initialize AdMob Service (con manejo de errores)
+    try {
+      await AdMobService.instance.initialize();
+      print("✅ AdMobService inicializado");
+    } catch (e) {
+      print("⚠️ Error en AdMobService: $e");
+    }
 
-  // Initialize monetization service
-  await MonetizationService.instance.initialize();
+    // Set system UI overlay style
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        systemNavigationBarColor: Colors.transparent,
+      ),
+    );
 
-  // Initialize purchase service
-  await PurchaseService.instance.initialize();
+    // Initialize services (SecureTimeService debe ser PRIMERO)
+    try {
+      await SecureTimeService.instance.initialize();
+      print("✅ SecureTimeService inicializado");
+    } catch (e) {
+      print("⚠️ Error en SecureTimeService: $e");
+    }
 
-  // Initialize premium services
-  await PremiumThemeService.instance.initialize();
-  await AnalyticsService.instance.initialize();
+    await ThemeService.instance.initialize();
+    print("✅ ThemeService inicializado");
 
-  // Check for expired premium theme access and clean up
-  await PremiumThemeService.instance.checkAndHandleExpiredPremium();
+    await DailyLoveService.instance.initialize();
+    print("✅ DailyLoveService inicializado");
 
-  // Fix any invalid compatibility results from previous versions
-  await CrushService.instance.fixInvalidResults();
+    await AudioService.instance.initialize();
+    print("✅ AudioService inicializado");
 
-  runApp(const ScannerCrushApp());
+    await LocaleService.instance.initialize();
+    print("✅ LocaleService inicializado");
+
+    await StreakService.instance.initialize();
+    print("✅ StreakService inicializado");
+
+    // Initialize monetization service
+    await MonetizationService.instance.initialize();
+    print("✅ MonetizationService inicializado");
+
+    // Initialize purchase service
+    await PurchaseService.instance.initialize();
+    print("✅ PurchaseService inicializado");
+
+    // Initialize premium services
+    await PremiumThemeService.instance.initialize();
+    print("✅ PremiumThemeService inicializado");
+
+    await AnalyticsService.instance.initialize();
+    print("✅ AnalyticsService inicializado");
+
+    // Check for expired premium theme access and clean up
+    await PremiumThemeService.instance.checkAndHandleExpiredPremium();
+    print("✅ Premium cleanup completado");
+
+    // Fix any invalid compatibility results from previous versions
+    await CrushService.instance.fixInvalidResults();
+    print("✅ CrushService fix completado");
+
+    print("🎉 ¡Todos los servicios inicializados correctamente!");
+    runApp(const ScannerCrushApp());
+  } catch (e) {
+    print("❌ Error crítico en inicialización: $e");
+    // Fallback: run app anyway
+    runApp(const ScannerCrushApp());
+  }
 }
 
 class ScannerCrushApp extends StatefulWidget {

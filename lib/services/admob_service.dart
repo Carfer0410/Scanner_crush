@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../services/secure_time_service.dart';
 
 /// Servicio avanzado de AdMob para Scanner Crush
 class AdMobService {
@@ -11,15 +12,14 @@ class AdMobService {
 
   SharedPreferences? _prefs;
   
-  // IDs de PRUEBA - SEGUROS para desarrollo y testing
-  // CAMBIAR a IDs reales SOLO después de publicar la app en Play Store
-  // REALES para cuando publiques: Banner=ca-app-pub-6436417991123423/1992572008, Interstitial=ca-app-pub-6436417991123423/1801000311, Rewarded=ca-app-pub-6436417991123423/1900222602
-  static const String _androidBannerAdUnitId = 'ca-app-pub-3940256099942544/6300978111'; // Test ID - SEGURO
-  static const String _iosBannerAdUnitId = 'ca-app-pub-3940256099942544/2934735716'; // Test ID - SEGURO
-  static const String _androidInterstitialAdUnitId = 'ca-app-pub-3940256099942544/1033173712'; // Test ID - SEGURO
-  static const String _iosInterstitialAdUnitId = 'ca-app-pub-3940256099942544/4411468910'; // Test ID - SEGURO
-  static const String _androidRewardedAdUnitId = 'ca-app-pub-3940256099942544/5224354917'; // Test ID - SEGURO
-  static const String _iosRewardedAdUnitId = 'ca-app-pub-3940256099942544/1712485313'; // Test ID - SEGURO
+  // IDs REALES - CONFIGURADOS PARA PRODUCCIÓN
+  // Banner=ca-app-pub-6436417991123423/1992572008, Interstitial=ca-app-pub-6436417991123423/1801000311, Rewarded=ca-app-pub-6436417991123423/1900222602
+  static const String _androidBannerAdUnitId = 'ca-app-pub-6436417991123423/1992572008'; // ID REAL - PRODUCCIÓN
+  static const String _iosBannerAdUnitId = 'ca-app-pub-3940256099942544/2934735716'; // Test ID - SEGURO (iOS aún en test)
+  static const String _androidInterstitialAdUnitId = 'ca-app-pub-6436417991123423/1801000311'; // ID REAL - PRODUCCIÓN
+  static const String _iosInterstitialAdUnitId = 'ca-app-pub-3940256099942544/4411468910'; // Test ID - SEGURO (iOS aún en test)
+  static const String _androidRewardedAdUnitId = 'ca-app-pub-6436417991123423/1900222602'; // ID REAL - PRODUCCIÓN
+  static const String _iosRewardedAdUnitId = 'ca-app-pub-3940256099942544/1712485313'; // Test ID - SEGURO (iOS aún en test)
 
   // Estado de anuncios
   BannerAd? _bannerAd;
@@ -284,14 +284,14 @@ class AdMobService {
 
   /// Tracking de eventos de anuncios
   Future<void> _trackAdEvent(String eventName) async {
-    final today = DateTime.now().toIso8601String().split('T')[0];
+    final today = SecureTimeService.instance.getSecureDate().toIso8601String().split('T')[0];
     final currentCount = _prefs?.getInt('ad_events_$eventName\_$today') ?? 0;
     await _prefs?.setInt('ad_events_$eventName\_$today', currentCount + 1);
   }
 
   /// Analytics de anuncios
   Future<Map<String, dynamic>> getAdAnalytics() async {
-    final today = DateTime.now().toIso8601String().split('T')[0];
+    final today = SecureTimeService.instance.getSecureDate().toIso8601String().split('T')[0];
     
     return {
       'banner_opened': _prefs?.getInt('ad_events_banner_opened_$today') ?? 0,
@@ -318,7 +318,7 @@ class AdMobService {
   /// Configurar frecuencia de anuncios intersticiales (más inteligente)
   Future<bool> shouldShowInterstitialAd() async {
     final lastShown = _prefs?.getInt('last_interstitial_timestamp') ?? 0;
-    final now = DateTime.now().millisecondsSinceEpoch;
+    final now = SecureTimeService.instance.getSecureTime().millisecondsSinceEpoch;
     const cooldownMinutes = 2; // Reducido a 2 minutos para mejor monetización
     
     // También considerar número de acciones del usuario
@@ -334,7 +334,7 @@ class AdMobService {
 
   /// Incrementar contador de acciones del usuario
   Future<void> trackUserAction() async {
-    final today = DateTime.now().toIso8601String().split('T')[0];
+    final today = SecureTimeService.instance.getSecureDate().toIso8601String().split('T')[0];
     final lastActionDate = _prefs?.getString('last_action_date');
     
     if (lastActionDate != today) {

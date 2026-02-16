@@ -541,7 +541,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
-                                'PRO',
+                                'PRO', // TODO: Add localization key 'proBadge'
                                 style: GoogleFonts.poppins(
                                   fontSize: 10,
                                   fontWeight: FontWeight.bold,
@@ -752,10 +752,11 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        (LocaleService.instance.currentLocale.languageCode ==
+                        AppLocalizations.of(context)?.dailyStreak ?? 
+                        ((LocaleService.instance.currentLocale.languageCode ==
                                 'en')
                             ? 'Daily Streak'
-                            : 'Racha Diaria',
+                            : 'Racha Diaria'), // TODO: Remove hardcoded fallback when 'dailyStreak' is implemented
                         style: GoogleFonts.poppins(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -795,10 +796,11 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                         ),
                       ),
                       Text(
-                        (LocaleService.instance.currentLocale.languageCode ==
+                        AppLocalizations.of(context)?.best ?? 
+                        ((LocaleService.instance.currentLocale.languageCode ==
                                 'en')
                             ? 'Best'
-                            : 'Mejor',
+                            : 'Mejor'), // TODO: Remove hardcoded fallback when 'best' is implemented
                         style: GoogleFonts.poppins(
                           fontSize: 10,
                           color: ThemeService.instance.textColor,
@@ -852,10 +854,11 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                       ),
                       onPressed: () => _showStreakInfoDialog(),
                       tooltip:
-                          (LocaleService.instance.currentLocale.languageCode ==
+                          AppLocalizations.of(context)?.learnAboutStats ??
+                          ((LocaleService.instance.currentLocale.languageCode ==
                                   'en')
                               ? 'Learn about stats'
-                              : 'Aprende sobre las estadísticas',
+                              : 'Aprende sobre las estadísticas'), // TODO: Remove hardcoded fallback
                     ),
                   ],
                 ),
@@ -863,30 +866,33 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     _buildStatRow(
-                      (LocaleService.instance.currentLocale.languageCode ==
+                      AppLocalizations.of(context)?.currentStreak ??
+                      ((LocaleService.instance.currentLocale.languageCode ==
                               'en')
                           ? 'Current Streak'
-                          : 'Racha Actual',
+                          : 'Racha Actual'), // TODO: Remove hardcoded fallback
                       '${streakService.currentStreak} ${_getDaysText(streakService.currentStreak)}',
                       Icons.local_fire_department,
                       Colors.orange,
                     ),
                     const SizedBox(height: 12),
                     _buildStatRow(
-                      (LocaleService.instance.currentLocale.languageCode ==
+                      AppLocalizations.of(context)?.bestStreak ??
+                      ((LocaleService.instance.currentLocale.languageCode ==
                               'en')
                           ? 'Best Streak'
-                          : 'Mejor Racha',
+                          : 'Mejor Racha'), // TODO: Remove hardcoded fallback
                       '${streakService.bestStreak} ${_getDaysText(streakService.bestStreak)}',
                       Icons.emoji_events,
                       Colors.amber,
                     ),
                     const SizedBox(height: 12),
                     _buildStatRow(
-                      (LocaleService.instance.currentLocale.languageCode ==
+                      AppLocalizations.of(context)?.totalScans ??
+                      ((LocaleService.instance.currentLocale.languageCode ==
                               'en')
                           ? 'Total Scans'
-                          : 'Escaneos Totales',
+                          : 'Escaneos Totales'), // TODO: Remove hardcoded fallback
                       '${streakService.totalScans}',
                       Icons.favorite,
                       Colors.pink,

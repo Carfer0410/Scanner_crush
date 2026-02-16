@@ -41,7 +41,7 @@ class AppTheme {
     AppTheme(
       type: ThemeType.classic,
       name: '💘 Clásico',
-      description: 'El tema original de amor',
+      description: 'El tema original de amor', // TODO: Add localization
       icon: Icons.favorite,
       backgroundGradient: LinearGradient(
         begin: Alignment.topLeft,
@@ -67,7 +67,7 @@ class AppTheme {
     AppTheme(
       type: ThemeType.sunset,
       name: '🌌 Aurora Pastel',
-      description: 'Degradé moderno de violeta, rosa y azul',
+      description: 'Degradé moderno de violeta, rosa y azul', // TODO: Add localization
       icon: Icons.wb_sunny,
       backgroundGradient: LinearGradient(
         begin: Alignment.topLeft,
@@ -98,7 +98,7 @@ class AppTheme {
     AppTheme(
       type: ThemeType.ocean,
       name: '🌊 Océan',
-      description: 'Profundos azules marinos',
+      description: 'Profundos azules marinos', // TODO: Add localization
       icon: Icons.waves,
       backgroundGradient: LinearGradient(
         begin: Alignment.topLeft,

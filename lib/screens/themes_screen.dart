@@ -95,28 +95,28 @@ class _ThemesScreenState extends State<ThemesScreen>
     switch (themeType) {
       case ThemeType.classic:
         return AppLocalizations.of(context)?.classicThemeDescription ??
-            'El tema original de amor';
+            'El tema original de amor'; // TODO: Add localization key
       case ThemeType.sunset:
         return AppLocalizations.of(context)?.sunsetThemeDescription ??
             'Degradé moderno de violeta, rosa y azul';
       case ThemeType.ocean:
         return AppLocalizations.of(context)?.oceanThemeDescription ??
-            'Profundos azules marinos';
+            'Profundos azules marinos'; // TODO: Add localization key
       case ThemeType.forest:
         return AppLocalizations.of(context)?.forestThemeDescription ??
-            'Verdes naturales y frescos';
+            'Verdes naturales y frescos'; // TODO: Add localization key
       case ThemeType.lavender:
         return AppLocalizations.of(context)?.lavenderThemeDescription ??
-            'Elegantes púrpuras y violetas';
+            'Elegantes púrpuras y violetas'; // TODO: Add localization key
       case ThemeType.cosmic:
         return AppLocalizations.of(context)?.cosmicThemeDescription ??
-            'Misterioso espacio profundo';
+            'Misterioso espacio profundo'; // TODO: Add localization key
       case ThemeType.cherry:
         return AppLocalizations.of(context)?.cherryThemeDescription ??
-            'Elegante rosa sakura japonés';
+            'Elegante rosa sakura japonés'; // TODO: Add localization key
       case ThemeType.golden:
         return AppLocalizations.of(context)?.goldenThemeDescription ??
-            'Lujo y elegancia dorada';
+            'Lujo y elegancia dorada'; // TODO: Add localization key
     }
   }
 
@@ -382,7 +382,7 @@ class _ThemesScreenState extends State<ThemesScreen>
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              'Preview',
+                              'Preview', // TODO: Add localization key 'themePreview'
                               style: TextStyle(
                                 color: theme.primaryColor,
                                 fontSize: 12,
@@ -432,7 +432,7 @@ class _ThemesScreenState extends State<ThemesScreen>
                               Icon(Icons.star, color: Colors.white, size: 12),
                               SizedBox(width: 2),
                               Text(
-                                'PREMIUM',
+                                'PREMIUM', // TODO: Add localization key 'premiumBadge'
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 10,
@@ -517,7 +517,7 @@ class _ThemesScreenState extends State<ThemesScreen>
                               borderRadius: BorderRadius.circular(15),
                             ),
                             child: const Text(
-                              'PREMIUM',
+                              'PREMIUM', // TODO: Add localization key 'premiumBadge'
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 12,
@@ -631,6 +631,7 @@ class _ThemesScreenState extends State<ThemesScreen>
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
+          duration: const Duration(seconds: 6),
         ),
       );
 
@@ -746,7 +747,7 @@ class _ThemesScreenState extends State<ThemesScreen>
                               ),
                             ),
                             Text(
-                              'Acceso permanente',
+                              'Acceso permanente', // TODO: Add localization key 'permanentAccess'
                               style: TextStyle(
                                 color: ThemeService.instance.subtitleColor,
                                 fontSize: 12,
@@ -761,7 +762,7 @@ class _ThemesScreenState extends State<ThemesScreen>
                     TextButton(
                       onPressed: () => Navigator.pop(context),
                       child: Text(
-                        'Cancelar',
+                        AppLocalizations.of(context)?.cancel ?? 'Cancelar',
                         style: TextStyle(
                           color: ThemeService.instance.subtitleColor,
                         ),
@@ -803,6 +804,7 @@ class _ThemesScreenState extends State<ThemesScreen>
                                         '¡Acceso temporal a este tema otorgado por 1 hora! 🎉',
                                       ),
                                       backgroundColor: Colors.green,
+                                      duration: const Duration(seconds: 6),
                                     ),
                                   );
                                 }

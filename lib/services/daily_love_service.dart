@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'secure_time_service.dart';
 
 class DailyLoveService {
   static final DailyLoveService _instance = DailyLoveService._internal();
@@ -52,7 +53,7 @@ class DailyLoveService {
 
   // Obtener horóscopo del día
   Map<String, dynamic> getTodayLoveHoroscope() {
-    final today = DateTime.now();
+    final today = SecureTimeService.instance.getSecureTime();
     final dayOfYear = today.difference(DateTime(today.year, 1, 1)).inDays;
     final index = dayOfYear % 7; // Usando 7 horóscopos diferentes
     return {'index': index}; // Devolvemos solo el índice
@@ -60,7 +61,7 @@ class DailyLoveService {
 
   // Obtener horóscopo localizado del día
   Map<String, dynamic> getTodayLoveHoroscopeLocalized(BuildContext context) {
-    final today = DateTime.now();
+    final today = SecureTimeService.instance.getSecureTime();
     final dayOfYear = today.difference(DateTime(today.year, 1, 1)).inDays;
     final index = dayOfYear % 7; // 7 horóscopos diferentes
     final l10n = AppLocalizations.of(context);
@@ -134,9 +135,19 @@ class DailyLoveService {
   }
 
   Future<void> updateStreak() async {
+    // VERIFICACIÓN DE SEGURIDAD: Comprobar manipulación antes de actualizar racha
+    final secureTimeService = SecureTimeService.instance;
+    final debugInfo = secureTimeService.getDebugInfo();
+    final manipulationCount = debugInfo['manipulationDetections'] ?? 0;
+    
+    if (manipulationCount > 3) {
+      // Demasiadas manipulaciones detectadas - no actualizar racha
+      return;
+    }
+    
     final prefs = await this.prefs;
     final lastUsed = prefs.getString('last_used_date');
-    final today = DateTime.now().toIso8601String().split('T')[0];
+    final today = secureTimeService.getSecureTime().toIso8601String().split('T')[0];
 
     if (lastUsed == null) {
       // Primera vez

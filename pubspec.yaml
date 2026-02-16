@@ -20,11 +20,13 @@ dependencies:
   audioplayers: ^5.0.0
   google_mobile_ads: ^5.1.0  # AdMob integration
   in_app_purchase: ^3.1.0   # In-App Purchases
+  http: ^1.1.0              # Para SecureTimeService
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.13.1
 
 flutter:
   uses-material-design: true
@@ -33,3 +35,17 @@ flutter:
   assets:
     - assets/images/
     - assets/sounds/
+
+# Configuración para generar iconos de la app
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/logoapp.png"
+  min_sdk_android: 21 # Requerido para iconos adaptativos
+  
+  # Configuración para Android
+  adaptive_icon_background: "#FF6F91" # Color primario de la app
+  adaptive_icon_foreground: "assets/images/logoapp.png"
+  
+  # Configuración específica para diferentes tamaños
+  android_icon_background: "#FF6F91"

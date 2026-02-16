@@ -1,4 +1,4 @@
-package com.example.scanner_crush
+package com.perlazastudio.scannercrush
 
 import io.flutter.embedding.android.FlutterActivity
 

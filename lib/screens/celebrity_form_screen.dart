@@ -130,7 +130,7 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
                         style: GoogleFonts.poppins(color: Colors.white),
                       ),
                       backgroundColor: Colors.green,
-                      duration: const Duration(seconds: 2),
+                      duration: const Duration(seconds: 6),
                     ),
                   );
                 }

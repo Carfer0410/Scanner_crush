@@ -8,6 +8,7 @@ import '../services/crush_service.dart';
 import '../services/locale_service.dart';
 import '../services/monetization_service.dart';
 import '../services/admob_service.dart';
+import '../services/secure_time_service.dart';
 import '../screens/premium_screen.dart';
 import '../models/crush_result.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -96,6 +97,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   '',
             ),
             backgroundColor: Colors.red,
+            duration: const Duration(seconds: 6),
           ),
         );
       }
@@ -103,7 +105,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   String _formatDate(DateTime date) {
-    final now = DateTime.now();
+    final now = SecureTimeService.instance.getSecureTime();
     final difference = now.difference(date);
 
     if (difference.inDays == 0) {
@@ -143,6 +145,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               AppLocalizations.of(context)?.errorSharingResult ?? '',
             ),
             backgroundColor: Colors.orange,
+            duration: const Duration(seconds: 6),
           ),
         );
       }

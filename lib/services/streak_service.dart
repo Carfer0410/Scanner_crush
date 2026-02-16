@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'secure_time_service.dart';
 
 /// Servicio para manejar las rachas diarias de escaneos
 /// Daily streak service for scan tracking
@@ -78,8 +79,26 @@ class StreakService extends ChangeNotifier {
   /// Actualizar la racha cuando el usuario hace un escaneo
   /// Update streak when user performs a scan
   Future<StreakUpdate> recordScan() async {
-    final now = DateTime.now();
+    // VERIFICACIÓN DE SEGURIDAD EXTRA: Forzar sincronización antes del escaneo
+    final secureTimeService = SecureTimeService.instance;
+    await secureTimeService.forceSyncNow(); // Asegurar tiempo actual
+    
+    final now = secureTimeService.getSecureTime();
     final today = DateTime(now.year, now.month, now.day);
+    
+    // Verificación adicional: Si han detectado manipulaciones recientemente, rechazar
+    final debugInfo = secureTimeService.getDebugInfo();
+    final manipulationCount = debugInfo['manipulationDetections'] ?? 0;
+    
+    if (manipulationCount > 3) {
+      // Demasiadas manipulaciones detectadas - rechazar escaneo
+      return StreakUpdate(
+        newStreak: _currentStreak,
+        isNewRecord: false,
+        streakMaintained: false,
+        manipulationDetected: true,
+      );
+    }
     
     // Incrementar total de escaneos
     _totalScans++;
@@ -153,7 +172,7 @@ class StreakService extends ChangeNotifier {
   bool hasScannedToday() {
     if (_lastScanDate == null) return false;
     
-    final now = DateTime.now();
+    final now = SecureTimeService.instance.getSecureTime();
     final today = DateTime(now.year, now.month, now.day);
     final lastScanDay = DateTime(
       _lastScanDate!.year,
@@ -169,7 +188,7 @@ class StreakService extends ChangeNotifier {
   int getDaysWithoutScanning() {
     if (_lastScanDate == null) return 0;
     
-    final now = DateTime.now();
+    final now = SecureTimeService.instance.getSecureTime();
     final today = DateTime(now.year, now.month, now.day);
     final lastScanDay = DateTime(
       _lastScanDate!.year,
@@ -186,7 +205,7 @@ class StreakService extends ChangeNotifier {
     if (_lastScanDate == null) return false;
     if (_currentStreak == 0) return false;
     
-    final now = DateTime.now();
+    final now = SecureTimeService.instance.getSecureTime();
     final hoursSinceLastScan = now.difference(_lastScanDate!).inHours;
     
     return hoursSinceLastScan >= 12;
@@ -239,6 +258,7 @@ class StreakUpdate {
   final bool streakBroken;
   final bool alreadyScannedToday;
   final bool isFirstScan;
+  final bool manipulationDetected;
 
   StreakUpdate({
     required this.newStreak,
@@ -247,12 +267,14 @@ class StreakUpdate {
     this.streakBroken = false,
     this.alreadyScannedToday = false,
     this.isFirstScan = false,
+    this.manipulationDetected = false,
   });
 
   /// Obtener mensaje de feedback al usuario
   /// Get user feedback message
   String getFeedbackMessage(String languageCode) {
     if (languageCode == 'en') {
+      if (manipulationDetected) return "⚠️ Time manipulation detected! Scan blocked for security.";
       if (isFirstScan) return "🎉 Welcome! Your love journey begins now!";
       if (alreadyScannedToday) return "✨ Already scanned today! Keep that streak alive tomorrow!";
       if (streakBroken) return "💔 Streak broken, but you're back! New streak: $newStreak day";
@@ -260,6 +282,7 @@ class StreakUpdate {
       if (streakMaintained) return "🔥 Streak continues! $newStreak days of love scanning!";
       return "Keep going! $newStreak days strong!";
     } else {
+      if (manipulationDetected) return "⚠️ ¡Manipulación de tiempo detectada! Escaneo bloqueado por seguridad.";
       if (isFirstScan) return "🎉 ¡Bienvenido! ¡Tu aventura de amor comienza ahora!";
       if (alreadyScannedToday) return "✨ ¡Ya escaneaste hoy! ¡Mantén la racha viva mañana!";
       if (streakBroken) return "💔 Racha rota, ¡pero regresaste! Nueva racha: $newStreak día";

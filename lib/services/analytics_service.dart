@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import '../models/crush_result.dart';
 import 'monetization_service.dart';
+import 'secure_time_service.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AnalyticsService {
@@ -96,7 +97,7 @@ class AnalyticsService {
 
   // Obtener datos de tendencia (últimos 30 días)
   Future<List<TrendPoint>> _getTrendData(List<CrushResult> results) async {
-    final now = DateTime.now();
+    final now = SecureTimeService.instance.getSecureTime();
     final thirtyDaysAgo = now.subtract(const Duration(days: 30));
     
     final recentResults = results

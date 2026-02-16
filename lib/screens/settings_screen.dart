@@ -130,16 +130,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                     // Settings sections
                     _buildSettingsSection(
-                      title: 'General',
+                      title: 'General', // TODO: Add localization key 'general'
                       items: [
                         _buildSettingsItem(
                           icon: Icons.history,
                           title: AppLocalizations.of(context)!.history,
                           subtitle:
-                              AppLocalizations.of(
-                                context,
-                              )?.crushHistoryDescription ??
-                              'Ver todos tus escaneos anteriores',
+                                        AppLocalizations.of(context)?.crushHistoryDescription ??
+                              'Ver todos tus escaneos anteriores', // TODO: Add localization key
                           onTap: () => _navigateToHistory(),
                         ),
                         _buildSettingsItem(
@@ -169,7 +167,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               AppLocalizations.of(
                                 context,
                               )?.specialThemesDescription ??
-                              'Cambiar el tema de la aplicación',
+                              'Cambiar el tema de la aplicación', // TODO: Add localization key
                           onTap: () => _toggleTheme(),
                         ),
                       ],
@@ -179,7 +177,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                     // 🎵 NUEVA SECCIÓN DE AUDIO
                     _buildSettingsSection(
-                      title: 'Audio',
+                      title: 'Audio', // TODO: Add localization key 'audio'
                       items: [
                         _buildSettingsItem(
                           icon:
@@ -232,12 +230,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     icon: Icons.star,
                                     title:
                                         AppLocalizations.of(context)?.upgradeSettings ??
-                                        'Actualizar a Premium',
+                                        AppLocalizations.of(context)?.upgradeSettings ?? 'Actualizar a Premium',
                                     subtitle:
                                         AppLocalizations.of(
                                           context,
                                         )?.unlockAllFeaturesSettings ??
-                                        'Desbloquea todas las funciones',
+                                        AppLocalizations.of(context)?.unlockAllFeaturesSettings ?? 'Desbloquea todas las funciones',
                                     onTap: () => _navigateToPremium(),
                                     trailing: Container(
                                       padding: const EdgeInsets.symmetric(
@@ -1256,6 +1254,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             backgroundColor: Colors.green,
             behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 6),
           ),
         );
       }
@@ -1275,6 +1274,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             backgroundColor: Colors.red,
             behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 6),
           ),
         );
       }

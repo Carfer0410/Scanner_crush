@@ -62,7 +62,46 @@ class _FormScreenState extends State<FormScreen> {
       // Simulate scanning process
       await Future.delayed(const Duration(seconds: 2));
 
-      // Registrar el escaneo para límites
+      // 🔒 VERIFICACIÓN DE SEGURIDAD PRIMERO
+      final streakUpdate = await StreakService.instance.recordScan();
+      
+      // 🚨 BLOQUEAR ESCANEO SI HAY MANIPULACIÓN DETECTADA
+      if (streakUpdate.manipulationDetected) {
+        final message = streakUpdate.getFeedbackMessage(
+          LocaleService.instance.currentLocale.languageCode,
+        );
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  const Icon(Icons.security, color: Colors.white, size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      message,
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              backgroundColor: Colors.red.shade600,
+              duration: const Duration(seconds: 6),
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          );
+        }
+        return; // 🛑 DETENER ESCANEO AQUÍ
+      }
+
+      // Registrar el escaneo para límites solo si no hay manipulación
       await MonetizationService.instance.recordScan();
 
       // Get localizations safely
@@ -81,11 +120,8 @@ class _FormScreenState extends State<FormScreen> {
                 _crushNameController.text.trim(),
               );
 
-      // 🔥 Update streak after successful scan
-      final streakUpdate = await StreakService.instance.recordScan();
-
-      // Show streak feedback message
-      if (mounted && !streakUpdate.alreadyScannedToday) {
+      // Show streak feedback message solo si no fue manipulación
+      if (mounted && !streakUpdate.alreadyScannedToday && !streakUpdate.manipulationDetected) {
         final message = streakUpdate.getFeedbackMessage(
           LocaleService.instance.currentLocale.languageCode,
         );
@@ -119,7 +155,7 @@ class _FormScreenState extends State<FormScreen> {
                     : streakUpdate.streakBroken
                     ? Colors.orange.shade600
                     : Colors.green.shade600,
-            duration: const Duration(seconds: 3),
+            duration: const Duration(seconds: 6),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
@@ -164,8 +200,9 @@ class _FormScreenState extends State<FormScreen> {
         final localizations = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(localizations?.unknownError ?? 'Error desconocido'),
+            content: Text(localizations?.unknownError ?? 'Error desconocido'), // Error message is localized
             backgroundColor: Colors.red,
+            duration: const Duration(seconds: 6),
           ),
         );
       }
@@ -282,6 +319,7 @@ class _FormScreenState extends State<FormScreen> {
           backgroundColor: Colors.green,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          duration: const Duration(seconds: 6),
         ),
       );
     } else {
@@ -289,6 +327,7 @@ class _FormScreenState extends State<FormScreen> {
         SnackBar(
           content: Text(localizations?.unknownError ?? 'No hay anuncios disponibles. Intenta más tarde.'),
           backgroundColor: Colors.orange,
+          duration: const Duration(seconds: 6),
         ),
       );
     }
@@ -331,7 +370,7 @@ class _FormScreenState extends State<FormScreen> {
                           const Spacer(),
                           Text(
                             localizations?.personalScannerTitle ??
-                                'Personal Scanner',
+                                'Personal Scanner', // TODO: Add localization key 'personalScanner'
                             style: GoogleFonts.poppins(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -369,7 +408,7 @@ class _FormScreenState extends State<FormScreen> {
                             // Title with heart animation
                             Text(
                                   localizations?.personalCompatibilityTitle ??
-                                      'Personal Compatibility',
+                                      'Personal Compatibility', // TODO: Add localization key 'personalCompatibility'
                                   style: GoogleFonts.poppins(
                                     fontSize: 24,
                                     fontWeight: FontWeight.bold,
@@ -400,7 +439,7 @@ class _FormScreenState extends State<FormScreen> {
                             CustomTextField(
                               hintText:
                                   localizations?.enterYourName ??
-                                  'Enter your name',
+                                  'Enter your name', // TODO: Add localization key (already available as 'enterYourName')
                               icon: Icons.person,
                               controller: _userNameController,
                             ),
@@ -442,7 +481,7 @@ class _FormScreenState extends State<FormScreen> {
                             CustomTextField(
                               hintText:
                                   localizations?.enterCrushName ??
-                                  'Enter your crush\'s name',
+                                  'Enter your crush\'s name', // TODO: Add localization key (already available as 'enterCrushName')
                               icon: Icons.favorite,
                               controller: _crushNameController,
                             ),
@@ -456,7 +495,7 @@ class _FormScreenState extends State<FormScreen> {
                                       ? (localizations?.scanning ??
                                           'Scanning...')
                                       : (localizations?.scanLoveButton ??
-                                          'Scan Love'),
+                                          'Scan Love'), // TODO: Add localization key (already available as 'scanLoveButton')
                               onPressed: _scanLove,
                               isLoading: _isLoading,
                               icon: _isLoading ? null : Icons.search,
@@ -490,7 +529,7 @@ class _FormScreenState extends State<FormScreen> {
                                       const SizedBox(height: 12),
                                       Text(
                                         localizations?.personalAlgorithm ??
-                                            'Personal Algorithm',
+                                            'Personal Algorithm', // TODO: Add localization key (already available as 'personalAlgorithm')
                                         style: GoogleFonts.poppins(
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,

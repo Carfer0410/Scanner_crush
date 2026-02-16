@@ -61,7 +61,46 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
 
   Future<void> _selectCelebrity(String celebrity) async {
     try {
-      // 🔒 Registrar escaneo para monetización
+      // 🔒 VERIFICACIÓN DE SEGURIDAD PRIMERO
+      final streakUpdate = await StreakService.instance.recordScan();
+      
+      // 🚨 BLOQUEAR ESCANEO SI HAY MANIPULACIÓN DETECTADA
+      if (streakUpdate.manipulationDetected) {
+        final message = streakUpdate.getFeedbackMessage(
+          LocaleService.instance.currentLocale.languageCode,
+        );
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  const Icon(Icons.security, color: Colors.white, size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      message,
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              backgroundColor: Colors.red.shade600,
+              duration: const Duration(seconds: 6),
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          );
+        }
+        return; // 🛑 DETENER ESCANEO AQUÍ
+      }
+      
+      // 🔒 Registrar escaneo para monetización solo si no hay manipulación
       await MonetizationService.instance.recordScan();
       
       // Get localizations with null safety
@@ -78,12 +117,9 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
               widget.userName,
               celebrity,
             );
-
-      // 🔥 Update streak after successful scan
-      final streakUpdate = await StreakService.instance.recordScan();
       
-      // Show streak feedback message
-      if (mounted && !streakUpdate.alreadyScannedToday) {
+      // Show streak feedback message solo si no fue manipulación
+      if (mounted && !streakUpdate.alreadyScannedToday && !streakUpdate.manipulationDetected) {
         final message = streakUpdate.getFeedbackMessage(
           LocaleService.instance.currentLocale.languageCode
         );
@@ -114,7 +150,7 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
               : streakUpdate.streakBroken
                 ? Colors.orange.shade600
                 : Colors.green.shade600,
-            duration: const Duration(seconds: 3),
+            duration: const Duration(seconds: 6),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
@@ -150,6 +186,7 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
           SnackBar(
             content: Text(AppLocalizations.of(context)!.errorGeneratingResult),
             backgroundColor: Colors.red,
+            duration: const Duration(seconds: 6),
           ),
         );
       }

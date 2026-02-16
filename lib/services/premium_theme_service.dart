@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'monetization_service.dart';
 import 'theme_service.dart';
+import 'secure_time_service.dart';
 
 class PremiumThemeService {
   /// Verifica si el acceso temporal al tema premium actual expiró y fuerza el cambio a classic si es necesario
   Future<void> checkAndHandleExpiredPremium() async {
-    final now = DateTime.now();
+    final now = SecureTimeService.instance.getSecureTime();
     final currentTheme = ThemeService.instance.currentTheme.name;
 
     // Verificar si el tema actual tiene acceso temporal expirado
@@ -111,7 +112,7 @@ class PremiumThemeService {
 
   /// Otorga acceso temporal a un tema premium por 1 hora
   Future<void> grantTemporaryAccessToTheme(String themeId) async {
-    final expiry = DateTime.now().add(const Duration(hours: 1));
+    final expiry = SecureTimeService.instance.getSecureTime().add(const Duration(hours: 1));
     _tempPremiumThemes[themeId] = expiry.toIso8601String();
     await _saveTempPremiumThemes();
     tempAccessNotifier.value++;
@@ -119,7 +120,10 @@ class PremiumThemeService {
 
   /// Método de debug para otorgar acceso temporal con duración específica
   Future<void> grantDebugAccess(String themeId, DateTime expiry) async {
-    _tempPremiumThemes[themeId] = expiry.toIso8601String();
+    // Usar tiempo seguro incluso para debug
+    final secureNow = SecureTimeService.instance.getSecureTime();
+    final secureExpiry = secureNow.add(expiry.difference(secureNow));
+    _tempPremiumThemes[themeId] = secureExpiry.toIso8601String();
     await _saveTempPremiumThemes();
     tempAccessNotifier.value++;
   }
@@ -130,7 +134,7 @@ class PremiumThemeService {
     if (expiryString == null) return false;
     final expiry = DateTime.tryParse(expiryString);
     if (expiry == null) return false;
-    if (DateTime.now().isAfter(expiry)) {
+    if (SecureTimeService.instance.getSecureTime().isAfter(expiry)) {
       // Expiró, limpiar
       _tempPremiumThemes.remove(themeId);
       _saveTempPremiumThemes();
@@ -146,7 +150,7 @@ class PremiumThemeService {
     if (expiryString == null) return 0;
     final expiry = DateTime.tryParse(expiryString);
     if (expiry == null) return 0;
-    final remaining = expiry.difference(DateTime.now()).inHours;
+    final remaining = expiry.difference(SecureTimeService.instance.getSecureTime()).inHours;
     return remaining.clamp(0, 24);
   }
 
@@ -157,7 +161,7 @@ class PremiumThemeService {
     'default': PremiumTheme(
       id: 'default',
       name: '💕 Clásico Rosa',
-      description: 'El tema original y romántico',
+      description: 'El tema original y romántico', // TODO: Add localization
       isPremium: false,
       primaryColor: const Color(0xFFE91E63),
       secondaryColor: const Color(0xFFF06292),
@@ -172,7 +176,7 @@ class PremiumThemeService {
     'midnight_passion': PremiumTheme(
       id: 'midnight_passion',
       name: '🌙 Pasión Nocturna',
-      description: 'Elegancia oscura con toques dorados',
+      description: 'Elegancia oscura con toques dorados', // TODO: Add localization
       isPremium: true,
       primaryColor: const Color(0xFF6A0080),
       secondaryColor: const Color(0xFFAB47BC),
@@ -190,7 +194,7 @@ class PremiumThemeService {
     'sunset_dreams': PremiumTheme(
       id: 'sunset_dreams',
       name: '🌅 Aurora pastel',
-      description: 'Colores cálidos de un atardecer perfecto',
+      description: 'Colores cálidos de un atardecer perfecto', // TODO: Add localization
       isPremium: true,
       primaryColor: const Color(0xFFFF6B35),
       secondaryColor: const Color(0xFFFF8E53),

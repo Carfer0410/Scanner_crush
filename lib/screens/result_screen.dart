@@ -108,6 +108,7 @@ class _ResultScreenState extends State<ResultScreen>
           SnackBar(
             content: Text(AppLocalizations.of(context)!.shareError),
             backgroundColor: Colors.orange,
+            duration: const Duration(seconds: 6),
           ),
         );
       }
@@ -207,6 +208,7 @@ class _ResultScreenState extends State<ResultScreen>
           backgroundColor: Colors.green,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          duration: const Duration(seconds: 6),
         ),
       );
       
@@ -216,6 +218,7 @@ class _ResultScreenState extends State<ResultScreen>
         SnackBar(
           content: Text('No hay anuncios disponibles. Intenta más tarde.'),
           backgroundColor: Colors.orange,
+          duration: const Duration(seconds: 6),
         ),
       );
     }
