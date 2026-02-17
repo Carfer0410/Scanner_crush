@@ -43,3 +43,29 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# ===== SECURITY: Secrets & Signing =====
+# NEVER commit signing keys or credentials
+android/key.properties
+*.jks
+*.keystore
+*.p12
+*.pem
+*.key
+
+# Environment config
+.env
+.env.*
+!.env.example
+
+# Local configuration
+local.properties
+android/local.properties
+
+# Firebase (if used)
+google-services.json
+GoogleService-Info.plist
+
+# Coverage
+coverage/
+*.lcov

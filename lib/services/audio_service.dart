@@ -1,7 +1,8 @@
-import 'package:audioplayers/audioplayers.dart';
+﻿import 'package:audioplayers/audioplayers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/widgets.dart';
 
+import 'logger_service.dart';
 class AudioService with WidgetsBindingObserver {
   static final AudioService _instance = AudioService._internal();
   static AudioService get instance => _instance;
@@ -25,28 +26,28 @@ class AudioService with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
     
-    print('🔄 App lifecycle changed to: $state');
+    LoggerService.debug('App lifecycle changed to: $state', origin: 'audio_service');
     
     switch (state) {
       case AppLifecycleState.paused:
       case AppLifecycleState.inactive:
         // App se minimizó o perdió el foco
-        print('🔄 App going to background - paused/inactive');
+        LoggerService.debug('App going to background - paused/inactive', origin: 'audio_service');
         _handleAppPaused();
         break;
       case AppLifecycleState.resumed:
         // App volvió a primer plano
-        print('🔄 App returning to foreground - resumed');
+        LoggerService.debug('App returning to foreground - resumed', origin: 'audio_service');
         _handleAppResumed();
         break;
       case AppLifecycleState.detached:
         // App se está cerrando
-        print('🔄 App detaching - closing');
+        LoggerService.debug('App detaching - closing', origin: 'audio_service');
         _handleAppDetached();
         break;
       case AppLifecycleState.hidden:
         // App está oculta pero aún en memoria
-        print('🔄 App hidden');
+        LoggerService.debug('App hidden', origin: 'audio_service');
         _handleAppPaused();
         break;
     }
@@ -54,32 +55,32 @@ class AudioService with WidgetsBindingObserver {
 
   // Pausar música cuando se minimiza la app
   void _handleAppPaused() {
-    print('🎵 Handling app pause - Current state: playing=$_isBackgroundMusicPlaying, enabled=$_musicEnabled');
+    LoggerService.debug('Handling app pause - Current state: playing=$_isBackgroundMusicPlaying, enabled=$_musicEnabled', origin: 'audio_service');
     if (_isBackgroundMusicPlaying && _musicEnabled) {
       _wasPlayingBeforePause = true;
       _pauseBackgroundMusic();
-      print('🎵 App paused - Background music paused (wasPlaying set to true)');
+      LoggerService.debug('App paused - Background music paused (wasPlaying set to true)', origin: 'audio_service');
     } else {
-      print('🎵 App paused - No music to pause (playing=$_isBackgroundMusicPlaying, enabled=$_musicEnabled)');
+      LoggerService.debug('App paused - No music to pause (playing=$_isBackgroundMusicPlaying, enabled=$_musicEnabled)', origin: 'audio_service');
     }
   }
 
   // Reanudar música cuando se vuelve a la app
   void _handleAppResumed() {
-    print('🎵 Handling app resume - wasPlaying=$_wasPlayingBeforePause, enabled=$_musicEnabled, currentlyPlaying=$_isBackgroundMusicPlaying');
+    LoggerService.debug('Handling app resume - wasPlaying=$_wasPlayingBeforePause, enabled=$_musicEnabled, currentlyPlaying=$_isBackgroundMusicPlaying', origin: 'audio_service');
     if (_wasPlayingBeforePause && _musicEnabled) {
       _resumeBackgroundMusic();
       _wasPlayingBeforePause = false;
-      print('🎵 App resumed - Background music resumed');
+      LoggerService.debug('App resumed - Background music resumed', origin: 'audio_service');
     } else {
-      print('🎵 App resumed - No music to resume (wasPlaying=$_wasPlayingBeforePause, enabled=$_musicEnabled)');
+      LoggerService.debug('App resumed - No music to resume (wasPlaying=$_wasPlayingBeforePause, enabled=$_musicEnabled)', origin: 'audio_service');
     }
   }
 
   // Detener completamente cuando se cierra la app
   void _handleAppDetached() {
     stopBackgroundMusic(); // Aquí sí queremos parar completamente
-    print('🎵 App detached - Background music stopped completely');
+    LoggerService.debug('App detached - Background music stopped completely', origin: 'audio_service');
   }
 
   Future<void> initialize() async {
@@ -88,7 +89,7 @@ class AudioService with WidgetsBindingObserver {
     _musicEnabled = prefs.getBool('music_enabled') ?? true;
     _volume = prefs.getDouble('volume') ?? 0.7;
 
-    print('🔧 AudioService initializing - Sound: $_soundEnabled, Music: $_musicEnabled, Volume: $_volume');
+    LoggerService.debug('AudioService initializing - Sound: $_soundEnabled, Music: $_musicEnabled, Volume: $_volume', origin: 'audio_service');
 
     await _effectPlayer.setVolume(_volume);
     await _backgroundPlayer.setVolume(_volume * 0.3); // Background más suave
@@ -98,13 +99,13 @@ class AudioService with WidgetsBindingObserver {
 
     // Iniciar música de fondo si está habilitada
     if (_musicEnabled) {
-      print('🎵 Starting background music during initialization...');
+      LoggerService.debug('Starting background music during initialization...', origin: 'audio_service');
       await startBackgroundMusic();
     } else {
-      print('🎵 Music is disabled, not starting background music');
+      LoggerService.debug('Music is disabled, not starting background music', origin: 'audio_service');
     }
 
-    print('🔧 AudioService initialization complete');
+    LoggerService.debug('AudioService initialization complete', origin: 'audio_service');
   }
 
   // 🎵 SONIDOS DE EFECTOS
@@ -171,14 +172,14 @@ class AudioService with WidgetsBindingObserver {
   // 🎼 MÚSICA DE FONDO
   Future<void> startBackgroundMusic() async {
     if (!_musicEnabled) {
-      print('🎵 Music disabled, not starting background music');
+      LoggerService.debug('Music disabled, not starting background music', origin: 'audio_service');
       return;
     }
 
     try {
       // Si ya está sonando, no hacer nada
       if (_isBackgroundMusicPlaying) {
-        print('🎵 Background music already playing');
+        LoggerService.debug('Background music already playing', origin: 'audio_service');
         return;
       }
 
@@ -192,9 +193,9 @@ class AudioService with WidgetsBindingObserver {
       await _backgroundPlayer.resume();
       _isBackgroundMusicPlaying = true;
 
-      print('🎵 Background music started successfully');
+      LoggerService.debug('Background music started successfully', origin: 'audio_service');
     } catch (e) {
-      print('❌ Error starting background music: $e');
+      LoggerService.error('Error starting background music: $e', origin: 'AudioService');
       _isBackgroundMusicPlaying = false;
     }
   }
@@ -204,9 +205,9 @@ class AudioService with WidgetsBindingObserver {
     try {
       await _backgroundPlayer.pause();
       // NO cambiar _isBackgroundMusicPlaying aquí, para poder reanudar
-      print('🎵 Background music paused');
+      LoggerService.debug('Background music paused', origin: 'audio_service');
     } catch (e) {
-      print('❌ Error pausing background music: $e');
+      LoggerService.error('Error pausing background music: $e', origin: 'AudioService');
     }
   }
 
@@ -214,9 +215,9 @@ class AudioService with WidgetsBindingObserver {
   Future<void> _resumeBackgroundMusic() async {
     try {
       await _backgroundPlayer.resume();
-      print('🎵 Background music resumed');
+      LoggerService.debug('Background music resumed', origin: 'audio_service');
     } catch (e) {
-      print('❌ Error resuming background music: $e');
+      LoggerService.error('Error resuming background music: $e', origin: 'AudioService');
       // Si hay error al reanudar, intentar iniciar desde cero
       _isBackgroundMusicPlaying = false;
       await startBackgroundMusic();
@@ -228,9 +229,9 @@ class AudioService with WidgetsBindingObserver {
       await _backgroundPlayer.stop();
       _isBackgroundMusicPlaying = false;
       _wasPlayingBeforePause = false; // Reset flag
-      print('🎵 Background music stopped completely');
+      LoggerService.debug('Background music stopped completely', origin: 'audio_service');
     } catch (e) {
-      print('❌ Error stopping background music: $e');
+      LoggerService.error('Error stopping background music: $e', origin: 'AudioService');
       // Asegurar que el estado se actualice incluso si hay error
       _isBackgroundMusicPlaying = false;
       _wasPlayingBeforePause = false;
@@ -243,9 +244,9 @@ class AudioService with WidgetsBindingObserver {
       await _backgroundPlayer.stop();
       _isBackgroundMusicPlaying = false;
       _wasPlayingBeforePause = false;
-      print('🎵 Background music reset - will start fresh next time');
+      LoggerService.debug('Background music reset - will start fresh next time', origin: 'audio_service');
     } catch (e) {
-      print('❌ Error resetting background music: $e');
+      LoggerService.error('Error resetting background music: $e', origin: 'AudioService');
       _isBackgroundMusicPlaying = false;
       _wasPlayingBeforePause = false;
     }
@@ -264,23 +265,23 @@ class AudioService with WidgetsBindingObserver {
     if (!enabled) {
       // Solo pausar, no detener completamente, para que continúe desde donde estaba
       await _pauseBackgroundMusic();
-      print('🎵 Music disabled - paused (will resume from same position)');
+      LoggerService.debug('Music disabled - paused (will resume from same position)', origin: 'audio_service');
     } else {
       // Si había música pausada, reanudarla desde donde estaba
       if (_isBackgroundMusicPlaying) {
         await _resumeBackgroundMusic();
-        print('🎵 Music enabled - resumed from previous position');
+        LoggerService.debug('Music enabled - resumed from previous position', origin: 'audio_service');
       } else {
         // Si no había música, iniciar desde el principio
         await startBackgroundMusic();
-        print('🎵 Music enabled - started fresh');
+        LoggerService.debug('Music enabled - started fresh', origin: 'audio_service');
       }
     }
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('music_enabled', enabled);
 
-    print('🎵 Music enabled: $enabled'); // Debug
+    LoggerService.debug('Music enabled: $enabled', origin: 'audio_service'); // Debug
   }
 
   Future<void> setVolume(double volume) async {

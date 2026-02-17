@@ -54,8 +54,8 @@ class _ThemesScreenState extends State<ThemesScreen>
   }
 
   void _loadBannerAd() async {
-    // Cargar banner solo para usuarios no premium (incluyendo período de gracia)
-    if (!await MonetizationService.instance.isPremiumWithGrace()) {
+    // Cargar banner solo para usuarios no premium
+    if (!await MonetizationService.instance.isPremiumAsync()) {
       _bannerAd = AdMobService.instance.createBannerAd();
       _bannerAd!.load();
     }
@@ -141,12 +141,12 @@ class _ThemesScreenState extends State<ThemesScreen>
                 ),
               ),
 
-              // Banner ad para usuarios no premium (incluyendo período de gracia)
+              // Banner ad para usuarios no premium
               FutureBuilder<bool>(
-                future: MonetizationService.instance.isPremiumWithGrace(),
+                future: MonetizationService.instance.isPremiumAsync(),
                 builder: (context, snapshot) {
-                  final isPremiumWithGrace = snapshot.data ?? false;
-                  if (_bannerAd != null && !isPremiumWithGrace) {
+                  final isPremium = snapshot.data ?? false;
+                  if (_bannerAd != null && !isPremium) {
                     return Container(
                       width: double.infinity,
                       height: 60,
@@ -294,13 +294,13 @@ class _ThemesScreenState extends State<ThemesScreen>
                 final hasTemporaryAccess = PremiumThemeService.instance
                     .hasTemporaryAccessToTheme(theme.type.name);
                 return FutureBuilder<bool>(
-                  future: MonetizationService.instance.isPremiumWithGrace(),
+                  future: MonetizationService.instance.isPremiumAsync(),
                   builder: (context, snapshot) {
-                    final isPremiumWithGrace = snapshot.data ?? false;
+                    final isPremium = snapshot.data ?? false;
                     // Permitir seleccionar el tema premium si tiene acceso temporal válido
                     final canUse =
                         !theme.isPremium ||
-                        isPremiumWithGrace ||
+                        isPremium ||
                         hasTemporaryAccess;
                     return AnimatedContainer(
                       duration: Duration(milliseconds: 200 + (index * 100)),
@@ -592,17 +592,17 @@ class _ThemesScreenState extends State<ThemesScreen>
   ) async {
     AudioService.instance.playButtonTap();
 
-    final isPremiumWithGrace =
-        await MonetizationService.instance.isPremiumWithGrace();
+    final isPremium =
+        await MonetizationService.instance.isPremiumAsync();
 
     // Permitir seleccionar el tema premium si tiene acceso temporal válido
     final hasTempAccess = PremiumThemeService.instance
         .hasTemporaryAccessToTheme(theme.type.name);
-    final canSelect = !theme.isPremium || isPremiumWithGrace || hasTempAccess;
+    final canSelect = !theme.isPremium || isPremium || hasTempAccess;
 
     if (!canSelect) {
       // Si es un tema premium y no tiene acceso, mostrar opción de ver anuncio
-      if (theme.isPremium && !isPremiumWithGrace) {
+      if (theme.isPremium && !isPremium) {
         _showPremiumOrAdOptions(theme);
       } else {
         _showPremiumRequired();
@@ -638,8 +638,8 @@ class _ThemesScreenState extends State<ThemesScreen>
       // Tracking de acción del usuario para anuncios inteligentes (no bloquea la UI)
       AdMobService.instance.trackUserAction();
 
-      // Mostrar intersticial ocasionalmente para usuarios no premium (sin período de gracia)
-      if (!isPremiumWithGrace && !hasTempAccess) {
+      // Mostrar intersticial ocasionalmente para usuarios no premium
+      if (!isPremium && !hasTempAccess) {
         AdMobService.instance.shouldShowInterstitialAd().then((shouldShow) {
           if (shouldShow) {
             MonetizationService.instance.showInterstitialAd();
@@ -707,7 +707,7 @@ class _ThemesScreenState extends State<ThemesScreen>
                                         theme.type.name,
                                       )
                                   ? 'Ya tienes acceso temporal activo a este tema.'
-                                  : 'Acceso por 1 hora SOLO a este tema',
+                                  : 'Acceso por 4 horas SOLO a este tema',
                               style: TextStyle(
                                 color: ThemeService.instance.subtitleColor,
                                 fontSize: 12,
@@ -801,7 +801,7 @@ class _ThemesScreenState extends State<ThemesScreen>
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text(
-                                        '¡Acceso temporal a este tema otorgado por 1 hora! 🎉',
+                                        '¡Acceso temporal a este tema otorgado por 4 horas! 🎉',
                                       ),
                                       backgroundColor: Colors.green,
                                       duration: const Duration(seconds: 6),

@@ -18,6 +18,7 @@ import 'celebrity_form_screen.dart';
 import 'daily_love_screen.dart';
 import 'analytics_screen.dart';
 import 'themes_screen.dart';
+import 'tournament_setup_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -51,8 +52,8 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   }
 
   void _loadBannerAd() async {
-    // Solo cargar banner ads para usuarios no premium (incluyendo período de gracia)
-    if (!await MonetizationService.instance.isPremiumWithGrace()) {
+    // Solo cargar banner ads para usuarios no premium
+    if (!await MonetizationService.instance.isPremiumAsync()) {
       _bannerAd = AdMobService.instance.createBannerAd();
       _bannerAd?.load().then((_) {
         if (mounted) {
@@ -172,14 +173,14 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [
-                                Colors.purple.withOpacity(0.8),
-                                Colors.deepPurple.withOpacity(0.8),
+                                ThemeService.instance.primaryColor.withOpacity(0.8),
+                                ThemeService.instance.secondaryColor.withOpacity(0.8),
                               ],
                             ),
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.purple.withOpacity(0.3),
+                                color: ThemeService.instance.primaryColor.withOpacity(0.3),
                                 blurRadius: 8,
                                 offset: const Offset(0, 4),
                               ),
@@ -229,26 +230,8 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                 // Streak card
                 _buildStreakCard(),
 
-                // Banner para nuevos usuarios o límites
-                FutureBuilder<Map<String, dynamic>>(
-                  future: _getWelcomeInfo(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const SizedBox.shrink();
-                    }
-                    
-                    final data = snapshot.data;
-                    if (data == null) return const SizedBox.shrink();
-                    
-                    final isNewUser = data['isNewUser'] as bool;
-                    final daysRemaining = data['daysRemaining'] as int;
-                    
-                    if (isNewUser && daysRemaining > 0) {
-                      return _buildNewUserBanner();
-                    }
-                    return _buildLimitsBanner();
-                  },
-                ),
+                // Banner de límites
+                _buildLimitsBanner(),
 
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -371,7 +354,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                     context,
                                   )!.regularScanSubtitle,
                               icon: Icons.favorite,
-                              colors: [Colors.purple, Colors.deepPurple],
+                              colors: [ThemeService.instance.primaryColor, ThemeService.instance.secondaryColor],
                               onTap: () => _navigateToRegularScanner(context),
                               delay: 1200,
                             ),
@@ -388,9 +371,22 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                     context,
                                   )!.celebrityScanSubtitle,
                               icon: Icons.star,
-                              colors: [Colors.purple, Colors.deepPurple],
+                              colors: [ThemeService.instance.primaryColor, ThemeService.instance.secondaryColor],
                               onTap: () => _navigateToCelebrityScanner(context),
                               delay: 1400,
+                            ),
+
+                            const SizedBox(height: 20),
+
+                            // Love Tournament 🏆
+                            _buildScanOption(
+                              context: context,
+                              title: AppLocalizations.of(context)!.tournamentTitle,
+                              subtitle: AppLocalizations.of(context)!.tournamentWelcomeSubtitle,
+                              icon: Icons.emoji_events,
+                              colors: [Colors.orange, Colors.deepOrange],
+                              onTap: () => _navigateToTournament(context),
+                              delay: 1600,
                             ),
 
                             const SizedBox(height: 20),
@@ -403,7 +399,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                               icon: Icons.analytics,
                               colors: [Colors.blue, Colors.blueAccent],
                               onTap: () => _navigateToAnalytics(context),
-                              delay: 1600,
+                              delay: 1800,
                               isPremium: true,
                             ),
 
@@ -417,7 +413,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                               icon: Icons.palette,
                               colors: [Colors.purple, Colors.purpleAccent],
                               onTap: () => _navigateToThemes(context),
-                              delay: 1800,
+                              delay: 2000,
                               isPremium: true,
                             ),
                           ],
@@ -440,12 +436,12 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                   ).animate().fadeIn(delay: 1.5.seconds),
                 ),
 
-                // Banner Ad for non-premium users (incluyendo período de gracia)
+                // Banner Ad for non-premium users
                 FutureBuilder<bool>(
-                  future: MonetizationService.instance.isPremiumWithGrace(),
+                  future: MonetizationService.instance.isPremiumAsync(),
                   builder: (context, snapshot) {
-                    final isPremiumWithGrace = snapshot.data ?? false;
-                    if (_bannerAd != null && _isBannerAdReady && !isPremiumWithGrace) {
+                    final isPremium = snapshot.data ?? false;
+                    if (_bannerAd != null && _isBannerAdReady && !isPremium) {
                       return Container(
                         alignment: Alignment.center,
                         width: _bannerAd!.size.width.toDouble(),
@@ -476,7 +472,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     bool isPremium = false,
   }) {
     return FutureBuilder<bool>(
-      future: MonetizationService.instance.isPremiumWithGrace(),
+      future: MonetizationService.instance.isPremiumAsync(),
       builder: (context, snapshot) {
         final hasPremiumAccess = snapshot.data ?? false;
         
@@ -630,9 +626,37 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     });
   }
 
+  void _navigateToTournament(BuildContext context) {
+    // 🎵 Sonido de transición
+    AudioService.instance.playTransition();
+
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder:
+            (context, animation, secondaryAnimation) =>
+                const TournamentSetupScreen(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(
+            opacity: animation,
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(1.0, 0.0),
+                end: Offset.zero,
+              ).animate(animation),
+              child: child,
+            ),
+          );
+        },
+      ),
+    ).then((_) {
+      if (mounted) setState(() {});
+    });
+  }
+
   void _navigateToAnalytics(BuildContext context) async {
-    // Verificar si tiene premium (incluye período de gracia)
-    if (!await MonetizationService.instance.isPremiumWithGrace()) {
+    // Verificar si tiene premium
+    if (!await MonetizationService.instance.isPremiumAsync()) {
       _showPremiumRequired(context);
       return;
     }
@@ -752,11 +776,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        AppLocalizations.of(context)?.dailyStreak ?? 
-                        ((LocaleService.instance.currentLocale.languageCode ==
-                                'en')
-                            ? 'Daily Streak'
-                            : 'Racha Diaria'), // TODO: Remove hardcoded fallback when 'dailyStreak' is implemented
+                        AppLocalizations.of(context)!.dailyStreak,
                         style: GoogleFonts.poppins(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -766,14 +786,8 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                       const SizedBox(height: 2),
                     Text(
                         currentStreak > 0
-                            ? '🔥 $currentStreak ${_getDaysText(currentStreak)}'
-                            : (LocaleService
-                                    .instance
-                                    .currentLocale
-                                    .languageCode ==
-                                'en')
-                            ? 'Start your love streak today!'
-                            : '¡Comienza tu racha hoy!',
+                            ? '🔥 ${AppLocalizations.of(context)!.daysStreak(currentStreak)}'
+                            : AppLocalizations.of(context)!.startLoveStreak,
                         style: GoogleFonts.poppins(
                           fontSize: 12,
                           color: ThemeService.instance.textColor,
@@ -796,11 +810,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                         ),
                       ),
                       Text(
-                        AppLocalizations.of(context)?.best ?? 
-                        ((LocaleService.instance.currentLocale.languageCode ==
-                                'en')
-                            ? 'Best'
-                            : 'Mejor'), // TODO: Remove hardcoded fallback when 'best' is implemented
+                        AppLocalizations.of(context)!.best,
                         style: GoogleFonts.poppins(
                           fontSize: 10,
                           color: ThemeService.instance.textColor,
@@ -836,10 +846,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                   children: [
                     Expanded(
                       child: Text(
-                        (LocaleService.instance.currentLocale.languageCode ==
-                                'en')
-                            ? '🔥 Streak Stats'
-                            : '🔥 Estadísticas de Racha',
+                        AppLocalizations.of(context)!.streakStatsTitle,
                         style: GoogleFonts.poppins(
                           fontWeight: FontWeight.bold,
                           color: ThemeService.instance.textColor,
@@ -854,11 +861,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                       ),
                       onPressed: () => _showStreakInfoDialog(),
                       tooltip:
-                          AppLocalizations.of(context)?.learnAboutStats ??
-                          ((LocaleService.instance.currentLocale.languageCode ==
-                                  'en')
-                              ? 'Learn about stats'
-                              : 'Aprende sobre las estadísticas'), // TODO: Remove hardcoded fallback
+                          AppLocalizations.of(context)!.learnAboutStats,
                     ),
                   ],
                 ),
@@ -866,33 +869,21 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     _buildStatRow(
-                      AppLocalizations.of(context)?.currentStreak ??
-                      ((LocaleService.instance.currentLocale.languageCode ==
-                              'en')
-                          ? 'Current Streak'
-                          : 'Racha Actual'), // TODO: Remove hardcoded fallback
-                      '${streakService.currentStreak} ${_getDaysText(streakService.currentStreak)}',
+                      AppLocalizations.of(context)!.currentStreak,
+                      AppLocalizations.of(context)!.daysStreak(streakService.currentStreak),
                       Icons.local_fire_department,
                       Colors.orange,
                     ),
                     const SizedBox(height: 12),
                     _buildStatRow(
-                      AppLocalizations.of(context)?.bestStreak ??
-                      ((LocaleService.instance.currentLocale.languageCode ==
-                              'en')
-                          ? 'Best Streak'
-                          : 'Mejor Racha'), // TODO: Remove hardcoded fallback
-                      '${streakService.bestStreak} ${_getDaysText(streakService.bestStreak)}',
+                      AppLocalizations.of(context)!.bestStreak,
+                      AppLocalizations.of(context)!.daysStreak(streakService.bestStreak),
                       Icons.emoji_events,
                       Colors.amber,
                     ),
                     const SizedBox(height: 12),
                     _buildStatRow(
-                      AppLocalizations.of(context)?.totalScans ??
-                      ((LocaleService.instance.currentLocale.languageCode ==
-                              'en')
-                          ? 'Total Scans'
-                          : 'Escaneos Totales'), // TODO: Remove hardcoded fallback
+                      AppLocalizations.of(context)!.totalScans,
                       '${streakService.totalScans}',
                       Icons.favorite,
                       Colors.pink,
@@ -915,10 +906,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                   TextButton(
                     onPressed: () => Navigator.pop(context),
                     child: Text(
-                      (LocaleService.instance.currentLocale.languageCode ==
-                              'en')
-                          ? 'Close'
-                          : 'Cerrar',
+                      AppLocalizations.of(context)!.close,
                       style: GoogleFonts.poppins(
                         fontWeight: FontWeight.bold,
                         color: ThemeService.instance.primaryColor,
@@ -935,8 +923,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   /// Show streak information dialog explaining what each statistic means
   /// Mostrar diálogo de información de racha explicando qué significa cada estadística
   void _showStreakInfoDialog() {
-    final isEnglish = LocaleService.instance.currentLocale.languageCode == 'en';
-
     showDialog(
       context: context,
       builder:
@@ -955,9 +941,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    isEnglish
-                        ? 'What do these stats mean?'
-                        : '¿Qué significan estas estadísticas?',
+                    AppLocalizations.of(context)!.streakInfoDialogTitle,
                     style: GoogleFonts.poppins(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
@@ -976,15 +960,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                   _buildInfoSection(
                     icon: Icons.local_fire_department,
                     color: Colors.orange,
-                    title: isEnglish ? 'Current Streak' : 'Racha Actual',
-                    description:
-                        isEnglish
-                            ? 'How many consecutive days you\'ve used the app without missing a day.'
-                            : 'Cuántos días consecutivos has usado la app sin faltar ni un día.',
-                    example:
-                        isEnglish
-                            ? 'Example: If you used it yesterday and today, your current streak is 2 days.'
-                            : 'Ejemplo: Si la usaste ayer y hoy, tu racha actual es de 2 días.',
+                    title: AppLocalizations.of(context)!.currentStreak,
+                    description: AppLocalizations.of(context)!.streakInfoCurrentDesc,
+                    example: AppLocalizations.of(context)!.streakInfoCurrentExample,
                   ),
                   const SizedBox(height: 20),
 
@@ -992,15 +970,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                   _buildInfoSection(
                     icon: Icons.emoji_events,
                     color: Colors.amber,
-                    title: isEnglish ? 'Best Streak' : 'Mejor Racha',
-                    description:
-                        isEnglish
-                            ? 'Your personal record - the longest streak you\'ve ever achieved. It\'s always equal or greater than your current streak.'
-                            : 'Tu récord personal: la racha más larga que hayas logrado jamás. Siempre es igual o mayor que tu racha actual.',
-                    example:
-                        isEnglish
-                            ? 'Example: If your current streak is 2 days, your best streak is at least 2 days (or higher if you had a longer streak before).'
-                            : 'Ejemplo: Si tu racha actual son 2 días, tu mejor racha es de al menos 2 días (o mayor si tuviste una racha más larga antes).',
+                    title: AppLocalizations.of(context)!.bestStreak,
+                    description: AppLocalizations.of(context)!.streakInfoBestDesc,
+                    example: AppLocalizations.of(context)!.streakInfoBestExample,
                   ),
                   const SizedBox(height: 20),
 
@@ -1008,15 +980,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                   _buildInfoSection(
                     icon: Icons.favorite,
                     color: Colors.pink,
-                    title: isEnglish ? 'Total Scans' : 'Escaneos Totales',
-                    description:
-                        isEnglish
-                            ? 'The total number of love scans you\'ve performed since you started using the app.'
-                            : 'El número total de escaneos de amor que has realizado desde que empezaste a usar la app.',
-                    example:
-                        isEnglish
-                            ? 'Example: Every time you scan your crush compatibility, this number goes up.'
-                            : 'Ejemplo: Cada vez que escaneas la compatibilidad con tu crush, este número aumenta.',
+                    title: AppLocalizations.of(context)!.totalScans,
+                    description: AppLocalizations.of(context)!.streakInfoTotalDesc,
+                    example: AppLocalizations.of(context)!.streakInfoTotalExample,
                   ),
 
                   const SizedBox(height: 16),
@@ -1035,9 +1001,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                       ),
                     ),
                     child: Text(
-                      isEnglish
-                          ? '💡 Tip: Keep using the app daily to build your streak and discover your love compatibility!'
-                          : '💡 Consejo: ¡Sigue usando la app a diario para construir tu racha y descubrir tu compatibilidad amorosa!',
+                      AppLocalizations.of(context)!.streakInfoTip,
                       style: GoogleFonts.poppins(
                         fontSize: 12,
                         fontStyle: FontStyle.italic,
@@ -1053,7 +1017,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
               TextButton(
                 onPressed: () => Navigator.pop(context),
                 child: Text(
-                  isEnglish ? 'Got it!' : '¡Entendido!',
+                  AppLocalizations.of(context)!.gotIt,
                   style: GoogleFonts.poppins(
                     fontWeight: FontWeight.bold,
                     color: ThemeService.instance.primaryColor,
@@ -1173,137 +1137,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     );
   }
 
-  /// Get days text based on current locale
-  /// Obtener texto de días basado en el idioma actual
-  String _getDaysText(int count) {
-    final isEnglish = LocaleService.instance.currentLocale.languageCode == 'en';
-    if (isEnglish) {
-      return count == 1 ? 'day' : 'days';
-    } else {
-      return count == 1 ? 'día' : 'días';
-    }
-  }
-
-  /// Banner para nuevos usuarios
-  Widget _buildNewUserBanner() {
-    return FutureBuilder<int>(
-      future: MonetizationService.instance.getGracePeriodDaysRemaining(),
-      builder: (context, snapshot) {
-        final daysRemaining = snapshot.data ?? 0;
-        if (daysRemaining <= 0) return const SizedBox.shrink();
-        
-        return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Colors.green.shade400, Colors.teal.shade400],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.green.withOpacity(0.3),
-                blurRadius: 12,
-                offset: const Offset(0, 6),
-              ),
-            ],
-            border: Border.all(
-              color: Colors.white.withOpacity(0.2),
-              width: 1,
-            ),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withOpacity(0.2),
-                  border: Border.all(
-                    color: Colors.white.withOpacity(0.3),
-                    width: 2,
-                  ),
-                ),
-                child: const Icon(Icons.celebration, color: Colors.white, size: 24),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          '🎉 ',
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                        Expanded(
-                          child: Text(
-                            AppLocalizations.of(context)!.freeTrialBannerTitle,
-                            style: GoogleFonts.poppins(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            daysRemaining == 1
-                              ? AppLocalizations.of(context)!.freeTrialBannerDayLeft
-                              : AppLocalizations.of(context)!.freeTrialBannerDaysLeft(daysRemaining.toString()),
-                            style: GoogleFonts.poppins(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            AppLocalizations.of(context)!.freeTrialBannerUnlimited,
-                            style: GoogleFonts.poppins(
-                              fontSize: 12,
-                              color: Colors.white.withOpacity(0.9),
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      AppLocalizations.of(context)!.freeTrialBannerEnjoy,
-                      style: GoogleFonts.poppins(
-                        fontSize: 11,
-                        color: Colors.white.withOpacity(0.8),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Icon(Icons.favorite, color: Colors.white, size: 20),
-            ],
-          ),
-        ).animate().slideX(begin: 0.3).fadeIn().then(delay: 100.ms).shimmer(duration: 1.seconds);
-      },
-    );
-  }
-
   /// Banner de límites para usuarios regulares
   Widget _buildLimitsBanner() {
     return FutureBuilder<Map<String, dynamic>>(
@@ -1358,12 +1191,8 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                   children: [
                     Text(
                       remaining > 0 
-                        ? (LocaleService.instance.currentLocale.languageCode == 'en')
-                          ? '$remaining scans remaining today'
-                          : '$remaining escaneos restantes hoy'
-                        : (LocaleService.instance.currentLocale.languageCode == 'en')
-                          ? 'Limit reached!'
-                          : '¡Límite alcanzado!',
+                        ? AppLocalizations.of(context)!.scansRemainingToday(remaining)
+                        : AppLocalizations.of(context)!.limitReached,
                       style: GoogleFonts.poppins(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -1373,15 +1202,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                     Text(
                       remaining > 0
                         ? (canWatchAd 
-                          ? (LocaleService.instance.currentLocale.languageCode == 'en')
-                            ? 'Watch ad for +2 more'
-                            : 'Ver anuncio para +2 más'
-                          : (LocaleService.instance.currentLocale.languageCode == 'en')
-                            ? 'Upgrade for unlimited'
-                            : 'Upgradea para ilimitados')
-                        : (LocaleService.instance.currentLocale.languageCode == 'en')
-                          ? 'Watch ad or upgrade for more'
-                          : 'Ve anuncio o upgradea para más',
+                          ? AppLocalizations.of(context)!.watchAdForMore
+                          : AppLocalizations.of(context)!.upgradeForUnlimited)
+                        : AppLocalizations.of(context)!.watchAdOrUpgrade,
                       style: GoogleFonts.poppins(
                         fontSize: 12,
                         color: Colors.white.withOpacity(0.9),
@@ -1399,19 +1222,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     );
   }
 
-  Future<Map<String, dynamic>> _getWelcomeInfo() async {
-    final isNewUser = await MonetizationService.instance.isNewUser();
-    final daysRemaining = await MonetizationService.instance.getGracePeriodDaysRemaining();
-    
-    return {
-      'isNewUser': isNewUser,
-      'daysRemaining': daysRemaining,
-    };
-  }
-
   Future<Map<String, dynamic>> _getLimitsInfo() async {
     final remaining = await MonetizationService.instance.getRemainingScansTodayForFree();
-    final isPremium = await MonetizationService.instance.isPremiumWithGrace();
+    final isPremium = await MonetizationService.instance.isPremiumAsync();
     final canWatchAd = await MonetizationService.instance.canWatchAdForScans();
     
     return {
@@ -1432,7 +1245,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
             Icon(Icons.diamond, color: ThemeService.instance.primaryColor),
             const SizedBox(width: 8),
             Text(
-              'Premium Requerido',
+              AppLocalizations.of(context)!.premiumRequiredTitle,
               style: GoogleFonts.poppins(
                 fontWeight: FontWeight.bold,
                 color: ThemeService.instance.textColor,
@@ -1441,7 +1254,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
           ],
         ),
         content: Text(
-          'Esta función está disponible solo para usuarios Premium. ¡Actualiza ahora y desbloquea todas las funciones exclusivas!',
+          AppLocalizations.of(context)!.premiumRequiredContent,
           style: GoogleFonts.poppins(
             color: ThemeService.instance.subtitleColor,
           ),
@@ -1450,7 +1263,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
-              'Cancelar',
+              AppLocalizations.of(context)!.cancel,
               style: GoogleFonts.poppins(
                 color: ThemeService.instance.subtitleColor,
               ),
@@ -1474,7 +1287,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
               ),
             ),
             child: Text(
-              'Ver Premium',
+              AppLocalizations.of(context)!.viewPremium,
               style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
             ),
           ),

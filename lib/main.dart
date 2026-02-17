@@ -6,6 +6,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'screens/welcome_screen.dart';
 import 'screens/splash_screen.dart';
 
+import 'services/logger_service.dart';
 import 'services/theme_service.dart';
 import 'services/daily_love_service.dart';
 import 'services/audio_service.dart';
@@ -24,25 +25,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   try {
-    print("🚀 Iniciando Scanner Crush...");
+    LoggerService.info('Iniciando Scanner Crush...', origin: 'main');
 
-    // Initialize AdMob (con manejo de errores)
-    try {
-      await MobileAds.instance.initialize();
-      print("✅ AdMob inicializado");
-    } catch (e) {
-      print("⚠️ Error en AdMob: $e");
-    }
-
-    // Initialize AdMob Service (con manejo de errores)
-    try {
-      await AdMobService.instance.initialize();
-      print("✅ AdMobService inicializado");
-    } catch (e) {
-      print("⚠️ Error en AdMobService: $e");
-    }
-
-    // Set system UI overlay style
+    // ── System chrome (no bloquea) ──
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -51,60 +36,63 @@ void main() async {
       ),
     );
 
-    // Initialize services (SecureTimeService debe ser PRIMERO)
-    try {
-      await SecureTimeService.instance.initialize();
-      print("✅ SecureTimeService inicializado");
-    } catch (e) {
-      print("⚠️ Error en SecureTimeService: $e");
-    }
+    // ── Fase 1: Servicios críticos (deben ir primero y en orden) ──
+    await _initSafe('AdMob SDK', () => MobileAds.instance.initialize());
+    await _initSafe('SecureTimeService', () => SecureTimeService.instance.initialize());
 
-    await ThemeService.instance.initialize();
-    print("✅ ThemeService inicializado");
+    // ── Fase 2: Servicios de UI/UX (pueden correr en paralelo) ──
+    await Future.wait([
+      _initSafe('ThemeService', () => ThemeService.instance.initialize()),
+      _initSafe('LocaleService', () => LocaleService.instance.initialize()),
+      _initSafe('DailyLoveService', () => DailyLoveService.instance.initialize()),
+      _initSafe('AudioService', () => AudioService.instance.initialize()),
+      _initSafe('StreakService', () => StreakService.instance.initialize()),
+    ]);
 
-    await DailyLoveService.instance.initialize();
-    print("✅ DailyLoveService inicializado");
+    // ── Fase 3: Monetización (depende de SecureTimeService) ──
+    await Future.wait([
+      _initSafe('AdMobService', () => AdMobService.instance.initialize()),
+      _initSafe('MonetizationService', () => MonetizationService.instance.initialize()),
+    ]);
 
-    await AudioService.instance.initialize();
-    print("✅ AudioService inicializado");
+    // ── Fase 4: Servicios secundarios ──
+    await Future.wait([
+      _initSafe('PurchaseService', () => PurchaseService.instance.initialize()),
+      _initSafe('PremiumThemeService', () => PremiumThemeService.instance.initialize()),
+      _initSafe('AnalyticsService', () => AnalyticsService.instance.initialize()),
+    ]);
 
-    await LocaleService.instance.initialize();
-    print("✅ LocaleService inicializado");
+    // ── Fase 5: Tareas de mantenimiento (no bloquean el splash) ──
+    unawaited(
+      Future.wait([
+        _initSafe('PremiumCleanup', () => PremiumThemeService.instance.checkAndHandleExpiredPremium()),
+        _initSafe('FixInvalidResults', () => CrushService.instance.fixInvalidResults()),
+      ]),
+    );
 
-    await StreakService.instance.initialize();
-    print("✅ StreakService inicializado");
+    LoggerService.info('Todos los servicios inicializados correctamente', origin: 'main');
+  } catch (e, st) {
+    LoggerService.error('Error crítico en inicialización', origin: 'main', error: e, stackTrace: st);
+  }
 
-    // Initialize monetization service
-    await MonetizationService.instance.initialize();
-    print("✅ MonetizationService inicializado");
+  runApp(const ScannerCrushApp());
+}
 
-    // Initialize purchase service
-    await PurchaseService.instance.initialize();
-    print("✅ PurchaseService inicializado");
-
-    // Initialize premium services
-    await PremiumThemeService.instance.initialize();
-    print("✅ PremiumThemeService inicializado");
-
-    await AnalyticsService.instance.initialize();
-    print("✅ AnalyticsService inicializado");
-
-    // Check for expired premium theme access and clean up
-    await PremiumThemeService.instance.checkAndHandleExpiredPremium();
-    print("✅ Premium cleanup completado");
-
-    // Fix any invalid compatibility results from previous versions
-    await CrushService.instance.fixInvalidResults();
-    print("✅ CrushService fix completado");
-
-    print("🎉 ¡Todos los servicios inicializados correctamente!");
-    runApp(const ScannerCrushApp());
-  } catch (e) {
-    print("❌ Error crítico en inicialización: $e");
-    // Fallback: run app anyway
-    runApp(const ScannerCrushApp());
+/// Helper que envuelve cada inicialización en un try/catch individual
+/// para que un fallo no cancele las demás.
+Future<void> _initSafe(String name, Future<void> Function() init) async {
+  try {
+    await init();
+    LoggerService.info('$name inicializado', origin: 'init');
+  } catch (e, st) {
+    LoggerService.warning('$name falló: $e', origin: 'init', error: e);
+    // stack trace en debug
+    LoggerService.debug(st.toString(), origin: 'init');
   }
 }
+
+/// Fire-and-forget para futures que no deben bloquear el hilo principal.
+void unawaited(Future<void> future) {}
 
 class ScannerCrushApp extends StatefulWidget {
   const ScannerCrushApp({super.key});
@@ -139,8 +127,8 @@ class _ScannerCrushAppState extends State<ScannerCrushApp> {
                 GlobalCupertinoLocalizations.delegate,
               ],
               supportedLocales: LocaleService.instance.supportedLocales,
-              theme: _buildLightTheme(),
-              darkTheme: _buildDarkTheme(),
+              theme: _buildTheme(Brightness.light),
+              darkTheme: _buildTheme(Brightness.dark),
               themeMode:
                   ThemeService.instance.isDarkMode
                       ? ThemeMode.dark
@@ -157,95 +145,33 @@ class _ScannerCrushAppState extends State<ScannerCrushApp> {
     );
   }
 
-  ThemeData _buildLightTheme() {
-    return ThemeData(
-      primarySwatch: Colors.pink,
-      primaryColor: ThemeService.instance.primaryColor,
-      scaffoldBackgroundColor: Colors.transparent,
-      visualDensity: VisualDensity.adaptivePlatformDensity,
-      textTheme: GoogleFonts.poppinsTextTheme().copyWith(
-        bodyLarge: TextStyle(color: ThemeService.instance.textColor),
-        bodyMedium: TextStyle(color: ThemeService.instance.textColor),
-        titleLarge: TextStyle(color: ThemeService.instance.textColor),
-        titleMedium: TextStyle(color: ThemeService.instance.textColor),
-        titleSmall: TextStyle(color: ThemeService.instance.textColor),
-      ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          elevation: 8,
-          shadowColor: ThemeService.instance.primaryColor.withAlpha(77),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(25),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-        ),
-      ),
-      inputDecorationTheme: InputDecorationTheme(
-        filled: true,
-        fillColor: ThemeService.instance.cardColor,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(20),
-          borderSide: BorderSide.none,
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(20),
-          borderSide: BorderSide(
-            color: ThemeService.instance.primaryColor,
-            width: 2,
-          ),
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 20,
-          vertical: 16,
-        ),
-      ),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        systemOverlayStyle: SystemUiOverlayStyle.light,
-      ),
-      cardTheme: CardTheme(
-        color: ThemeService.instance.cardColor,
-        elevation: 8,
-        shadowColor: Colors.black.withAlpha(26),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      ),
-      dialogTheme: DialogTheme(
-        backgroundColor: ThemeService.instance.cardColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        titleTextStyle: TextStyle(
-          color: ThemeService.instance.textColor,
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-        ),
-        contentTextStyle: TextStyle(
-          color: ThemeService.instance.subtitleColor,
-          fontSize: 16,
-        ),
-      ),
-    );
-  }
+  /// Genera [ThemeData] unificado para evitar duplicación light/dark.
+  ThemeData _buildTheme(Brightness brightness) {
+    final ts = ThemeService.instance;
+    final isDark = brightness == Brightness.dark;
+    final base = isDark ? ThemeData.dark() : ThemeData.light();
 
-  ThemeData _buildDarkTheme() {
-    return ThemeData(
-      brightness: Brightness.dark,
-      primarySwatch: Colors.pink,
-      primaryColor: ThemeService.instance.primaryColor,
+    return base.copyWith(
+      primaryColor: ts.primaryColor,
       scaffoldBackgroundColor: Colors.transparent,
       visualDensity: VisualDensity.adaptivePlatformDensity,
-      textTheme: GoogleFonts.poppinsTextTheme(
-        ThemeData.dark().textTheme,
-      ).copyWith(
-        bodyLarge: TextStyle(color: ThemeService.instance.textColor),
-        bodyMedium: TextStyle(color: ThemeService.instance.textColor),
-        titleLarge: TextStyle(color: ThemeService.instance.textColor),
-        titleMedium: TextStyle(color: ThemeService.instance.textColor),
-        titleSmall: TextStyle(color: ThemeService.instance.textColor),
+      colorScheme: base.colorScheme.copyWith(
+        primary: ts.primaryColor,
+        secondary: ts.secondaryColor,
+        surface: ts.surfaceColor,
+        brightness: brightness,
+      ),
+      textTheme: GoogleFonts.poppinsTextTheme(base.textTheme).copyWith(
+        bodyLarge: TextStyle(color: ts.textColor),
+        bodyMedium: TextStyle(color: ts.textColor),
+        titleLarge: TextStyle(color: ts.textColor),
+        titleMedium: TextStyle(color: ts.textColor),
+        titleSmall: TextStyle(color: ts.textColor),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           elevation: 8,
-          shadowColor: ThemeService.instance.primaryColor.withAlpha(102),
+          shadowColor: ts.primaryColor.withAlpha(isDark ? 102 : 77),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(25),
           ),
@@ -254,29 +180,22 @@ class _ScannerCrushAppState extends State<ScannerCrushApp> {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: ThemeService.instance.cardColor,
+        fillColor: ts.cardColor,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20),
           borderSide: BorderSide.none,
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(20),
-          borderSide: BorderSide(
-            color: ThemeService.instance.borderColor,
-            width: 1,
-          ),
-        ),
+        enabledBorder: isDark
+            ? OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
+                borderSide: BorderSide(color: ts.borderColor, width: 1),
+              )
+            : null,
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20),
-          borderSide: BorderSide(
-            color: ThemeService.instance.primaryColor,
-            width: 2,
-          ),
+          borderSide: BorderSide(color: ts.primaryColor, width: 2),
         ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 20,
-          vertical: 16,
-        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       ),
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
@@ -284,42 +203,44 @@ class _ScannerCrushAppState extends State<ScannerCrushApp> {
         systemOverlayStyle: SystemUiOverlayStyle.light,
       ),
       cardTheme: CardTheme(
-        color: ThemeService.instance.cardColor,
+        color: ts.cardColor,
         elevation: 8,
-        shadowColor: Colors.black.withAlpha(77),
+        shadowColor: Colors.black.withAlpha(isDark ? 77 : 26),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
       dialogTheme: DialogTheme(
-        backgroundColor: ThemeService.instance.cardColor,
+        backgroundColor: ts.cardColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         titleTextStyle: TextStyle(
-          color: ThemeService.instance.textColor,
+          color: ts.textColor,
           fontSize: 20,
           fontWeight: FontWeight.bold,
         ),
         contentTextStyle: TextStyle(
-          color: ThemeService.instance.subtitleColor,
+          color: ts.subtitleColor,
           fontSize: 16,
         ),
       ),
-      switchTheme: SwitchThemeData(
-        thumbColor: WidgetStateProperty.resolveWith<Color>((
-          Set<WidgetState> states,
-        ) {
-          if (states.contains(WidgetState.selected)) {
-            return ThemeService.instance.primaryColor;
-          }
-          return ThemeService.instance.subtitleColor;
-        }),
-        trackColor: WidgetStateProperty.resolveWith<Color>((
-          Set<WidgetState> states,
-        ) {
-          if (states.contains(WidgetState.selected)) {
-            return ThemeService.instance.primaryColor.withAlpha(128);
-          }
-          return ThemeService.instance.borderColor;
-        }),
-      ),
+      switchTheme: isDark
+          ? SwitchThemeData(
+              thumbColor: WidgetStateProperty.resolveWith<Color>(
+                (Set<WidgetState> states) {
+                  if (states.contains(WidgetState.selected)) {
+                    return ts.primaryColor;
+                  }
+                  return ts.subtitleColor;
+                },
+              ),
+              trackColor: WidgetStateProperty.resolveWith<Color>(
+                (Set<WidgetState> states) {
+                  if (states.contains(WidgetState.selected)) {
+                    return ts.primaryColor.withAlpha(128);
+                  }
+                  return ts.borderColor;
+                },
+              ),
+            )
+          : null,
     );
   }
 }

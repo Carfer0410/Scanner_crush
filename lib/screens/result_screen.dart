@@ -70,13 +70,18 @@ class _ResultScreenState extends State<ResultScreen>
     });
 
     _loadBannerAd();
+
+    // Track user action para sistema de frecuencia de anuncios
+    AdMobService.instance.trackUserAction();
   }
 
   void _loadBannerAd() async {
-    // Initialize banner ad for non-premium users (incluyendo período de gracia)
-    if (!await MonetizationService.instance.isPremiumWithGrace()) {
+    // Initialize banner ad for non-premium users
+    if (!await MonetizationService.instance.isPremiumAsync()) {
       _bannerAd = AdMobService.instance.createBannerAd();
-      _bannerAd!.load();
+      _bannerAd!.load().then((_) {
+        if (mounted) setState(() {});
+      });
     }
   }
 
@@ -101,7 +106,8 @@ class _ResultScreenState extends State<ResultScreen>
 
   Future<void> _shareResult() async {
     try {
-      await Share.share(widget.result.shareText);
+      final langCode = Localizations.localeOf(context).languageCode;
+      await Share.share(widget.result.getShareText(languageCode: langCode));
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -129,43 +135,51 @@ class _ResultScreenState extends State<ResultScreen>
     
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text('¡Límite alcanzado! 🎯'),
-        content: Text(
-          canWatchAd 
-            ? 'Has usado todos tus escaneos de hoy. ¿Qué quieres hacer?'
-            : 'Has usado todos tus escaneos de hoy. Upgradeaa Premium para escaneos ilimitados.',
-        ),
-        actions: [
-          if (canWatchAd) ...[
+      builder: (context) {
+        final localizations = AppLocalizations.of(context);
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          backgroundColor: ThemeService.instance.cardColor,
+          title: Text(
+            localizations?.limitReachedTitle ?? '¡Límite alcanzado! 🎯',
+            style: TextStyle(color: ThemeService.instance.textColor),
+          ),
+          content: Text(
+            canWatchAd 
+              ? (localizations?.limitReachedBody ?? 'Has usado todos tus escaneos de hoy. ¿Qué quieres hacer?')
+              : (localizations?.upgradeForUnlimited ?? 'Has usado todos tus escaneos de hoy. Upgrade a Premium para escaneos ilimitados.'),
+            style: TextStyle(color: ThemeService.instance.textColor),
+          ),
+          actions: [
+            if (canWatchAd) ...[
+              TextButton(
+                onPressed: () async {
+                  Navigator.pop(context);
+                  await _watchAdForMoreScans();
+                },
+                child: Text(localizations?.watchAdForScans ?? 'Ver anuncio (+2 escaneos)'),
+              ),
+            ],
             TextButton(
               onPressed: () async {
                 Navigator.pop(context);
-                await _watchAdForMoreScans();
-              },
-              child: Text('Ver anuncio (+2 escaneos)'),
-            ),
-          ],
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              final result = await Navigator.push<bool>(
-                context,
-                MaterialPageRoute(builder: (context) => const PremiumScreen()),
+                final result = await Navigator.push<bool>(
+                  context,
+                  MaterialPageRoute(builder: (context) => const PremiumScreen()),
               );
               if (result == true && mounted) {
                 _navigateToForm();
               }
             },
-            child: Text('Ir a Premium'),
+            child: Text(localizations?.goPremium ?? 'Ir a Premium'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Esperar hasta mañana'),
+            child: Text(localizations?.waitUntilTomorrow ?? 'Esperar hasta mañana'),
           ),
         ],
-      ),
+      );
+      },
     );
   }
 
@@ -185,7 +199,7 @@ class _ResultScreenState extends State<ResultScreen>
             ),
             const SizedBox(height: 16),
             Text(
-              'Cargando anuncio...',
+              AppLocalizations.of(context)?.processing ?? 'Cargando anuncio...',
               style: GoogleFonts.poppins(
                 color: Colors.white,
                 fontSize: 16,
@@ -204,7 +218,7 @@ class _ResultScreenState extends State<ResultScreen>
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('¡+2 escaneos ganados! Ahora puedes escanear de nuevo 🎉'),
+          content: Text(AppLocalizations.of(context)?.extraScansWon ?? '¡+2 escaneos ganados! Ahora puedes escanear de nuevo 🎉'),
           backgroundColor: Colors.green,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -216,7 +230,7 @@ class _ResultScreenState extends State<ResultScreen>
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('No hay anuncios disponibles. Intenta más tarde.'),
+          content: Text(AppLocalizations.of(context)?.noAdsAvailable ?? 'No hay anuncios disponibles. Intenta más tarde.'),
           backgroundColor: Colors.orange,
           duration: const Duration(seconds: 6),
         ),
@@ -225,9 +239,9 @@ class _ResultScreenState extends State<ResultScreen>
   }
 
   void _navigateToForm() async {
-    // Mostrar anuncio intersticial si no es premium (incluyendo período de gracia)
-    final isPremiumWithGrace = await MonetizationService.instance.isPremiumWithGrace();
-    if (!isPremiumWithGrace) {
+    // Mostrar anuncio intersticial si no es premium
+    final isPremium = await MonetizationService.instance.isPremiumAsync();
+    if (!isPremium) {
       final shouldShow = await AdMobService.instance.shouldShowInterstitialAd();
       if (shouldShow && AdMobService.instance.isInterstitialAdReady) {
         await AdMobService.instance.showInterstitialAd();
@@ -538,12 +552,12 @@ class _ResultScreenState extends State<ResultScreen>
 
                       const SizedBox(height: 20),
 
-                      // Ad banner for non-premium users (incluyendo período de gracia)
+                      // Ad banner for non-premium users
                       FutureBuilder<bool>(
-                        future: MonetizationService.instance.isPremiumWithGrace(),
+                        future: MonetizationService.instance.isPremiumAsync(),
                         builder: (context, snapshot) {
-                          final isPremiumWithGrace = snapshot.data ?? false;
-                          if (!isPremiumWithGrace && _bannerAd != null) {
+                          final isPremium = snapshot.data ?? false;
+                          if (!isPremium && _bannerAd != null) {
                             return Container(
                               margin: const EdgeInsets.symmetric(horizontal: 20),
                               height: 50,

@@ -31,51 +31,62 @@ class CrushResult {
 
   factory CrushResult.fromJson(Map<String, dynamic> json) {
     return CrushResult(
-      userName: json['userName'],
-      crushName: json['crushName'],
-      percentage: json['percentage'],
-      message: json['message'],
-      emoji: json['emoji'],
-      timestamp: DateTime.parse(json['timestamp']),
-      isCelebrity: json['isCelebrity'] ?? false,
+      userName: json['userName'] as String? ?? '',
+      crushName: json['crushName'] as String? ?? '',
+      percentage: (json['percentage'] as num?)?.toInt() ?? 50,
+      message: json['message'] as String? ?? '',
+      emoji: json['emoji'] as String? ?? '💕',
+      timestamp: DateTime.tryParse(json['timestamp'] as String? ?? '') ?? DateTime.now(),
+      isCelebrity: json['isCelebrity'] as bool? ?? false,
     );
   }
 
-  String get shareText {
+  /// Share text — adapts language based on [languageCode] ('en' or 'es')
+  String getShareText({String languageCode = 'es'}) {
+    final isEn = languageCode == 'en';
     String viralHook;
     String hashtags;
 
     if (isCelebrity) {
       viralHook =
           percentage >= 80
-              ? '🌟 ¡MI CELEBRITY CRUSH ES COMPATIBLE! 🌟'
+              ? (isEn ? '🌟 MY CELEBRITY CRUSH IS COMPATIBLE! 🌟' : '🌟 ¡MI CELEBRITY CRUSH ES COMPATIBLE! 🌟')
               : percentage >= 60
-              ? '✨ ¡TENGO QUÍMICA CON UNA CELEBRIDAD! ✨'
+              ? (isEn ? '✨ I HAVE CHEMISTRY WITH A CELEBRITY! ✨' : '✨ ¡TENGO QUÍMICA CON UNA CELEBRIDAD! ✨')
               : percentage >= 45
-              ? '🎭 Mi crush celebrity... interesante 🎭'
-              : '😅 Bueno, es una celebridad... 😅';
+              ? (isEn ? '🎭 My celebrity crush... interesting 🎭' : '🎭 Mi crush celebrity... interesante 🎭')
+              : (isEn ? '😅 Well, they\'re a celebrity... 😅' : '😅 Bueno, es una celebridad... 😅');
 
-      hashtags =
-          '#CelebrityCrush #EscanerDeCrush #Hollywood #Crush #Amor #Celebridades #Famosos';
+      hashtags = '#CelebrityCrush #CrushScanner #Hollywood #Crush';
     } else {
       viralHook =
           percentage >= 80
-              ? '🔥 ¡COMPATIBILIDAD PERFECTA! 🔥'
+              ? (isEn ? '🔥 PERFECT COMPATIBILITY! 🔥' : '🔥 ¡COMPATIBILIDAD PERFECTA! 🔥')
               : percentage >= 60
-              ? '💖 ¡Hay química aquí! 💖'
+              ? (isEn ? '💖 There\'s chemistry here! 💖' : '💖 ¡Hay química aquí! 💖')
               : percentage >= 45
-              ? '🤔 Interesante... 🤔'
-              : '😅 Ups... 😅';
+              ? (isEn ? '🤔 Interesting... 🤔' : '🤔 Interesante... 🤔')
+              : (isEn ? '😅 Oops... 😅' : '😅 Ups... 😅');
 
-      hashtags = '#EscanerDeCrush #Crush #Amor #Compatibilidad';
+      hashtags = '#CrushScanner #Crush #Love #Compatibility';
     }
 
+    final myCompatibility = isEn ? 'My compatibility' : 'Mi compatibilidad';
+    final withText = isCelebrity
+        ? (isEn ? 'with my celebrity crush' : 'con mi celebrity crush')
+        : (isEn ? 'with my crush' : 'con mi crush');
+    final whatIsYours = isEn ? 'What\'s YOUR compatibility? 👀' : '¿Cuál es TU compatibilidad? 👀';
+    final downloadIt = isEn ? 'Download: Crush Scanner 💕' : 'Descárgalo: Escáner de Crush 💕';
+
     return '$viralHook\n\n'
-        '💘 Mi compatibilidad ${isCelebrity ? 'con mi celebrity crush' : 'con mi crush'}:\n'
+        '💘 $myCompatibility $withText:\n'
         '$userName + $crushName = $percentage% $emoji\n\n'
         '$message\n\n'
-        '¿Cuál es TU compatibilidad? 👀\n'
-        'Descárgalo: Escáner de Crush 💕\n\n'
+        '$whatIsYours\n'
+        '$downloadIt\n\n'
         '$hashtags';
   }
+
+  /// Legacy getter for backward compatibility
+  String get shareText => getShareText();
 }

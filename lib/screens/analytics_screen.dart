@@ -6,6 +6,8 @@ import '../widgets/custom_widgets.dart';
 import '../services/theme_service.dart';
 import '../services/analytics_service.dart';
 import '../services/monetization_service.dart';
+import '../services/admob_service.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../screens/premium_screen.dart';
 
 class AnalyticsScreen extends StatefulWidget {
@@ -22,11 +24,28 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
   List<LovePrediction>? _predictions;
   bool _isLoading = true;
   String? _errorMessage;
+  bool _isPremium = false;
+  bool _insightsUnlockedByAd = false;
+  bool _predictionsUnlockedByAd = false;
+  bool _isLoadingInsights = false;
+  bool _isLoadingPredictions = false;
+  BannerAd? _bannerAd;
+  bool _isBannerAdReady = false;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _loadBannerAd();
+  }
+
+  void _loadBannerAd() async {
+    if (!await MonetizationService.instance.isPremiumAsync()) {
+      _bannerAd = AdMobService.instance.createBannerAd();
+      _bannerAd?.load().then((_) {
+        if (mounted) setState(() { _isBannerAdReady = true; });
+      });
+    }
   }
 
   @override
@@ -38,50 +57,113 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
   }
 
   Future<void> _checkPremiumAndLoad() async {
-    final isPremiumWithGrace = await MonetizationService.instance.isPremiumWithGrace();
-    if (isPremiumWithGrace) {
-      _loadAnalytics();
-    } else {
-      setState(() {
-        _isLoading = false;
-      });
+    _isPremium = await MonetizationService.instance.isPremiumAsync();
+    // Siempre cargar estadísticas (gratis para todos)
+    await _loadStats();
+    // Track que el usuario abrió analytics
+    AdMobService.instance.trackUserAction();
+    // Insights y predictions solo se cargan si es premium
+    if (_isPremium) {
+      await _loadInsightsAndPredictions();
+    }
+  }
+
+  Future<void> _loadStats() async {
+    try {
+      final stats = await AnalyticsService.instance.getCompatibilityStats();
+      if (mounted) {
+        setState(() {
+          _stats = stats;
+          _isLoading = false;
+          _errorMessage = null;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = e.toString();
+        });
+      }
+    }
+  }
+
+  Future<void> _loadInsightsAndPredictions() async {
+    try {
+      final loc = AppLocalizations.of(context)!;
+      final results = await Future.wait([
+        AnalyticsService.instance.getPersonalInsights(loc, bypassPremiumCheck: true),
+        AnalyticsService.instance.getLovePredictions(loc, bypassPremiumCheck: true),
+      ]).timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          throw Exception('Timeout loading analytics.');
+        },
+      );
+      if (mounted) {
+        setState(() {
+          _insights = results[0] as List<PersonalInsight>;
+          _predictions = results[1] as List<LovePrediction>;
+        });
+      }
+    } catch (e) {
+      // Non-critical: insights/predictions failed but stats still work
+    }
+  }
+
+  /// Ver anuncio para desbloquear insights temporalmente
+  Future<void> _unlockInsightsByAd() async {
+    setState(() { _isLoadingInsights = true; });
+    final shown = await AdMobService.instance.showRewardedAd(
+      onUserEarnedReward: (ad, reward) async {
+        if (mounted) {
+          setState(() { _insightsUnlockedByAd = true; });
+          await _loadInsightsAndPredictions();
+        }
+      },
+    );
+    if (mounted) {
+      setState(() { _isLoadingInsights = false; });
+      if (!shown) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context)?.adNotAvailable ?? 'Ad not available right now'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+    }
+  }
+
+  /// Ver anuncio para desbloquear predictions temporalmente
+  Future<void> _unlockPredictionsByAd() async {
+    setState(() { _isLoadingPredictions = true; });
+    final shown = await AdMobService.instance.showRewardedAd(
+      onUserEarnedReward: (ad, reward) async {
+        if (mounted) {
+          setState(() { _predictionsUnlockedByAd = true; });
+          await _loadInsightsAndPredictions();
+        }
+      },
+    );
+    if (mounted) {
+      setState(() { _isLoadingPredictions = false; });
+      if (!shown) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context)?.adNotAvailable ?? 'Ad not available right now'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
     }
   }
 
   @override
   void dispose() {
+    _bannerAd?.dispose();
     _tabController.dispose();
     super.dispose();
-  }
-
-  Future<void> _loadAnalytics() async {
-    try {
-      final loc = AppLocalizations.of(context)!;
-      // Agregar timeout para evitar carga infinita
-      final results = await Future.wait([
-        AnalyticsService.instance.getCompatibilityStats(),
-        AnalyticsService.instance.getPersonalInsights(loc),
-        AnalyticsService.instance.getLovePredictions(loc),
-      ]).timeout(
-        const Duration(seconds: 10),
-        onTimeout: () {
-          throw Exception('Timeout loading analytics. Please try again.');
-        },
-      );
-
-      setState(() {
-        _stats = results[0] as CompatibilityStats;
-        _insights = results[1] as List<PersonalInsight>;
-        _predictions = results[2] as List<LovePrediction>;
-        _isLoading = false;
-        _errorMessage = null; // Clear any previous error
-      });
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-        _errorMessage = e.toString();
-      });
-    }
   }
 
   @override
@@ -114,35 +196,34 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
                       ),
                     ),
                     const Spacer(),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Colors.purple, Colors.pink],
+                    if (_isPremium)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [ThemeService.instance.primaryColor, ThemeService.instance.secondaryColor],
+                          ),
+                          borderRadius: BorderRadius.circular(20),
                         ),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        'PREMIUM',
-                        style: GoogleFonts.poppins(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                        child: Text(
+                          'PREMIUM',
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
                         ),
-                      ),
-                    ),
+                      )
+                    else
+                      const SizedBox(width: 48),
                   ],
                 ),
               ),
 
               FutureBuilder<bool>(
-                future: MonetizationService.instance.isPremiumWithGrace(),
+                future: MonetizationService.instance.isPremiumAsync(),
                 builder: (context, snapshot) {
-                  final isPremiumWithGrace = snapshot.data ?? false;
-                  
-                  if (!isPremiumWithGrace) {
-                    return _buildPremiumRequired();
-                  } else if (_isLoading) {
+                  if (_isLoading) {
                     return _buildLoadingScreen();
                   } else if (_errorMessage != null) {
                     return _buildErrorScreen();
@@ -151,6 +232,15 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
                   }
                 },
               ),
+
+              // Banner ad para usuarios no premium
+              if (_bannerAd != null && _isBannerAdReady && !_isPremium)
+                Container(
+                  alignment: Alignment.center,
+                  width: _bannerAd!.size.width.toDouble(),
+                  height: _bannerAd!.size.height.toDouble(),
+                  child: AdWidget(ad: _bannerAd!),
+                ),
             ],
           ),
         ),
@@ -158,70 +248,80 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
     );
   }
 
-  Widget _buildPremiumRequired() {
-    return Expanded(
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: LinearGradient(
-                    colors: [Colors.purple, Colors.pink],
-                  ),
+  /// Widget reutilizable para prompt de desbloqueo por anuncio
+  Widget _buildAdUnlockPrompt({
+    required IconData icon,
+    required String description,
+    required String buttonText,
+    required bool isLoading,
+    required VoidCallback onWatchAd,
+  }) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  colors: [
+                    ThemeService.instance.primaryColor.withOpacity(0.8),
+                    ThemeService.instance.secondaryColor.withOpacity(0.8),
+                  ],
                 ),
-                child: Icon(
-                  Icons.analytics,
-                  color: Colors.white,
-                  size: 60,
-                ),
-              ).animate().scale(delay: 200.ms),
+              ),
+              child: Icon(icon, color: Colors.white, size: 48),
+            ).animate().scale(delay: 200.ms),
 
-              const SizedBox(height: 30),
+            const SizedBox(height: 24),
 
-                          Text(
-                            AppLocalizations.of(context)?.analyticsPremium ?? '',
+            Text(
+              description,
+              style: GoogleFonts.poppins(
+                fontSize: 15,
+                color: ThemeService.instance.subtitleColor,
+                height: 1.5,
+              ),
+              textAlign: TextAlign.center,
+            ).animate().fadeIn(delay: 400.ms),
+
+            const SizedBox(height: 32),
+
+            // Botón ver anuncio
+            isLoading
+                ? CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(ThemeService.instance.primaryColor),
+                  )
+                : GradientButton(
+                    text: buttonText,
+                    icon: Icons.play_circle_outline,
+                    onPressed: onWatchAd,
+                  ).animate().scale(delay: 600.ms),
+
+            const SizedBox(height: 16),
+
+            // Enlace a premium
+            TextButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const PremiumScreen()),
+                );
+              },
+              child: Text(
+                AppLocalizations.of(context)?.orGetPremium ?? 'o hazte Premium',
                 style: GoogleFonts.poppins(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: ThemeService.instance.textColor,
+                  fontSize: 14,
+                  color: ThemeService.instance.primaryColor,
+                  fontWeight: FontWeight.w600,
                 ),
-                textAlign: TextAlign.center,
-              ).animate().fadeIn(delay: 400.ms),
-
-              const SizedBox(height: 16),
-
-                          Text(
-                            AppLocalizations.of(context)?.unlockDeepInsights ?? '',
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
-                  color: ThemeService.instance.subtitleColor,
-                  height: 1.5,
-                ),
-                textAlign: TextAlign.center,
-              ).animate().fadeIn(delay: 600.ms),
-
-              const SizedBox(height: 40),
-
-              GradientButton(
-                            text: AppLocalizations.of(context)?.upgradeToPremiumAnalytics ?? '',
-                icon: Icons.diamond,
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const PremiumScreen(),
-                    ),
-                  );
-                },
-              ).animate().scale(delay: 800.ms),
-            ],
-          ),
+              ),
+            ).animate().fadeIn(delay: 800.ms),
+          ],
         ),
       ),
     );
@@ -283,7 +383,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _loadAnalytics,
+              onPressed: () {
+                setState(() { _isLoading = true; _errorMessage = null; });
+                _checkPremiumAndLoad();
+              },
               child: Text(AppLocalizations.of(context)?.retry ?? ''),
             ),
           ],
@@ -406,6 +509,37 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
   }
 
   Widget _buildInsightsTab() {
+    // Si no es premium y no ha desbloqueado por anuncio, mostrar prompt
+    if (!_isPremium && !_insightsUnlockedByAd) {
+      return _buildAdUnlockPrompt(
+        icon: Icons.insights,
+        description: AppLocalizations.of(context)?.insightsLockedDescription ??
+            'Descubre patrones únicos sobre tu vida amorosa. Mira un breve anuncio o hazte Premium.',
+        buttonText: AppLocalizations.of(context)?.watchAdToUnlockInsights ?? 'Ver anuncio para desbloquear',
+        isLoading: _isLoadingInsights,
+        onWatchAd: _unlockInsightsByAd,
+      );
+    }
+
+    // Loading después de ver anuncio
+    if (_isLoadingInsights && (_insights == null || _insights!.isEmpty)) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(ThemeService.instance.primaryColor),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              AppLocalizations.of(context)?.analyzingLoveLife ?? '',
+              style: GoogleFonts.poppins(fontSize: 14, color: ThemeService.instance.subtitleColor),
+            ),
+          ],
+        ),
+      );
+    }
+
     if (_insights == null || _insights!.isEmpty) {
       return Center(
         child: Column(
@@ -498,6 +632,37 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
   }
 
   Widget _buildPredictionsTab() {
+    // Si no es premium y no ha desbloqueado por anuncio, mostrar prompt
+    if (!_isPremium && !_predictionsUnlockedByAd) {
+      return _buildAdUnlockPrompt(
+        icon: Icons.auto_awesome,
+        description: AppLocalizations.of(context)?.predictionsLockedDescription ??
+            'Obtén predicciones personalizadas sobre tu futuro amoroso. Mira un breve anuncio o hazte Premium.',
+        buttonText: AppLocalizations.of(context)?.watchAdToUnlockPredictions ?? 'Ver anuncio para desbloquear',
+        isLoading: _isLoadingPredictions,
+        onWatchAd: _unlockPredictionsByAd,
+      );
+    }
+
+    // Loading después de ver anuncio
+    if (_isLoadingPredictions && (_predictions == null || _predictions!.isEmpty)) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(ThemeService.instance.primaryColor),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              AppLocalizations.of(context)?.analyzingLoveLife ?? '',
+              style: GoogleFonts.poppins(fontSize: 14, color: ThemeService.instance.subtitleColor),
+            ),
+          ],
+        ),
+      );
+    }
+
     if (_predictions == null || _predictions!.isEmpty) {
       return Center(
         child: Column(

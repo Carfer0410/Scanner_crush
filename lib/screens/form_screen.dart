@@ -10,6 +10,8 @@ import '../services/audio_service.dart';
 import '../services/streak_service.dart';
 import '../services/locale_service.dart';
 import '../services/monetization_service.dart';
+import '../services/admob_service.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'result_screen.dart';
 import 'premium_screen.dart';
@@ -26,9 +28,27 @@ class _FormScreenState extends State<FormScreen> {
   final _userNameController = TextEditingController();
   final _crushNameController = TextEditingController();
   bool _isLoading = false;
+  BannerAd? _bannerAd;
+  bool _isBannerAdReady = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBannerAd();
+  }
+
+  void _loadBannerAd() async {
+    if (!await MonetizationService.instance.isPremiumAsync()) {
+      _bannerAd = AdMobService.instance.createBannerAd();
+      _bannerAd?.load().then((_) {
+        if (mounted) setState(() { _isBannerAdReady = true; });
+      });
+    }
+  }
 
   @override
   void dispose() {
+    _bannerAd?.dispose();
     _userNameController.dispose();
     _crushNameController.dispose();
     super.dispose();
@@ -62,8 +82,8 @@ class _FormScreenState extends State<FormScreen> {
       // Simulate scanning process
       await Future.delayed(const Duration(seconds: 2));
 
-      // 🔒 VERIFICACIÓN DE SEGURIDAD PRIMERO
-      final streakUpdate = await StreakService.instance.recordScan();
+      // 🔒 VERIFICACIÓN DE SEGURIDAD PRIMERO (sin registrar racha aún)
+      final streakUpdate = await StreakService.instance.checkManipulation();
       
       // 🚨 BLOQUEAR ESCANEO SI HAY MANIPULACIÓN DETECTADA
       if (streakUpdate.manipulationDetected) {
@@ -101,13 +121,10 @@ class _FormScreenState extends State<FormScreen> {
         return; // 🛑 DETENER ESCANEO AQUÍ
       }
 
-      // Registrar el escaneo para límites solo si no hay manipulación
-      await MonetizationService.instance.recordScan();
-
       // Get localizations safely
       final localizations = AppLocalizations.of(context);
 
-      // Generate result with proper null handling
+      // Generate result FIRST (before recording scan/streak)
       final result =
           localizations != null
               ? await CrushService.instance.generateResult(
@@ -120,9 +137,16 @@ class _FormScreenState extends State<FormScreen> {
                 _crushNameController.text.trim(),
               );
 
+      // Only record scan AFTER successful result generation
+      await MonetizationService.instance.recordScan();
+      final streakResult = await StreakService.instance.recordScan();
+
+      // Track user action para sistema de frecuencia de anuncios
+      AdMobService.instance.trackUserAction();
+
       // Show streak feedback message solo si no fue manipulación
-      if (mounted && !streakUpdate.alreadyScannedToday && !streakUpdate.manipulationDetected) {
-        final message = streakUpdate.getFeedbackMessage(
+      if (mounted && !streakResult.alreadyScannedToday && !streakResult.manipulationDetected) {
+        final message = streakResult.getFeedbackMessage(
           LocaleService.instance.currentLocale.languageCode,
         );
 
@@ -131,7 +155,7 @@ class _FormScreenState extends State<FormScreen> {
             content: Row(
               children: [
                 Icon(
-                  streakUpdate.isNewRecord
+                  streakResult.isNewRecord
                       ? Icons.emoji_events
                       : Icons.local_fire_department,
                   color: Colors.white,
@@ -150,9 +174,9 @@ class _FormScreenState extends State<FormScreen> {
               ],
             ),
             backgroundColor:
-                streakUpdate.isNewRecord
+                streakResult.isNewRecord
                     ? Colors.amber.shade600
-                    : streakUpdate.streakBroken
+                    : streakResult.streakBroken
                     ? Colors.orange.shade600
                     : Colors.green.shade600,
             duration: const Duration(seconds: 6),
@@ -218,13 +242,6 @@ class _FormScreenState extends State<FormScreen> {
   Future<void> _showLimitDialog() async {
     final remainingScans = await MonetizationService.instance.getRemainingScansTodayForFree();
     final canWatchAd = await MonetizationService.instance.canWatchAdForScans();
-    final isNewUser = await MonetizationService.instance.isNewUser();
-    
-    if (isNewUser) {
-      final daysRemaining = await MonetizationService.instance.getGracePeriodDaysRemaining();
-      _showNewUserMessage(daysRemaining);
-      return;
-    }
 
     showDialog(
       context: context,
@@ -235,38 +252,6 @@ class _FormScreenState extends State<FormScreen> {
           Navigator.pop(context);
           _navigateToPremium();
         },
-      ),
-    );
-  }
-
-  void _showNewUserMessage(int daysRemaining) {
-    final localizations = AppLocalizations.of(context);
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Row(
-          children: [
-            Icon(Icons.celebration, color: Colors.amber, size: 28),
-            const SizedBox(width: 8),
-            Text(localizations?.welcomeToPremium ?? '¡Bienvenido!', style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
-          ],
-        ),
-        content: Text(
-          localizations?.trialPeriod != null
-            ? '🎉 ${localizations!.trialPeriod}\n\n${localizations.unlimitedScansRemaining(daysRemaining)}\n\n${localizations.enjoyAllFeatures}'
-            : '🎉 ¡Estás en período de prueba!\n\nTienes $daysRemaining días con escaneos ILIMITADOS para probar todas las funciones.\n\n¡Disfrútalo! 💕',
-          style: GoogleFonts.poppins(fontSize: 16),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(localizations?.great ?? '¡Genial!', style: GoogleFonts.poppins(
-              fontWeight: FontWeight.bold,
-              color: ThemeService.instance.primaryColor,
-            )),
-          ),
-        ],
       ),
     );
   }
@@ -561,6 +546,15 @@ class _FormScreenState extends State<FormScreen> {
                         ),
                       ),
                     ),
+
+                    // Banner ad para usuarios no premium
+                    if (_bannerAd != null && _isBannerAdReady && !MonetizationService.instance.isPremium)
+                      Container(
+                        alignment: Alignment.center,
+                        width: _bannerAd!.size.width.toDouble(),
+                        height: _bannerAd!.size.height.toDouble(),
+                        child: AdWidget(ad: _bannerAd!),
+                      ),
                   ],
                 ),
               ),

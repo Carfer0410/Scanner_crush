@@ -91,6 +91,14 @@
   "@appTitle": {
     "description": "The application title"
   },
+  "splashSubtitle": "Discover your love destiny",
+  "@splashSubtitle": {
+    "description": "Subtitle shown on splash screen"
+  },
+  "splashSlogan": "Love is just the beginning! 💖",
+  "@splashSlogan": {
+    "description": "Slogan shown on splash screen"
+  },
   
   "welcomeTitle": "Discover Your Secret Admirer",
   "@welcomeTitle": {
@@ -435,7 +443,9 @@
   "limitReached": "Limit reached!",
   "scansRemainingToday": "{count} scans remaining today",
   "watchAdForMore": "Watch ad for +2 more",
-  "upgradeForUnlimited": "Upgrade for unlimited",
+  "upgradeForUnlimited": "You've used all your scans today. Upgrade to Premium for unlimited scans.",
+  "watchAdForScans": "Watch ad (+2 scans)",
+  "noAdsAvailable": "No ads available. Try again later.",
   "watchAdOrUpgrade": "Watch ad or upgrade for more",
   "dailyStreak": "Daily Streak",
   "startLoveStreak": "Start your love streak today!",
@@ -1222,6 +1232,36 @@
       }
     }
   },
+
+  "storeNotAvailable": "The store is not available right now. Check your internet connection and try again.",
+  "@storeNotAvailable": {
+    "description": "Error when app store is not available"
+  },
+
+  "productNotConfigured": "This product is not available right now. Please try again later.",
+  "@productNotConfigured": {
+    "description": "Error when product ID is not found in store"
+  },
+
+  "purchaseAlreadyInProgress": "A purchase is already in progress. Please wait a moment.",
+  "@purchaseAlreadyInProgress": {
+    "description": "Error when user tries to buy while another purchase is pending"
+  },
+
+  "purchaseCouldNotStart": "Could not start the purchase. Please try again.",
+  "@purchaseCouldNotStart": {
+    "description": "Error when purchase flow fails to start"
+  },
+
+  "purchaseUnexpectedError": "An unexpected error occurred. Please try again later.",
+  "@purchaseUnexpectedError": {
+    "description": "Generic purchase error"
+  },
+
+  "purchaseStartedCompleteInStore": "Purchase started. Complete the payment in the store window.",
+  "@purchaseStartedCompleteInStore": {
+    "description": "Info message when purchase flow opens successfully"
+  },
   
   "getFullAccess": "Get full access to all special features",
   "@getFullAccess": {
@@ -1273,7 +1313,7 @@
     "description": "About dialog title"
   },
   
-  "aboutDialogContent": "Crush Scanner v1.0.0\\n\\nA fun application to discover love compatibility.\\n\\nDeveloped with Flutter and lots of love 💕\\n\\n© 2025 Crush Scanner",
+  "aboutDialogContent": "Crush Scanner v1.0.0\n\nA fun app to discover love compatibility.\n\nMade with love by Perlaza Studio\n\n© 2025 Crush Scanner",
   "@aboutDialogContent": {
     "description": "About dialog content text"
   },
@@ -1696,7 +1736,7 @@
     "description": "Watch ad to get more scans"
   },
 
-  "upgradeForUnlimited": "Upgrade for unlimited",
+  "upgradeForUnlimited": "You've used all your scans today. Upgrade to Premium for unlimited scans.",
   "@upgradeForUnlimited": {
     "description": "Upgrade to premium for unlimited scans"
   },
@@ -1724,5 +1764,77 @@
   "customizeWithThemes": "Customize with 8 unique themes",
   "@customizeWithThemes": {
     "description": "Themes subtitle"
-  }
+  },
+
+  "sectionGeneral": "General",
+  "sectionAudio": "Audio",
+  "sectionData": "Data",
+  "clearAllData": "Clear All Data",
+  "clearAllDataSubtitle": "Delete statistics, history and streaks",
+  "aboutSubtitle": "Information about the application",
+  "privacyTitle": "Privacy",
+  "privacySubtitle": "Privacy policy and terms",
+  "privacyDialogTitle": "🔒 Privacy",
+  "privacyDialogContent": "Your privacy is important to us.\n\n• Names are stored only locally\n• We don't share personal information\n• Results are generated randomly\n• You can delete your history anytime\n\nThis app is for entertainment only.",
+  "confirmClearDataTitle": "Clear All Data?",
+  "confirmClearDataContent": "Are you sure you want to delete all your statistics, history, and streaks? This action cannot be undone.",
+  "deleteAll": "Delete All",
+  "dataDeletedSuccess": "All data has been successfully deleted",
+  "errorDeletingData": "Error deleting data: {error}",
+  "@errorDeletingData": {
+    "placeholders": { "error": { "type": "Object" } }
+  },
+  "appVersionFooter": "Crush Scanner v1.0.0\nMade with 💕 for love",
+  "welcomeNewUserTitle": "🎉 Welcome New User!",
+  "enjoyUnlimitedTrialScans": "Enjoy unlimited scans during your trial!",
+  "unlimitedScansActive": "Unlimited Scans Active",
+  "trialDaysRemaining": "{count, plural, =1{1 day remaining in trial} other{{count} days remaining in trial}}",
+  "@trialDaysRemaining": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "trialEndingToday": "Trial ending today",
+  "newBadge": "NEW",
+  "upgradeToPremiumPromo": "Upgrade to Premium",
+  "watchAdToUnlockInsights": "Watch ad to unlock",
+  "watchAdToUnlockPredictions": "Watch ad to unlock",
+  "insightsLockedDescription": "Discover unique patterns about your love life. Watch a short ad or go Premium for unlimited access.",
+  "predictionsLockedDescription": "Get personalized predictions about your love future. Watch a short ad or go Premium for unlimited access.",
+  "adNotAvailable": "Ad not available right now",
+  "orGetPremium": "or go Premium",
+  "insightsUnlocked": "✨ Insights unlocked",
+  "predictionsUnlocked": "✨ Predictions unlocked",
+
+  "tournamentTitle": "🏆 Love Tournament",
+  "tournamentWelcomeSubtitle": "Pit your crushes against each other in an epic tournament!",
+  "tournamentDescription": "Enter your crushes' names and discover who is your ultimate match in an elimination tournament",
+  "tournamentYourName": "Your Name",
+  "tournamentYourNameHint": "Enter your name...",
+  "tournamentSelectFormat": "Tournament Format",
+  "tournamentParticipants": "Participants",
+  "tournamentCrush": "Crush",
+  "tournamentAddCelebrity": "⭐ Celebrity",
+  "tournamentFillAll": "✨ Fill",
+  "tournamentStart": "Start Tournament!",
+  "tournamentEnterYourName": "Please enter your name",
+  "tournamentFillAllNames": "You must fill in all names",
+  "tournamentNoDuplicates": "You can't have duplicate names",
+  "tournament16PremiumOnly": "The 16-participant format is exclusive to Premium users. Upgrade to unlock epic tournaments!",
+  "tournamentBracket": "Tournament Bracket",
+  "tournamentMatchesPlayed": "Matches played",
+  "tournamentNextMatch": "Next Match!",
+  "tournamentExitTitle": "Leave Tournament?",
+  "tournamentExitMessage": "Are you sure you want to leave? Your progress will be lost.",
+  "tournamentExit": "Leave",
+  "tournamentReviveTitle": "💫 Revive Crush",
+  "tournamentReviveDescription": "Watch an ad to give a second chance to an eliminated crush",
+  "tournamentRevived": "is back in the tournament!",
+  "tournamentComplete": "Tournament Complete!",
+  "tournamentResultSubtitle": "Here are the results of your love tournament",
+  "tournamentShare": "Share Results",
+  "tournamentPlayAgain": "Play Again",
+  "tournamentSummary": "Tournament Summary",
+  "tournamentTotalMatches": "Total matches",
+  "tournamentParticipantsCount": "Participants",
+  "tournamentRoundsPlayed": "Rounds played",
+  "tournamentFinalMatch": "🏆 Final Match"
 }

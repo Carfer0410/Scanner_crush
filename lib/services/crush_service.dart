@@ -1,4 +1,4 @@
-import 'dart:convert';
+﻿import 'dart:convert';
 import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/crush_result.dart';
@@ -142,7 +142,11 @@ class CrushService {
     "Omar Apollo", "Arlo Parks", "Beabadoobee", "Girl in Red", "Conan Gray", "Declan McKenna",
   ];
 
-  List<String> get celebrities => _celebrities;
+  /// Returns deduplicated celebrity list preserving first occurrence order.
+  List<String> get celebrities {
+    final seen = <String>{};
+    return _celebrities.where((c) => seen.add(c)).toList();
+  }
 
   final List<String> _emojis = [
     "💕",
@@ -167,9 +171,13 @@ class CrushService {
     "🌙",
   ];
 
+  /// Public access to celebrity names (for Tournament feature)
+  List<String> getCelebrityNames() => List<String>.from(_celebrities);
+
   int _generateCompatibilityPercentage(String name1, String name2) {
-    // Create a simple "algorithm" based on names to make results consistent
-    final combined = (name1 + name2).toLowerCase();
+    // Sort names alphabetically so order doesn't matter (A+B == B+A)
+    final sorted = [name1.toLowerCase(), name2.toLowerCase()]..sort();
+    final combined = sorted.join();
     var hash = 0;
     for (int i = 0; i < combined.length; i++) {
       hash = ((hash << 5) - hash + combined.codeUnitAt(i)) & 0xffffffff;
@@ -191,9 +199,19 @@ class CrushService {
   }) {
     final random = Random();
 
-    // Mensajes especiales para celebridades
+    // Mensajes de celebridades coherentes con el porcentaje
     if (isCelebrity) {
-      return _getCelebrityMessage(random.nextInt(15) + 1, localizations);
+      // Seleccionar rango de mensajes según porcentaje
+      // 1-5: alta (>=70), 6-10: media (>=45), 11-15: baja (<45)
+      final int base;
+      if (percentage >= 70) {
+        base = random.nextInt(5) + 1;  // Mensajes 1-5 (positivos)
+      } else if (percentage >= 45) {
+        base = random.nextInt(5) + 6;  // Mensajes 6-10 (neutros)
+      } else {
+        base = random.nextInt(5) + 11; // Mensajes 11-15 (divertidos)
+      }
+      return _getCelebrityMessage(base, localizations);
     }
 
     if (percentage >= 80) {
@@ -428,6 +446,9 @@ class CrushService {
         .replaceAll('ü', 'u')
         .replaceAll('ñ', 'n');
   }
+
+  /// Public wrapper for celebrity detection (for Tournament feature)
+  bool checkIsCelebrity(String name) => _isCelebrity(name);
 
   bool _isCelebrity(String name) {
     final inputName = _normalizeText(name);

@@ -35,8 +35,8 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
   }
 
   void _loadBannerAd() async {
-    // Cargar banner solo para usuarios no premium (incluyendo período de gracia)
-    if (!await MonetizationService.instance.isPremiumWithGrace()) {
+    // Cargar banner solo para usuarios no premium
+    if (!await MonetizationService.instance.isPremiumAsync()) {
       _bannerAd = AdMobService.instance.createBannerAd();
       _bannerAd!.load();
     }
@@ -61,12 +61,12 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
 
   Future<void> _selectCelebrity(String celebrity) async {
     try {
-      // 🔒 VERIFICACIÓN DE SEGURIDAD PRIMERO
-      final streakUpdate = await StreakService.instance.recordScan();
+      // 🔒 VERIFICACIÓN DE SEGURIDAD PRIMERO (sin registrar racha aún)
+      final manipCheck = await StreakService.instance.checkManipulation();
       
       // 🚨 BLOQUEAR ESCANEO SI HAY MANIPULACIÓN DETECTADA
-      if (streakUpdate.manipulationDetected) {
-        final message = streakUpdate.getFeedbackMessage(
+      if (manipCheck.manipulationDetected) {
+        final message = manipCheck.getFeedbackMessage(
           LocaleService.instance.currentLocale.languageCode,
         );
         
@@ -100,13 +100,10 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
         return; // 🛑 DETENER ESCANEO AQUÍ
       }
       
-      // 🔒 Registrar escaneo para monetización solo si no hay manipulación
-      await MonetizationService.instance.recordScan();
-      
       // Get localizations with null safety
       final localizations = AppLocalizations.of(context);
       
-      // Generate result with proper null handling
+      // Generate result FIRST (before recording scan/streak)
       final result = localizations != null 
           ? await CrushService.instance.generateResult(
               widget.userName,
@@ -117,6 +114,13 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
               widget.userName,
               celebrity,
             );
+      
+      // 🔒 Only record scan AFTER successful result generation
+      await MonetizationService.instance.recordScan();
+      final streakUpdate = await StreakService.instance.recordScan();
+
+      // Track user action para sistema de frecuencia de anuncios
+      AdMobService.instance.trackUserAction();
       
       // Show streak feedback message solo si no fue manipulación
       if (mounted && !streakUpdate.alreadyScannedToday && !streakUpdate.manipulationDetected) {
@@ -288,9 +292,9 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
                       decoration: InputDecoration(
                         hintText: AppLocalizations.of(context)!.searchCelebrity,
                         hintStyle: GoogleFonts.poppins(color: Colors.grey[600]),
-                        prefixIcon: const Icon(
+                        prefixIcon: Icon(
                           Icons.search,
-                          color: Colors.pink,
+                          color: ThemeService.instance.primaryColor,
                         ),
                         suffixIcon:
                             _isSearching
@@ -299,9 +303,9 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
                                     _searchController.clear();
                                     _filterCelebrities('');
                                   },
-                                  icon: const Icon(
+                                  icon: Icon(
                                     Icons.clear,
-                                    color: Colors.pink,
+                                    color: ThemeService.instance.primaryColor,
                                   ),
                                 )
                                 : null,
@@ -336,18 +340,11 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
                             onTap: () => _selectCelebrity(celebrity),
                             child: Container(
                               decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: [
-                                    Color(0xFFFF6B9D),
-                                    Color(0xFFC44569),
-                                  ],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
+                                gradient: ThemeService.instance.primaryGradient,
                                 borderRadius: BorderRadius.circular(20),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.pink.withOpacity(0.3),
+                                    color: ThemeService.instance.primaryColor.withOpacity(0.3),
                                     blurRadius: 10,
                                     offset: const Offset(0, 5),
                                   ),
@@ -371,23 +368,20 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
                               ),
                             ),
                           )
-                          .animate(delay: Duration(milliseconds: 50 * index))
+                          // Limit animations to first 20 visible items for performance
+                          .animate(delay: Duration(milliseconds: index < 20 ? 50 * index : 0))
                           .fadeIn(duration: 300.ms)
-                          .scale(begin: const Offset(0.8, 0.8))
-                          .shimmer(
-                            duration: const Duration(milliseconds: 1200),
-                            color: Colors.white.withOpacity(0.3),
-                          );
+                          .scale(begin: const Offset(0.8, 0.8));
                     },
                   ),
                 ),
               ),
-              // Banner ad al final para usuarios no premium (incluyendo período de gracia)
+              // Banner ad al final para usuarios no premium
               FutureBuilder<bool>(
-                future: MonetizationService.instance.isPremiumWithGrace(),
+                future: MonetizationService.instance.isPremiumAsync(),
                 builder: (context, snapshot) {
-                  final isPremiumWithGrace = snapshot.data ?? false;
-                  if (_bannerAd != null && !isPremiumWithGrace) {
+                  final isPremium = snapshot.data ?? false;
+                  if (_bannerAd != null && !isPremium) {
                     return Container(
                       width: double.infinity,
                       height: 60,

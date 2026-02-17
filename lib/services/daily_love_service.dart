@@ -1,8 +1,9 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'secure_time_service.dart';
 
+import 'logger_service.dart';
 class DailyLoveService {
   static final DailyLoveService _instance = DailyLoveService._internal();
   factory DailyLoveService() => _instance;
@@ -38,7 +39,7 @@ class DailyLoveService {
     if (scans > 0 && total > 0) {
       final average = total / scans;
       if (average > 100.0) {
-        print('⚠️ Datos corruptos detectados: promedio=$average%, total=$total, escaneos=$scans');
+        LoggerService.warning('Datos corruptos detectados: promedio=$average%, total=$total, escaneos=$scans', origin: 'DailyLoveService');
         await _resetCompatibilityStats();
       }
     }
@@ -126,7 +127,7 @@ class DailyLoveService {
     final streak = _prefs!.getInt('love_streak') ?? 0;
     // Validar que la racha sea razonable (máximo 365 días)
     if (streak < 0 || streak > 365) {
-      print('⚠️ getCurrentStreak: Valor corrupto detectado: $streak. Reiniciando a 0.');
+      LoggerService.warning('getCurrentStreak: Valor corrupto detectado: $streak. Reiniciando a 0.', origin: 'DailyLoveService');
       // Reiniciar valor corrupto
       _prefs!.setInt('love_streak', 0);
       return 0;
@@ -179,7 +180,7 @@ class DailyLoveService {
     final scans = _prefs!.getInt('total_scans') ?? 0;
     // Validar que el número de escaneos sea razonable (máximo 10,000)
     if (scans < 0 || scans > 10000) {
-      print('⚠️ getTotalScans: Valor corrupto detectado: $scans. Reiniciando a 0.');
+      LoggerService.warning('getTotalScans: Valor corrupto detectado: $scans. Reiniciando a 0.', origin: 'DailyLoveService');
       // Reiniciar valor corrupto
       _prefs!.setInt('total_scans', 0);
       return 0;
@@ -222,13 +223,13 @@ class DailyLoveService {
   Future<void> _resetCompatibilityStats() async {
     final prefs = await this.prefs;
     await prefs.setDouble('total_compatibility', 0.0);
-    print('⚠️ Estadísticas de compatibilidad corruptas detectadas - reseteadas');
+    LoggerService.warning('Estadísticas de compatibilidad corruptas detectadas - reseteadas', origin: 'DailyLoveService');
   }
 
   Future<void> addCompatibilityScore(double score) async {
     // Validación: solo aceptar porcentajes válidos (0-100)
     if (score < 0.0 || score > 100.0) {
-      print('⚠️ Puntuación de compatibilidad inválida: $score% - ignorada');
+      LoggerService.warning('Puntuación de compatibilidad inválida: $score% - ignorada', origin: 'DailyLoveService');
       return;
     }
     
@@ -289,7 +290,7 @@ class DailyLoveService {
     final avgCompatibility = getAverageCompatibility();
 
     // Log para debugging
-    print('📊 Logros - Streak: $streak, Total Scans: $totalScans, Avg: $avgCompatibility%');
+    LoggerService.debug('Logros - Streak: $streak, Total Scans: $totalScans, Avg: $avgCompatibility%', origin: 'DailyLoveService');
 
     if (streak >= 3) {
       achievements.add({
@@ -386,40 +387,39 @@ class DailyLoveService {
     bool needsRepair = false;
     final streak = _prefs!.getInt('love_streak') ?? 0;
     final totalScans = _prefs!.getInt('total_scans') ?? 0;
-    final scores = _prefs!.getStringList('compatibility_scores') ?? [];
+    final totalCompatibility = _prefs!.getDouble('total_compatibility') ?? 0.0;
     
     // Validar racha
     if (streak < 0 || streak > 365) {
-      print('⚠️ Validación: Racha corrupta ($streak). Reiniciando.');
+      LoggerService.warning('Validación: Racha corrupta ($streak). Reiniciando.', origin: 'DailyLoveService');
       _prefs!.setInt('love_streak', 0);
       needsRepair = true;
     }
     
     // Validar total de escaneos
     if (totalScans < 0 || totalScans > 10000) {
-      print('⚠️ Validación: Total de escaneos corrupto ($totalScans). Reiniciando.');
+      LoggerService.warning('Validación: Total de escaneos corrupto ($totalScans). Reiniciando.', origin: 'DailyLoveService');
       _prefs!.setInt('total_scans', 0);
       needsRepair = true;
     }
     
-    // Validar consistencia entre escaneos y puntuaciones
-    if (totalScans > 0 && scores.isEmpty) {
-      print('⚠️ Validación: Inconsistencia detectada. $totalScans escaneos pero sin puntuaciones.');
-      _prefs!.setInt('total_scans', 0);
+    // Validar consistencia: si hay compatibilidad guardada pero 0 escaneos,
+    // solo limpiar la compatibilidad (no resetear escaneos)
+    if (totalScans == 0 && totalCompatibility > 0) {
+      LoggerService.warning('Validación: Compatibilidad huérfana sin escaneos. Limpiando.', origin: 'DailyLoveService');
+      _prefs!.setDouble('total_compatibility', 0.0);
       needsRepair = true;
     }
     
-    // Validar que el número de puntuaciones no exceda el total de escaneos
-    if (scores.length > totalScans && totalScans > 0) {
-      print('⚠️ Validación: Más puntuaciones (${scores.length}) que escaneos ($totalScans).');
-      // Mantener solo las últimas puntuaciones hasta el total de escaneos
-      final validScores = scores.take(totalScans).toList();
-      _prefs!.setStringList('compatibility_scores', validScores);
+    // Validar que el promedio no sea imposible (>100%)
+    if (totalScans > 0 && totalCompatibility / totalScans > 100.0) {
+      LoggerService.warning('Validación: Promedio imposible. Reseteando compatibilidad.', origin: 'DailyLoveService');
+      _prefs!.setDouble('total_compatibility', 0.0);
       needsRepair = true;
     }
     
     if (needsRepair) {
-      print('✅ Validación completa: Datos reparados automáticamente.');
+      LoggerService.info('Validación completa: Datos reparados automáticamente.', origin: 'DailyLoveService');
     }
   }
 }

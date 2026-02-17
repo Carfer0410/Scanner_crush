@@ -5,8 +5,11 @@ import 'package:flutter/services.dart';
 import '../widgets/custom_widgets.dart';
 import '../services/theme_service.dart';
 import '../services/monetization_service.dart';
+import '../services/admob_service.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'celebrity_screen.dart';
+import 'premium_screen.dart';
 
 class CelebrityFormScreen extends StatefulWidget {
   const CelebrityFormScreen({super.key});
@@ -18,9 +21,27 @@ class CelebrityFormScreen extends StatefulWidget {
 class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final _userNameController = TextEditingController();
+  BannerAd? _bannerAd;
+  bool _isBannerAdReady = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBannerAd();
+  }
+
+  void _loadBannerAd() async {
+    if (!await MonetizationService.instance.isPremiumAsync()) {
+      _bannerAd = AdMobService.instance.createBannerAd();
+      _bannerAd?.load().then((_) {
+        if (mounted) setState(() { _isBannerAdReady = true; });
+      });
+    }
+  }
 
   @override
   void dispose() {
+    _bannerAd?.dispose();
     _userNameController.dispose();
     super.dispose();
   }
@@ -143,7 +164,10 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
               subtitle: localizations.unlimitedScans,
               onTap: () {
                 Navigator.pop(context);
-                // TODO: Navegar a pantalla de premium
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const PremiumScreen()),
+                );
               },
             ),
             const SizedBox(height: 8),
@@ -291,12 +315,10 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
                           height: 120,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            gradient: const LinearGradient(
-                              colors: [Colors.purple, Colors.deepPurple],
-                            ),
+                            gradient: ThemeService.instance.primaryGradient,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.purple.withOpacity(0.4),
+                                color: ThemeService.instance.primaryColor.withOpacity(0.4),
                                 blurRadius: 20,
                                 offset: const Offset(0, 10),
                               ),
@@ -371,14 +393,14 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
                                     .withOpacity(0.8),
                                 borderRadius: BorderRadius.circular(15),
                                 border: Border.all(
-                                  color: Colors.purple.withOpacity(0.3),
+                                  color: ThemeService.instance.primaryColor.withOpacity(0.3),
                                 ),
                               ),
                               child: Column(
                                 children: [
                                   Icon(
                                     Icons.info_outline,
-                                    color: Colors.purple,
+                                    color: ThemeService.instance.primaryColor,
                                     size: 28,
                                   ),
                                   const SizedBox(height: 12),
@@ -416,13 +438,13 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
                                   colors: [
-                                    Colors.purple.withOpacity(0.1),
-                                    Colors.deepPurple.withOpacity(0.1),
+                                    ThemeService.instance.primaryColor.withOpacity(0.1),
+                                    ThemeService.instance.accentColor.withOpacity(0.1),
                                   ],
                                 ),
                                 borderRadius: BorderRadius.circular(15),
                                 border: Border.all(
-                                  color: Colors.purple.withOpacity(0.2),
+                                  color: ThemeService.instance.primaryColor.withOpacity(0.2),
                                 ),
                               ),
                               child: Column(
@@ -456,7 +478,7 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
                                                       vertical: 6,
                                                     ),
                                                 decoration: BoxDecoration(
-                                                  color: Colors.purple
+                                                  color: ThemeService.instance.primaryColor
                                                       .withOpacity(0.2),
                                                   borderRadius:
                                                       BorderRadius.circular(20),
@@ -496,6 +518,15 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
                     ),
                   ),
                 ),
+
+                // Banner ad para usuarios no premium
+                if (_bannerAd != null && _isBannerAdReady && !MonetizationService.instance.isPremium)
+                  Container(
+                    alignment: Alignment.center,
+                    width: _bannerAd!.size.width.toDouble(),
+                    height: _bannerAd!.size.height.toDouble(),
+                    child: AdWidget(ad: _bannerAd!),
+                  ),
               ],
             ),
           ),

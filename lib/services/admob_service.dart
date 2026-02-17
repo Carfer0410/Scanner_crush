@@ -1,9 +1,10 @@
-import 'dart:io';
+﻿import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/secure_time_service.dart';
 
+import 'logger_service.dart';
 /// Servicio avanzado de AdMob para Scanner Crush
 class AdMobService {
   static final AdMobService _instance = AdMobService._internal();
@@ -78,12 +79,10 @@ class AdMobService {
       _isInitialized = true;
       
       if (kDebugMode) {
-        print('✅ AdMob initialized successfully');
+        LoggerService.info('AdMob initialized successfully', origin: 'admob_service');
       }
     } catch (e) {
-      if (kDebugMode) {
-        print('❌ Error initializing AdMob: $e');
-      }
+      LoggerService.error('Error initializing AdMob: $e', origin: 'AdMobService');
     }
   }
 
@@ -98,25 +97,19 @@ class AdMobService {
       listener: BannerAdListener(
         onAdLoaded: (ad) {
           if (kDebugMode) {
-            print('✅ Banner ad loaded');
+            LoggerService.info('Banner ad loaded', origin: 'admob_service');
           }
         },
         onAdFailedToLoad: (ad, error) {
-          if (kDebugMode) {
-            print('❌ Banner ad failed to load: $error');
-          }
+          LoggerService.warning('Banner ad failed to load: $error', origin: 'AdMobService');
           ad.dispose();
         },
         onAdOpened: (ad) {
-          if (kDebugMode) {
-            print('📱 Banner ad opened');
-          }
+          LoggerService.debug('Banner ad opened', origin: 'AdMobService');
           _trackAdEvent('banner_opened');
         },
         onAdClosed: (ad) {
-          if (kDebugMode) {
-            print('📱 Banner ad closed');
-          }
+          LoggerService.debug('Banner ad closed', origin: 'AdMobService');
         },
       ),
     );
@@ -135,30 +128,24 @@ class AdMobService {
           _isInterstitialAdLoaded = true;
           
           if (kDebugMode) {
-            print('✅ Interstitial ad loaded');
+            LoggerService.info('Interstitial ad loaded', origin: 'admob_service');
           }
 
           // Configurar callbacks
           _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
             onAdShowedFullScreenContent: (ad) {
-              if (kDebugMode) {
-                print('📱 Interstitial ad showed');
-              }
+              LoggerService.debug('Interstitial ad showed', origin: 'AdMobService');
               _trackAdEvent('interstitial_showed');
             },
             onAdDismissedFullScreenContent: (ad) {
-              if (kDebugMode) {
-                print('📱 Interstitial ad dismissed');
-              }
+              LoggerService.debug('Interstitial ad dismissed', origin: 'AdMobService');
               ad.dispose();
               _isInterstitialAdLoaded = false;
               // Precargar el siguiente anuncio
               _loadInterstitialAd();
             },
             onAdFailedToShowFullScreenContent: (ad, error) {
-              if (kDebugMode) {
-                print('❌ Interstitial ad failed to show: $error');
-              }
+              LoggerService.error('Interstitial ad failed to show: $error', origin: 'AdMobService');
               ad.dispose();
               _isInterstitialAdLoaded = false;
               _loadInterstitialAd();
@@ -166,9 +153,7 @@ class AdMobService {
           );
         },
         onAdFailedToLoad: (error) {
-          if (kDebugMode) {
-            print('❌ Interstitial ad failed to load: $error');
-          }
+          LoggerService.warning('Interstitial ad failed to load: $error', origin: 'AdMobService');
           _isInterstitialAdLoaded = false;
           // Reintentar en 30 segundos
           Future.delayed(const Duration(seconds: 30), () {
@@ -185,9 +170,7 @@ class AdMobService {
       await _interstitialAd!.show();
       return true;
     } else {
-      if (kDebugMode) {
-        print('⚠️ Interstitial ad not ready');
-      }
+      LoggerService.debug('Interstitial ad not ready', origin: 'AdMobService');
       // Intentar cargar uno nuevo
       await _loadInterstitialAd();
       return false;
@@ -205,30 +188,24 @@ class AdMobService {
           _isRewardedAdLoaded = true;
           
           if (kDebugMode) {
-            print('✅ Rewarded ad loaded');
+            LoggerService.info('Rewarded ad loaded', origin: 'admob_service');
           }
 
           // Configurar callbacks
           _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
             onAdShowedFullScreenContent: (ad) {
-              if (kDebugMode) {
-                print('📱 Rewarded ad showed');
-              }
+              LoggerService.debug('Rewarded ad showed', origin: 'AdMobService');
               _trackAdEvent('rewarded_showed');
             },
             onAdDismissedFullScreenContent: (ad) {
-              if (kDebugMode) {
-                print('📱 Rewarded ad dismissed');
-              }
+              LoggerService.debug('Rewarded ad dismissed', origin: 'AdMobService');
               ad.dispose();
               _isRewardedAdLoaded = false;
               // Precargar el siguiente anuncio
               _loadRewardedAd();
             },
             onAdFailedToShowFullScreenContent: (ad, error) {
-              if (kDebugMode) {
-                print('❌ Rewarded ad failed to show: $error');
-              }
+              LoggerService.error('Rewarded ad failed to show: $error', origin: 'AdMobService');
               ad.dispose();
               _isRewardedAdLoaded = false;
               _loadRewardedAd();
@@ -236,9 +213,7 @@ class AdMobService {
           );
         },
         onAdFailedToLoad: (error) {
-          if (kDebugMode) {
-            print('❌ Rewarded ad failed to load: $error');
-          }
+          LoggerService.warning('Rewarded ad failed to load: $error', origin: 'AdMobService');
           _isRewardedAdLoaded = false;
           // Reintentar en 30 segundos
           Future.delayed(const Duration(seconds: 30), () {
@@ -255,23 +230,31 @@ class AdMobService {
     Function()? onAdDismissed,
   }) async {
     if (_rewardedAd != null && _isRewardedAdLoaded) {
-      await _rewardedAd!.show(onUserEarnedReward: onUserEarnedReward);
-      
-      // Configurar callback para cuando se cierre
+      // Configurar callbacks ANTES de show() para evitar race condition
       _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
+        onAdShowedFullScreenContent: (ad) {
+          LoggerService.debug('Rewarded ad showed', origin: 'AdMobService');
+          _trackAdEvent('rewarded_showed');
+        },
         onAdDismissedFullScreenContent: (ad) {
           onAdDismissed?.call();
           ad.dispose();
           _isRewardedAdLoaded = false;
           _loadRewardedAd();
         },
+        onAdFailedToShowFullScreenContent: (ad, error) {
+          LoggerService.error('Rewarded ad failed to show: $error', origin: 'AdMobService');
+          ad.dispose();
+          _isRewardedAdLoaded = false;
+          _loadRewardedAd();
+        },
       );
+      
+      await _rewardedAd!.show(onUserEarnedReward: onUserEarnedReward);
       
       return true;
     } else {
-      if (kDebugMode) {
-        print('⚠️ Rewarded ad not ready');
-      }
+      LoggerService.debug('Rewarded ad not ready', origin: 'AdMobService');
       // Intentar cargar uno nuevo
       await _loadRewardedAd();
       return false;

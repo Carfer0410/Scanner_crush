@@ -38,8 +38,8 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
   }
 
   void _loadBannerAd() async {
-    // Solo cargar banner ads para usuarios no premium (incluyendo período de gracia)
-    if (!await MonetizationService.instance.isPremiumWithGrace()) {
+    // Solo cargar banner ads para usuarios no premium
+    if (!await MonetizationService.instance.isPremiumAsync()) {
       _bannerAd = AdMobService.instance.createBannerAd();
       _bannerAd?.load().then((_) {
         if (mounted) {
@@ -66,6 +66,8 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
         setState(() {
           _isLoading = false;
         });
+        // Track que el usuario vió el contenido diario
+        AdMobService.instance.trackUserAction();
       }
     } catch (e) {
       if (mounted) {
@@ -161,7 +163,16 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
           Row(
             children: [
               IconButton(
-                onPressed: () => Navigator.pop(context),
+                onPressed: () async {
+                  // Intersticial estratégico al salir (si cumple cooldown)
+                  if (!await MonetizationService.instance.isPremiumAsync()) {
+                    final shouldShow = await AdMobService.instance.shouldShowInterstitialAd();
+                    if (shouldShow && AdMobService.instance.isInterstitialAdReady) {
+                      await AdMobService.instance.showInterstitialAd();
+                    }
+                  }
+                  if (mounted) Navigator.pop(context);
+                },
                 icon: Icon(
                   Icons.arrow_back_ios,
                   color: ThemeService.instance.textColor,
@@ -184,14 +195,14 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
 
           const SizedBox(height: 30),
 
-          // Banner Ad for non-premium users (incluyendo período de gracia)
+          // Banner Ad for non-premium users
           FutureBuilder<bool>(
-            future: MonetizationService.instance.isPremiumWithGrace(),
+            future: MonetizationService.instance.isPremiumAsync(),
             builder: (context, snapshot) {
-              final isPremiumWithGrace = snapshot.data ?? false;
+              final isPremium = snapshot.data ?? false;
               if (_bannerAd != null &&
                   _isBannerAdReady &&
-                  !isPremiumWithGrace) {
+                  !isPremium) {
                 return Container(
                   alignment: Alignment.center,
                   width: _bannerAd!.size.width.toDouble(),
@@ -219,12 +230,12 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
 
           const SizedBox(height: 30),
 
-          // Premium features promotion for non-premium users (excluyendo período de gracia)
+          // Premium features promotion for non-premium users
           FutureBuilder<bool>(
-            future: MonetizationService.instance.isPremiumWithGrace(),
+            future: MonetizationService.instance.isPremiumAsync(),
             builder: (context, snapshot) {
-              final isPremiumWithGrace = snapshot.data ?? false;
-              if (!isPremiumWithGrace) {
+              final isPremium = snapshot.data ?? false;
+              if (!isPremium) {
                 return _buildPremiumPromotion();
               }
               return const SizedBox.shrink();
@@ -326,8 +337,8 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                Colors.indigo.withOpacity(0.8),
-                Colors.deepPurple.withOpacity(0.8),
+                ThemeService.instance.primaryColor.withOpacity(0.8),
+                ThemeService.instance.secondaryColor.withOpacity(0.8),
               ],
             ),
             borderRadius: BorderRadius.circular(20),
@@ -389,14 +400,14 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      Colors.deepOrange.withOpacity(0.9),
-                      Colors.red.withOpacity(0.8),
+                      ThemeService.instance.primaryColor.withOpacity(0.9),
+                      ThemeService.instance.secondaryColor.withOpacity(0.8),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(15),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.deepOrange.withOpacity(0.4),
+                      color: ThemeService.instance.primaryColor.withOpacity(0.4),
                       blurRadius: 8,
                       offset: const Offset(0, 4),
                     ),
@@ -449,8 +460,8 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Colors.purple.withOpacity(0.8),
-            Colors.pink.withOpacity(0.8),
+            ThemeService.instance.primaryColor.withOpacity(0.8),
+            ThemeService.instance.secondaryColor.withOpacity(0.8),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -459,7 +470,7 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
         border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
         boxShadow: [
           BoxShadow(
-            color: Colors.purple.withOpacity(0.3),
+            color: ThemeService.instance.primaryColor.withOpacity(0.3),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -508,7 +519,7 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
           const SizedBox(height: 24),
 
           GradientButton(
-            text: 'Upgrade a Premium',
+            text: AppLocalizations.of(context)!.upgradeToPremiumPromo,
             icon: Icons.diamond,
             onPressed: () {
               Navigator.push(

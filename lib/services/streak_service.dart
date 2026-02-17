@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+﻿import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'secure_time_service.dart';
 
@@ -74,6 +74,30 @@ class StreakService extends ChangeNotifier {
     
     // Notificar a los listeners que los datos han cambiado
     notifyListeners();
+  }
+
+  /// Solo verifica si hay manipulación de tiempo sin registrar escaneo.
+  /// Only checks for time manipulation without recording a scan.
+  Future<StreakUpdate> checkManipulation() async {
+    final secureTimeService = SecureTimeService.instance;
+    final debugInfo = secureTimeService.getDebugInfo();
+    final manipulationCount = debugInfo['manipulationDetections'] ?? 0;
+    
+    if (manipulationCount > 3) {
+      return StreakUpdate(
+        newStreak: _currentStreak,
+        isNewRecord: false,
+        streakMaintained: false,
+        manipulationDetected: true,
+      );
+    }
+    
+    return StreakUpdate(
+      newStreak: _currentStreak,
+      isNewRecord: false,
+      streakMaintained: true,
+      manipulationDetected: false,
+    );
   }
 
   /// Actualizar la racha cuando el usuario hace un escaneo

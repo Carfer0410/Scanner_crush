@@ -1,8 +1,25 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'logger_service.dart';
 import 'monetization_service.dart';
+
+/// Resultado de una operación de compra
+enum PurchaseResult {
+  /// Compra iniciada correctamente (flujo de pago abierto)
+  success,
+  /// La tienda (Google Play / App Store) no está disponible
+  storeNotAvailable,
+  /// No se encontraron productos configurados (IDs no coinciden con la consola)
+  productNotFound,
+  /// Ya hay una compra en proceso
+  purchaseAlreadyPending,
+  /// Error al iniciar la compra en la tienda
+  purchaseInitFailed,
+  /// Excepción inesperada
+  error,
+}
 
 /// Servicio de compras dentro de la app para Scanner Crush
 /// Maneja suscripciones Premium y Premium Plus
@@ -19,6 +36,13 @@ class PurchaseService {
   bool _isAvailable = false;
   bool _purchasePending = false;
   String? _queryProductError;
+
+  // Último resultado de compra para feedback al usuario
+  PurchaseResult _lastPurchaseResult = PurchaseResult.success;
+  String? _lastErrorMessage;
+
+  /// Notificador para que la UI reaccione a compras exitosas
+  final ValueNotifier<bool> purchaseSuccessNotifier = ValueNotifier(false);
   
   // IDs de productos para las suscripciones
   static const String premiumMonthlyId = 'premium_monthly';
@@ -40,10 +64,14 @@ class PurchaseService {
 
   // Getters públicos
   bool get isAvailable => _isAvailable;
+  bool get isInitialized => _isInitialized;
   bool get purchasePending => _purchasePending;
+  bool get hasProducts => _products.isNotEmpty;
   List<ProductDetails> get products => _products;
   List<PurchaseDetails> get purchases => _purchases;
   String? get queryProductError => _queryProductError;
+  PurchaseResult get lastPurchaseResult => _lastPurchaseResult;
+  String? get lastErrorMessage => _lastErrorMessage;
 
   /// Inicializar el servicio de compras
   Future<void> initialize() async {
@@ -53,16 +81,16 @@ class PurchaseService {
     _isAvailable = await _inAppPurchase.isAvailable();
     
     if (!_isAvailable) {
-      debugPrint('🛒 PurchaseService: Tienda no disponible');
+      LoggerService.warning('Tienda no disponible', origin: 'PurchaseService');
       return;
     }
 
-    debugPrint('🛒 PurchaseService: Inicializando...');
+    LoggerService.debug('Inicializando...', origin: 'PurchaseService');
 
     // Configurar plataforma específica si es Android
     if (Platform.isAndroid) {
       // Habilitar compras pendientes en Android (método deprecado, ya habilitado por defecto)
-      debugPrint('🛒 Plataforma Android detectada');
+      LoggerService.debug('Plataforma Android detectada', origin: 'PurchaseService');
     }
 
     // Escuchar cambios en las compras
@@ -81,7 +109,7 @@ class PurchaseService {
     await _restorePurchases();
 
     _isInitialized = true;
-    debugPrint('🛒 PurchaseService: Inicializado correctamente');
+    LoggerService.info('Inicializado correctamente', origin: 'PurchaseService');
   }
 
   /// Cargar productos desde las tiendas
@@ -92,38 +120,42 @@ class PurchaseService {
       
       if (productDetailResponse.error != null) {
         _queryProductError = productDetailResponse.error!.message;
-        debugPrint('🛒 Error cargando productos: $_queryProductError');
+        LoggerService.error('Error cargando productos: $_queryProductError', origin: 'PurchaseService');
         return;
       }
 
       if (productDetailResponse.productDetails.isEmpty) {
         _queryProductError = 'No se encontraron productos configurados';
-        debugPrint('🛒 Error: No se encontraron productos');
+        LoggerService.warning('No se encontraron productos', origin: 'PurchaseService');
         return;
       }
 
       _products = productDetailResponse.productDetails;
       _notFoundIds = productDetailResponse.notFoundIDs;
       
-      debugPrint('🛒 Productos cargados: ${_products.length}');
+      LoggerService.debug('Productos cargados: ${_products.length}', origin: 'PurchaseService');
       for (final product in _products) {
-        debugPrint('  - ${product.id}: ${product.title} (${product.price})');
+      LoggerService.debug('  - ${product.id}: ${product.title} (${product.price})', origin: 'PurchaseService');
       }
       
       if (_notFoundIds.isNotEmpty) {
-        debugPrint('🛒 Productos no encontrados: $_notFoundIds');
+        LoggerService.warning('Productos no encontrados: $_notFoundIds', origin: 'PurchaseService');
       }
     } catch (e) {
       _queryProductError = 'Error al cargar productos: $e';
-      debugPrint('🛒 Excepción cargando productos: $e');
+      LoggerService.error('Excepción cargando productos: $e', origin: 'PurchaseService');
     }
   }
 
-  /// Comprar suscripción
-  Future<bool> buySubscription(String productId) async {
+  /// Comprar suscripción — retorna PurchaseResult con información del resultado
+  Future<PurchaseResult> buySubscription(String productId) async {
+    _lastErrorMessage = null;
+
     if (!_isAvailable) {
-      debugPrint('🛒 Error: Tienda no disponible');
-      return false;
+      _lastPurchaseResult = PurchaseResult.storeNotAvailable;
+      _lastErrorMessage = _queryProductError ?? 'Tienda no disponible';
+      LoggerService.warning('Tienda no disponible para compra', origin: 'PurchaseService');
+      return _lastPurchaseResult;
     }
 
     final ProductDetails? productDetails = _products
@@ -131,13 +163,17 @@ class PurchaseService {
         .firstWhere((product) => product?.id == productId, orElse: () => null);
 
     if (productDetails == null) {
-      debugPrint('🛒 Error: Producto $productId no encontrado');
-      return false;
+      _lastPurchaseResult = PurchaseResult.productNotFound;
+      _lastErrorMessage = 'Producto $productId no encontrado en la tienda';
+      LoggerService.warning('Producto $productId no encontrado', origin: 'PurchaseService');
+      return _lastPurchaseResult;
     }
 
     if (_purchasePending) {
-      debugPrint('🛒 Error: Ya hay una compra en proceso');
-      return false;
+      _lastPurchaseResult = PurchaseResult.purchaseAlreadyPending;
+      _lastErrorMessage = 'Ya hay una compra en proceso';
+      LoggerService.warning('Ya hay una compra en proceso', origin: 'PurchaseService');
+      return _lastPurchaseResult;
     }
 
     try {
@@ -147,44 +183,47 @@ class PurchaseService {
         productDetails: productDetails,
       );
 
-      debugPrint('🛒 Iniciando compra de: ${productDetails.title}');
+      LoggerService.debug('Iniciando compra de: ${productDetails.title}', origin: 'PurchaseService');
       
-      bool purchaseResult;
+      bool purchaseStarted;
       if (productDetails.id.contains('monthly') || productDetails.id.contains('yearly')) {
-        // Es una suscripción
-        purchaseResult = await _inAppPurchase.buyNonConsumable(
+        purchaseStarted = await _inAppPurchase.buyNonConsumable(
           purchaseParam: purchaseParam,
         );
       } else {
-        // Es un producto consumible (por si acaso)
-        purchaseResult = await _inAppPurchase.buyConsumable(
+        purchaseStarted = await _inAppPurchase.buyConsumable(
           purchaseParam: purchaseParam,
         );
       }
 
-      if (!purchaseResult) {
+      if (!purchaseStarted) {
         _purchasePending = false;
-        debugPrint('🛒 Error iniciando compra');
-        return false;
+        _lastPurchaseResult = PurchaseResult.purchaseInitFailed;
+        _lastErrorMessage = 'No se pudo iniciar el flujo de compra';
+        LoggerService.warning('Error iniciando compra', origin: 'PurchaseService');
+        return _lastPurchaseResult;
       }
 
-      debugPrint('🛒 Compra iniciada correctamente');
-      return true;
+      _lastPurchaseResult = PurchaseResult.success;
+      LoggerService.info('Compra iniciada correctamente', origin: 'PurchaseService');
+      return PurchaseResult.success;
       
     } catch (e) {
       _purchasePending = false;
-      debugPrint('🛒 Excepción en compra: $e');
-      return false;
+      _lastPurchaseResult = PurchaseResult.error;
+      _lastErrorMessage = e.toString();
+      LoggerService.error('Excepción en compra: $e', origin: 'PurchaseService');
+      return PurchaseResult.error;
     }
   }
 
   /// Restaurar compras previas
   Future<void> _restorePurchases() async {
     try {
-      debugPrint('🛒 Restaurando compras...');
+      LoggerService.debug('Restaurando compras...', origin: 'PurchaseService');
       await _inAppPurchase.restorePurchases();
     } catch (e) {
-      debugPrint('🛒 Error restaurando compras: $e');
+      LoggerService.error('Error restaurando compras: $e', origin: 'PurchaseService');
     }
   }
 
@@ -194,17 +233,17 @@ class PurchaseService {
       await _restorePurchases();
       return true;
     } catch (e) {
-      debugPrint('🛒 Error en restorePurchases: $e');
+      LoggerService.error('Error en restorePurchases: $e', origin: 'PurchaseService');
       return false;
     }
   }
 
   /// Procesar actualizaciones de compras
   void _onPurchaseUpdate(List<PurchaseDetails> purchaseDetailsList) {
-    debugPrint('🛒 Actualizaciones de compra recibidas: ${purchaseDetailsList.length}');
+    LoggerService.debug('Actualizaciones de compra recibidas: ${purchaseDetailsList.length}', origin: 'PurchaseService');
     
     for (final PurchaseDetails purchaseDetails in purchaseDetailsList) {
-      debugPrint('🛒 Procesando compra: ${purchaseDetails.productID} - Estado: ${purchaseDetails.status}');
+      LoggerService.debug('Procesando compra: ${purchaseDetails.productID} - Estado: ${purchaseDetails.status}', origin: 'PurchaseService');
       
       if (purchaseDetails.status == PurchaseStatus.pending) {
         _showPendingUI();
@@ -225,19 +264,21 @@ class PurchaseService {
 
   /// Mostrar UI de compra pendiente
   void _showPendingUI() {
-    debugPrint('🛒 Compra pendiente...');
+    LoggerService.debug('Compra pendiente...', origin: 'PurchaseService');
     _purchasePending = true;
   }
 
   /// Manejar errores de compra
   void _handleError(IAPError error) {
-    debugPrint('🛒 Error de compra: ${error.message}');
+    LoggerService.error('Error de compra: ${error.message}', origin: 'PurchaseService');
     _purchasePending = false;
+    _lastPurchaseResult = PurchaseResult.error;
+    _lastErrorMessage = error.message;
   }
 
   /// Manejar compra exitosa
   void _handleSuccessfulPurchase(PurchaseDetails purchaseDetails) async {
-    debugPrint('🛒 Compra exitosa: ${purchaseDetails.productID}');
+    LoggerService.info('Compra exitosa: ${purchaseDetails.productID}', origin: 'PurchaseService');
     _purchasePending = false;
     
     // Actualizar estado en MonetizationService
@@ -255,13 +296,15 @@ class PurchaseService {
     }
     
     if (newTier != SubscriptionTier.free) {
-      // Actualizar tier en MonetizationService
       if (newTier == SubscriptionTier.premium) {
         await MonetizationService.instance.upgradeToPremium();
       } else if (newTier == SubscriptionTier.premiumPlus) {
         await MonetizationService.instance.upgradeToPremiumPlus();
       }
-      debugPrint('🛒 Suscripción actualizada a: $newTier');
+      LoggerService.info('Suscripción actualizada a: $newTier', origin: 'PurchaseService');
+      
+      // Notificar a la UI que la compra fue exitosa
+      purchaseSuccessNotifier.value = !purchaseSuccessNotifier.value;
     }
   }
 
@@ -295,13 +338,13 @@ class PurchaseService {
 
   /// Manejar fin del stream
   void _updateStreamOnDone() {
-    debugPrint('🛒 Stream de compras terminado');
+    LoggerService.debug('Stream de compras terminado', origin: 'PurchaseService');
     _subscription.cancel();
   }
 
   /// Manejar errores del stream
   void _updateStreamOnError(dynamic error) {
-    debugPrint('🛒 Error en stream de compras: $error');
+    LoggerService.error('Error en stream de compras: $error', origin: 'PurchaseService');
   }
 
   /// Liberar recursos
@@ -309,7 +352,7 @@ class PurchaseService {
     if (_isInitialized) {
       await _subscription.cancel();
       _isInitialized = false;
-      debugPrint('🛒 PurchaseService: Recursos liberados');
+      LoggerService.debug('Recursos liberados', origin: 'PurchaseService');
     }
   }
 }

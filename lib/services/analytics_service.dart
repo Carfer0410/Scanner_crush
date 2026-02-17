@@ -1,6 +1,6 @@
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter/foundation.dart';
+﻿import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'logger_service.dart';
 import '../models/crush_result.dart';
 import 'monetization_service.dart';
 import 'secure_time_service.dart';
@@ -24,13 +24,10 @@ class AnalyticsService {
     return _prefs!;
   }
 
-  // 📊 ANÁLISIS DE COMPATIBILIDAD PREMIUM
+  // 📊 ANÁLISIS DE COMPATIBILIDAD
 
-  // Obtener estadísticas generales
+  // Obtener estadísticas generales (disponible para todos los usuarios)
   Future<CompatibilityStats> getCompatibilityStats() async {
-    if (!await MonetizationService.instance.isPremiumWithGrace()) {
-      throw Exception('Analytics requires Premium subscription');
-    }
 
     final allResults = await _getAllResults();
     
@@ -219,7 +216,7 @@ class AnalyticsService {
           }
         } catch (e) {
           // Log error but continue processing other results
-          debugPrint('Error parsing result $key: $e');
+          LoggerService.warning('Error parsing result $key: $e', origin: 'AnalyticsService');
         }
       }
     }
@@ -230,9 +227,9 @@ class AnalyticsService {
     return results;
   }
 
-  // Obtener insights personalizados
-  Future<List<PersonalInsight>> getPersonalInsights(AppLocalizations loc) async {
-    if (!await MonetizationService.instance.isPremiumWithGrace()) {
+  // Obtener insights personalizados (premium o desbloqueado por ad)
+  Future<List<PersonalInsight>> getPersonalInsights(AppLocalizations loc, {bool bypassPremiumCheck = false}) async {
+    if (!bypassPremiumCheck && !await MonetizationService.instance.isPremiumAsync()) {
       throw Exception('Personal Insights require Premium subscription');
     }
 
@@ -319,9 +316,9 @@ class AnalyticsService {
     return insights;
   }
 
-  // Predicciones basadas en patrones
-  Future<List<LovePrediction>> getLovePredictions(AppLocalizations loc) async {
-    if (!await MonetizationService.instance.isPremiumWithGrace()) {
+  // Predicciones basadas en patrones (premium o desbloqueado por ad)
+  Future<List<LovePrediction>> getLovePredictions(AppLocalizations loc, {bool bypassPremiumCheck = false}) async {
+    if (!bypassPremiumCheck && !await MonetizationService.instance.isPremiumAsync()) {
       throw Exception('Love Predictions require Premium subscription');
     }
 

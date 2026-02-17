@@ -27,22 +27,22 @@ class _HistoryScreenState extends State<HistoryScreen> {
   BannerAd? _bannerAd;
   bool _isBannerAdReady = false;
   static const int _freeHistoryLimit = 10; // Límite para usuarios gratuitos
-  bool _isPremiumWithGrace = false;
+  bool _isPremium = false;
 
   @override
   void initState() {
     super.initState();
-    _checkPremiumWithGrace();
+    _checkPremiumStatus();
     _loadHistory();
   }
 
-  Future<void> _checkPremiumWithGrace() async {
-    final isPremiumGrace = await MonetizationService.instance.isPremiumWithGrace();
+  Future<void> _checkPremiumStatus() async {
+    final isPremium = await MonetizationService.instance.isPremiumAsync();
     if (mounted) {
       setState(() {
-        _isPremiumWithGrace = isPremiumGrace;
+        _isPremium = isPremium;
       });
-      if (!isPremiumGrace) {
+      if (!isPremium) {
         _loadBannerAd();
       }
     }
@@ -85,6 +85,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
         _results = displayResults;
         _isLoading = false;
       });
+
+      // Track que el usuario abrió el historial
+      AdMobService.instance.trackUserAction();
     } catch (e) {
       setState(() {
         _isLoading = false;
@@ -191,7 +194,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   ),
 
                   // Banner Ad solo si NO está en periodo de prueba ni premium
-                  if (_bannerAd != null && _isBannerAdReady && !_isPremiumWithGrace) ...[
+                  if (_bannerAd != null && _isBannerAdReady && !_isPremium) ...[
                     Container(
                       alignment: Alignment.center,
                       width: _bannerAd!.size.width.toDouble(),
@@ -316,7 +319,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   bool _shouldShowUpgradePrompt() {
-  return !_isPremiumWithGrace && _results.length >= _freeHistoryLimit;
+  return !_isPremium && _results.length >= _freeHistoryLimit;
   }
 
   Widget _buildUpgradePrompt() {

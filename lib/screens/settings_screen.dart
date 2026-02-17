@@ -35,8 +35,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _loadBannerAd() async {
-    // Solo cargar banner ads para usuarios no premium (incluye período de gracia)
-    if (!await MonetizationService.instance.isPremiumWithGrace()) {
+    // Solo cargar banner ads para usuarios no premium
+    if (!await MonetizationService.instance.isPremiumAsync()) {
       _bannerAd = AdMobService.instance.createBannerAd();
       _bannerAd?.load().then((_) {
         if (mounted) {
@@ -89,12 +89,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
 
-              // Banner Ad for non-premium users (incluyendo período de gracia)
+              // Banner Ad for non-premium users
               FutureBuilder<bool>(
-                future: MonetizationService.instance.isPremiumWithGrace(),
+                future: MonetizationService.instance.isPremiumAsync(),
                 builder: (context, snapshot) {
-                  final isPremiumWithGrace = snapshot.data ?? false;
-                  if (_bannerAd != null && _isBannerAdReady && !isPremiumWithGrace) {
+                  final isPremium = snapshot.data ?? false;
+                  if (_bannerAd != null && _isBannerAdReady && !isPremium) {
                     return Container(
                       alignment: Alignment.center,
                       width: _bannerAd!.size.width.toDouble(),
@@ -115,10 +115,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                     // Premium status card
                     FutureBuilder<bool>(
-                      future: MonetizationService.instance.isPremiumWithGrace(),
+                      future: MonetizationService.instance.isPremiumAsync(),
                       builder: (context, snapshot) {
-                        final isPremiumWithGrace = snapshot.data ?? false;
-                        if (isPremiumWithGrace) {
+                        final isPremium = snapshot.data ?? false;
+                        if (isPremium) {
                           return _buildPremiumCard();
                         } else {
                           return _buildUpgradeCard();
@@ -130,7 +130,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                     // Settings sections
                     _buildSettingsSection(
-                      title: 'General', // TODO: Add localization key 'general'
+                      title: AppLocalizations.of(context)!.sectionGeneral,
                       items: [
                         _buildSettingsItem(
                           icon: Icons.history,
@@ -177,7 +177,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                     // 🎵 NUEVA SECCIÓN DE AUDIO
                     _buildSettingsSection(
-                      title: 'Audio', // TODO: Add localization key 'audio'
+                      title: AppLocalizations.of(context)!.sectionAudio,
                       items: [
                         _buildSettingsItem(
                           icon:
@@ -219,13 +219,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     const SizedBox(height: 30),
 
                         FutureBuilder<bool>(
-                          future: MonetizationService.instance.isPremiumWithGrace(),
+                          future: MonetizationService.instance.isPremiumAsync(),
                           builder: (context, snapshot) {
-                            final isPremiumWithGrace = snapshot.data ?? false;
+                            final isPremium = snapshot.data ?? false;
                             return _buildSettingsSection(
                               title: AppLocalizations.of(context)?.premium ?? 'Premium',
                               items: [
-                                if (!isPremiumWithGrace)
+                                if (!isPremium)
                                   _buildSettingsItem(
                                     icon: Icons.star,
                                     title:
@@ -243,11 +243,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         vertical: 4,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: Colors.orange,
+                                        color: ThemeService.instance.primaryColor,
                                         borderRadius: BorderRadius.circular(10),
                                       ),
                                       child: Text(
-                                        'NUEVO',
+                                        AppLocalizations.of(context)!.newBadge,
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontSize: 10,
@@ -263,30 +263,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                     // Data section
                     _buildSettingsSection(
-                      title:
-                          (LocaleService.instance.currentLocale.languageCode ==
-                                  'en')
-                              ? 'Data'
-                              : 'Datos',
+                      title: AppLocalizations.of(context)!.sectionData,
                       items: [
                         _buildSettingsItem(
                           icon: Icons.delete_forever,
-                          title:
-                              (LocaleService
-                                          .instance
-                                          .currentLocale
-                                          .languageCode ==
-                                      'en')
-                                  ? 'Clear All Data'
-                                  : 'Eliminar Todos los Datos',
-                          subtitle:
-                              (LocaleService
-                                          .instance
-                                          .currentLocale
-                                          .languageCode ==
-                                      'en')
-                                  ? 'Delete statistics, history and streaks'
-                                  : 'Eliminar estadísticas, historial y rachas',
+                          title: AppLocalizations.of(context)!.clearAllData,
+                          subtitle: AppLocalizations.of(context)!.clearAllDataSubtitle,
                           onTap: () => _showClearDataDialog(),
                           trailing: Icon(
                             Icons.warning,
@@ -300,70 +282,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     const SizedBox(height: 30),
 
                     _buildSettingsSection(
-                      title:
-                          (LocaleService.instance.currentLocale.languageCode ==
-                                  'en')
-                              ? 'Support'
-                              : 'Soporte',
+                      title: AppLocalizations.of(context)!.support,
                       items: [
                         _buildSettingsItem(
                           icon: Icons.help_outline,
-                          title:
-                              (LocaleService
-                                          .instance
-                                          .currentLocale
-                                          .languageCode ==
-                                      'en')
-                                  ? 'Help & Questions'
-                                  : 'Ayuda y Preguntas',
-                          subtitle:
-                              (LocaleService
-                                          .instance
-                                          .currentLocale
-                                          .languageCode ==
-                                      'en')
-                                  ? 'Get help on how to use the app'
-                                  : 'Obtén ayuda sobre cómo usar la app',
+                          title: AppLocalizations.of(context)!.helpAndQuestions,
+                          subtitle: AppLocalizations.of(context)!.getHelpOnApp,
                           onTap: () => _showHelpDialog(),
                         ),
                         _buildSettingsItem(
                           icon: Icons.info_outline,
-                          title:
-                              (LocaleService
-                                          .instance
-                                          .currentLocale
-                                          .languageCode ==
-                                      'en')
-                                  ? 'About'
-                                  : 'Acerca de',
-                          subtitle:
-                              (LocaleService
-                                          .instance
-                                          .currentLocale
-                                          .languageCode ==
-                                      'en')
-                                  ? 'Information about the application'
-                                  : 'Información sobre la aplicación',
+                          title: AppLocalizations.of(context)!.about,
+                          subtitle: AppLocalizations.of(context)!.aboutSubtitle,
                           onTap: () => _showAboutDialog(),
                         ),
                         _buildSettingsItem(
                           icon: Icons.privacy_tip_outlined,
-                          title:
-                              (LocaleService
-                                          .instance
-                                          .currentLocale
-                                          .languageCode ==
-                                      'en')
-                                  ? 'Privacy'
-                                  : 'Privacidad',
-                          subtitle:
-                              (LocaleService
-                                          .instance
-                                          .currentLocale
-                                          .languageCode ==
-                                      'en')
-                                  ? 'Privacy policy and terms'
-                                  : 'Política de privacidad y términos',
+                          title: AppLocalizations.of(context)!.privacyTitle,
+                          subtitle: AppLocalizations.of(context)!.privacySubtitle,
                           onTap: () => _showPrivacyDialog(),
                         ),
                       ],
@@ -374,10 +310,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     // App version
                     Center(
                       child: Text(
-                        (LocaleService.instance.currentLocale.languageCode ==
-                                'en')
-                            ? 'Crush Scanner v1.0.0\nMade with 💕 for love'
-                            : 'Escáner de Crush v1.0.0\nHecho con 💕 para el amor',
+                        AppLocalizations.of(context)!.appVersionFooter,
                         style: GoogleFonts.poppins(
                           fontSize: 12,
                           color: ThemeService.instance.textColor.withOpacity(
@@ -402,11 +335,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Container(
       padding: const EdgeInsets.all(25),
       decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [Colors.amber, Colors.orange]),
+        gradient: LinearGradient(colors: [ThemeService.instance.primaryColor, ThemeService.instance.secondaryColor]),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.amber.withOpacity(0.4),
+            color: ThemeService.instance.primaryColor.withOpacity(0.4),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -421,9 +354,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  (LocaleService.instance.currentLocale.languageCode == 'en')
-                    ? 'You\'re Premium!'
-                    : '¡Eres Premium!',
+                  AppLocalizations.of(context)!.youArePremium,
                   style: GoogleFonts.poppins(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -431,9 +362,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
                 Text(
-                  (LocaleService.instance.currentLocale.languageCode == 'en')
-                    ? 'Enjoy all features without limits'
-                    : 'Disfruta de todas las funciones sin límites',
+                  AppLocalizations.of(context)!.enjoyAllFeatures,
                   style: GoogleFonts.poppins(
                     fontSize: 14,
                     color: Colors.white.withOpacity(0.9),
@@ -448,157 +377,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _buildUpgradeCard() {
-    return FutureBuilder<bool>(
-      future: MonetizationService.instance.isNewUser(),
-      builder: (context, graceSnapshot) {
-        final isInGracePeriod = graceSnapshot.data ?? false;
-        
-        if (isInGracePeriod) {
-          // Usuario en período de gracia - mostrar escaneos ilimitados
-          return FutureBuilder<int>(
-            future: MonetizationService.instance.getGracePeriodDaysRemaining(),
-            builder: (context, daysSnapshot) {
-              final daysRemaining = daysSnapshot.data ?? 0;
-              
-              return GestureDetector(
-                onTap: () => _navigateToPremium(),
-                child: Container(
-                  padding: const EdgeInsets.all(25),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Colors.green.withOpacity(0.9),
-                        Colors.teal.withOpacity(0.9),
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.green.withOpacity(0.4),
-                        blurRadius: 15,
-                        offset: const Offset(0, 8),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Icon(Icons.favorite, color: Colors.white, size: 30),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  (LocaleService.instance.currentLocale.languageCode == 'en')
-                                    ? '🎉 Welcome New User!'
-                                    : '🎉 ¡Bienvenido Usuario Nuevo!',
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                Text(
-                                  (LocaleService.instance.currentLocale.languageCode == 'en')
-                                    ? 'Enjoy unlimited scans during your trial!'
-                                    : '¡Disfruta escaneos ilimitados en tu prueba!',
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 14,
-                                    color: Colors.white.withOpacity(0.9),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Icon(Icons.arrow_forward_ios, color: Colors.white, size: 20),
-                        ],
-                      ),
-                      
-                      const SizedBox(height: 20),
-                      
-                      // Grace period info
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: Colors.white.withOpacity(0.2),
-                            width: 1,
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(Icons.all_inclusive, color: Colors.white, size: 24),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    (LocaleService.instance.currentLocale.languageCode == 'en')
-                                      ? 'Unlimited Scans Active'
-                                      : 'Escaneos Ilimitados Activos',
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  Text(
-                                    daysRemaining > 0
-                                      ? (LocaleService.instance.currentLocale.languageCode == 'en')
-                                        ? '$daysRemaining ${daysRemaining == 1 ? 'day' : 'days'} remaining in trial'
-                                        : 'Quedan $daysRemaining ${daysRemaining == 1 ? 'día' : 'días'} de prueba'
-                                      : (LocaleService.instance.currentLocale.languageCode == 'en')
-                                        ? 'Trial ending today'
-                                        : 'Prueba termina hoy',
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 12,
-                                      color: Colors.white.withOpacity(0.8),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      
-                      const SizedBox(height: 16),
-                      
-                      // Premium benefits
-                      Text(
-                        (LocaleService.instance.currentLocale.languageCode == 'en')
-                          ? '🚀 Continue unlimited • 🚫 No ads • ⭐ Exclusive content'
-                          : '🚀 Continúa ilimitado • 🚫 Sin anuncios • ⭐ Contenido exclusivo',
-                        style: GoogleFonts.poppins(
-                          fontSize: 13,
-                          color: Colors.white.withOpacity(0.9),
-                          fontWeight: FontWeight.w500,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                ),
-              ).animate().scale(delay: 200.ms);
-            },
-          );
-        } else {
-          // Usuario fuera del período de gracia - mostrar contador normal
-          return FutureBuilder<int>(
+    return FutureBuilder<int>(
             future: MonetizationService.instance.getRemainingScansTodayForFree(),
             builder: (context, snapshot) {
               final remainingScans = snapshot.data ?? 0;
@@ -619,8 +398,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        Colors.purple.withOpacity(0.9),
-                        Colors.pink.withOpacity(0.9),
+                        ThemeService.instance.primaryColor.withOpacity(0.9),
+                        ThemeService.instance.secondaryColor.withOpacity(0.9),
                       ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
@@ -628,7 +407,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.purple.withOpacity(0.4),
+                        color: ThemeService.instance.primaryColor.withOpacity(0.4),
                         blurRadius: 15,
                         offset: const Offset(0, 8),
                       ),
@@ -695,9 +474,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    (LocaleService.instance.currentLocale.languageCode == 'en')
-                                      ? 'Today\'s scans: $scansUsedToday/$totalFreeScans'
-                                      : 'Escaneos de hoy: $scansUsedToday/$totalFreeScans',
+                                    AppLocalizations.of(context)!.scansToday(scansUsedToday, totalFreeScans),
                                     style: GoogleFonts.poppins(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,
@@ -705,13 +482,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     ),
                                   ),
                                   Text(
-                                    remainingScans > 0 
-                                      ? (LocaleService.instance.currentLocale.languageCode == 'en')
-                                        ? '$remainingScans free scans remaining'
-                                        : 'Quedan $remainingScans escaneos gratis'
-                                      : (LocaleService.instance.currentLocale.languageCode == 'en')
-                                        ? 'No scans left! Watch ads for more'
-                                        : '¡Sin escaneos! Ve anuncios para más',
+                                    remainingScans > 0
+                                      ? AppLocalizations.of(context)!.scansRemaining(remainingScans)
+                                      : AppLocalizations.of(context)!.noScansLeft,
                                     style: GoogleFonts.poppins(
                                       fontSize: 12,
                                       color: Colors.white.withOpacity(0.8),
@@ -728,9 +501,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       
                       // Premium benefits
                       Text(
-                        (LocaleService.instance.currentLocale.languageCode == 'en')
-                          ? '🚀 Unlimited scans • 🚫 No ads • ⭐ Exclusive content'
-                          : '🚀 Escaneos ilimitados • 🚫 Sin anuncios • ⭐ Contenido exclusivo',
+                        AppLocalizations.of(context)!.premiumBenefits,
                         style: GoogleFonts.poppins(
                           fontSize: 13,
                           color: Colors.white.withOpacity(0.9),
@@ -746,9 +517,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               );
             },
           );
-        }
-      },
-    );
   }
 
   Widget _buildSettingsSection({
@@ -984,34 +752,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
               borderRadius: BorderRadius.circular(20),
             ),
             title: Text(
-              (LocaleService.instance.currentLocale.languageCode == 'en')
-                  ? '💕 Help'
-                  : '💕 Ayuda',
+              AppLocalizations.of(context)!.helpDialogTitle,
               style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
             ),
             content: Text(
-              (LocaleService.instance.currentLocale.languageCode == 'en')
-                  ? 'Crush Scanner is a fun app that calculates compatibility between two people based on their names.\n\n'
-                      '• Enter your name and your crush\'s name\n'
-                      '• Press "Scan Love"\n'
-                      '• Discover your compatibility\n'
-                      '• Share the result\n\n'
-                      'It\'s just for fun! 😄'
-                  : 'Escáner de Crush es una app divertida que calcula la compatibilidad entre dos personas basándose en sus nombres.\n\n'
-                      '• Ingresa tu nombre y el de tu crush\n'
-                      '• Presiona "Escanear Amor"\n'
-                      '• Descubre tu compatibilidad\n'
-                      '• Comparte el resultado\n\n'
-                      '¡Es solo por diversión! 😄',
+              AppLocalizations.of(context)!.helpDialogContent,
               style: GoogleFonts.poppins(fontSize: 14),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
                 child: Text(
-                  (LocaleService.instance.currentLocale.languageCode == 'en')
-                      ? 'Got it'
-                      : 'Entendido',
+                  AppLocalizations.of(context)!.understood,
                   style: GoogleFonts.poppins(
                     fontWeight: FontWeight.bold,
                     color: ThemeService.instance.primaryColor,
@@ -1032,30 +784,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
               borderRadius: BorderRadius.circular(20),
             ),
             title: Text(
-              (LocaleService.instance.currentLocale.languageCode == 'en')
-                  ? '💘 About'
-                  : '💘 Acerca de',
+              AppLocalizations.of(context)!.aboutDialogTitle,
               style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
             ),
             content: Text(
-              (LocaleService.instance.currentLocale.languageCode == 'en')
-                  ? 'Crush Scanner v1.0.0\n\n'
-                      'A fun app to discover love compatibility.\n\n'
-                      'Made with love by Perlaza Studio\n\n'
-                      '© 2025 Crush Scanner'
-                  : 'Escáner de Crush v1.0.0\n\n'
-                      'Una aplicación divertida para descubrir la compatibilidad amorosa.\n\n'
-                      'Hecha con amor por Perlaza Studio\n\n'
-                      '© 2025 Escáner de Crush',
+              AppLocalizations.of(context)!.aboutDialogContent,
               style: GoogleFonts.poppins(fontSize: 14),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
                 child: Text(
-                  (LocaleService.instance.currentLocale.languageCode == 'en')
-                      ? 'Close'
-                      : 'Cerrar',
+                  AppLocalizations.of(context)!.close,
                   style: GoogleFonts.poppins(
                     fontWeight: FontWeight.bold,
                     color: ThemeService.instance.primaryColor,
@@ -1076,34 +816,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
               borderRadius: BorderRadius.circular(20),
             ),
             title: Text(
-              (LocaleService.instance.currentLocale.languageCode == 'en')
-                  ? '🔒 Privacy'
-                  : '🔒 Privacidad',
+              AppLocalizations.of(context)!.privacyDialogTitle,
               style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
             ),
             content: Text(
-              (LocaleService.instance.currentLocale.languageCode == 'en')
-                  ? 'Your privacy is important to us.\n\n'
-                      '• Names are stored only locally\n'
-                      '• We don\'t share personal information\n'
-                      '• Results are generated randomly\n'
-                      '• You can delete your history anytime\n\n'
-                      'This app is for entertainment only.'
-                  : 'Tu privacidad es importante para nosotros.\n\n'
-                      '• Los nombres se almacenan solo localmente\n'
-                      '• No compartimos información personal\n'
-                      '• Los resultados son generados aleatoriamente\n'
-                      '• Puedes borrar tu historial en cualquier momento\n\n'
-                      'Esta app es solo para entretenimiento.',
+              AppLocalizations.of(context)!.privacyDialogContent,
               style: GoogleFonts.poppins(fontSize: 14),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
                 child: Text(
-                  (LocaleService.instance.currentLocale.languageCode == 'en')
-                      ? 'Got it'
-                      : 'Entendido',
+                  AppLocalizations.of(context)!.understood,
                   style: GoogleFonts.poppins(
                     fontWeight: FontWeight.bold,
                     color: ThemeService.instance.primaryColor,
@@ -1122,9 +846,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       builder:
           (context) => AlertDialog(
             title: Text(
-              (LocaleService.instance.currentLocale.languageCode == 'en')
-                  ? 'Clear All Data'
-                  : '¿Eliminar Todos los Datos?',
+              AppLocalizations.of(context)!.confirmClearDataTitle,
               style: GoogleFonts.poppins(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -1132,18 +854,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             content: Text(
-              (LocaleService.instance.currentLocale.languageCode == 'en')
-                  ? 'Are you sure you want to delete all your statistics, history, and streaks? This action cannot be undone.'
-                  : '¿Estás seguro de que quieres eliminar todas tus estadísticas, historial y rachas? Esta acción no se puede deshacer.',
+              AppLocalizations.of(context)!.confirmClearDataContent,
               style: GoogleFonts.poppins(fontSize: 14),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
                 child: Text(
-                  (LocaleService.instance.currentLocale.languageCode == 'en')
-                      ? 'Cancel'
-                      : 'Cancelar',
+                  AppLocalizations.of(context)!.cancel,
                   style: GoogleFonts.poppins(
                     fontWeight: FontWeight.w500,
                     color: ThemeService.instance.textColor.withOpacity(0.7),
@@ -1156,9 +874,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   backgroundColor: Colors.red.withOpacity(0.1),
                 ),
                 child: Text(
-                  (LocaleService.instance.currentLocale.languageCode == 'en')
-                      ? 'Delete All'
-                      : 'Eliminar Todo',
+                  AppLocalizations.of(context)!.deleteAll,
                   style: GoogleFonts.poppins(
                     fontWeight: FontWeight.bold,
                     color: Colors.red,
@@ -1247,9 +963,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              (LocaleService.instance.currentLocale.languageCode == 'en')
-                  ? 'All data has been successfully deleted'
-                  : 'Todos los datos han sido eliminados exitosamente',
+              AppLocalizations.of(context)!.dataDeletedSuccess,
               style: GoogleFonts.poppins(),
             ),
             backgroundColor: Colors.green,
@@ -1267,9 +981,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              (LocaleService.instance.currentLocale.languageCode == 'en')
-                  ? 'Error deleting data: $e'
-                  : 'Error al eliminar datos: $e',
+              AppLocalizations.of(context)!.errorDeletingData(e.toString()),
               style: GoogleFonts.poppins(),
             ),
             backgroundColor: Colors.red,

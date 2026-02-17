@@ -1,4 +1,4 @@
-import 'dart:convert';
+﻿import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -141,10 +141,10 @@ class SecureTimeService {
         final safeElapsed = Duration(
           milliseconds: elapsedSinceStart.inMilliseconds.clamp(0, 24 * 60 * 60 * 1000)
         );
-        return DateTime(2025, 9, 7).add(safeElapsed); // Fecha base actual conocida
+        return DateTime(2026, 2, 1).add(safeElapsed); // Fecha base actualizada
       }
       
-      return DateTime(2025, 9, 7); // Fecha base conservadora
+      return DateTime(2026, 2, 1); // Fecha base conservadora
     }
 
     // DETECCIÓN PRINCIPAL DE MANIPULACIÓN
@@ -231,16 +231,21 @@ class SecureTimeService {
     return secureNow.difference(referenceDate).inDays;
   }
 
-  /// Fuerza una nueva sincronización (útil para testing o reconexión)
+  /// Fuerza una nueva sincronización (no destructiva: preserva datos si falla)
   Future<bool> forceSyncNow() async {
-    // Resetear datos para forzar nueva sincronización
-    _lastKnownServerTime = null;
-    _lastLocalTime = null;
-    _timeOffset = null;
+    // Guardar backup del estado actual por si la sincronización falla
+    final backupServerTime = _lastKnownServerTime;
+    final backupLocalTime = _lastLocalTime;
+    final backupOffset = _timeOffset;
     
     final success = await _syncWithServer();
     if (success) {
       await _saveTimeData();
+    } else {
+      // Restaurar estado anterior si la sincronización falló
+      _lastKnownServerTime = backupServerTime;
+      _lastLocalTime = backupLocalTime;
+      _timeOffset = backupOffset;
     }
     
     return success;
