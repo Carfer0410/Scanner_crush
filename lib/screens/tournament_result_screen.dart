@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -26,6 +27,28 @@ class _TournamentResultScreenState extends State<TournamentResultScreen>
   late AnimationController _podiumController;
   late AnimationController _confettiController;
   BannerAd? _bannerAd;
+  late String _coronationPhrase;
+  final Random _random = Random();
+
+  static const List<String> _coronationPhrasesEs = [
+    '¡El amor ha hablado! {name} se lleva la corona del corazón de {user} 👑',
+    '¡Después de una batalla épica, {name} reina en el corazón de {user}! 💘',
+    '¡Todos lucharon, pero el destino eligió a {name} para {user}! ✨',
+    '¡Se escucharon los latidos y {name} conquistó a {user}! 💓',
+    '¡El universo conspiró y {name} conquistó el corazón de {user}! 🌟',
+    '¡De entre todos los crushes, {name} es el/la elegido/a de {user}! 🔥',
+    '¡El corazón de {user} no miente! {name} es el crush definitivo 💕',
+  ];
+
+  static const List<String> _coronationPhrasesEn = [
+    'Love has spoken! {name} takes the crown of {user}\'s heart 👑',
+    'After an epic battle, {name} reigns in {user}\'s heart! 💘',
+    'Everyone fought, but destiny chose {name} for {user}! ✨',
+    'The heartbeats were heard and {name} conquered {user}! 💓',
+    'The universe conspired and {name} conquered {user}\'s heart! 🌟',
+    'Among all crushes, {name} is {user}\'s chosen one! 🔥',
+    '{user}\'s heart never lies! {name} is the ultimate crush 💕',
+  ];
 
   @override
   void initState() {
@@ -40,6 +63,9 @@ class _TournamentResultScreenState extends State<TournamentResultScreen>
       duration: const Duration(seconds: 3),
       vsync: this,
     );
+
+    // Generate coronation phrase
+    _coronationPhrase = '';
 
     Future.delayed(const Duration(milliseconds: 500), () {
       _podiumController.forward();
@@ -151,16 +177,49 @@ class _TournamentResultScreenState extends State<TournamentResultScreen>
                         textAlign: TextAlign.center,
                       ).animate().fadeIn(delay: 300.ms),
 
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 12),
 
-                      Text(
-                        loc.tournamentResultSubtitle,
-                        style: GoogleFonts.poppins(
-                          fontSize: 14,
-                          color: ThemeService.instance.subtitleColor,
-                        ),
-                        textAlign: TextAlign.center,
-                      ).animate().fadeIn(delay: 500.ms),
+                      // Epic coronation message
+                      Builder(
+                        builder: (context) {
+                          if (_coronationPhrase.isEmpty && tournament.champion != null) {
+                            final isEn = Localizations.localeOf(context).languageCode == 'en';
+                            final phrases = isEn ? _coronationPhrasesEn : _coronationPhrasesEs;
+                            _coronationPhrase = phrases[_random.nextInt(phrases.length)]
+                                .replaceAll('{name}', tournament.champion!.name)
+                                .replaceAll('{user}', tournament.userName);
+                          }
+                          return Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 8),
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  ThemeService.instance.primaryColor.withOpacity(0.15),
+                                  ThemeService.instance.secondaryColor.withOpacity(0.15),
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: ThemeService.instance.primaryColor.withOpacity(0.3),
+                              ),
+                            ),
+                            child: Text(
+                              _coronationPhrase.isNotEmpty
+                                  ? _coronationPhrase
+                                  : loc.tournamentResultSubtitle,
+                              style: GoogleFonts.poppins(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: ThemeService.instance.textColor,
+                                fontStyle: FontStyle.italic,
+                                height: 1.4,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          );
+                        },
+                      ).animate().fadeIn(delay: 500.ms).slideY(begin: 0.2, end: 0),
 
                       const SizedBox(height: 32),
 

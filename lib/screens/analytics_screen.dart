@@ -114,23 +114,52 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
   /// Ver anuncio para desbloquear insights temporalmente
   Future<void> _unlockInsightsByAd() async {
     setState(() { _isLoadingInsights = true; });
-    final shown = await AdMobService.instance.showRewardedAd(
-      onUserEarnedReward: (ad, reward) async {
+    final rewarded = await AdMobService.instance.showRewardedAd(
+      onUserEarnedReward: (ad, reward) {
         if (mounted) {
           setState(() { _insightsUnlockedByAd = true; });
-          await _loadInsightsAndPredictions();
+        }
+      },
+      onAdDismissed: () {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(AppLocalizations.of(context)?.adNotAvailable ?? 'No se obtuvo recompensa'),
+              backgroundColor: Colors.orange,
+              duration: const Duration(seconds: 2),
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          );
         }
       },
     );
     if (mounted) {
-      setState(() { _isLoadingInsights = false; });
-      if (!shown) {
+      if (rewarded) {
+        await _loadInsightsAndPredictions();
+        setState(() { _isLoadingInsights = false; });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context)?.adNotAvailable ?? 'Ad not available right now'),
-            backgroundColor: Colors.orange,
+            content: Text('✨ ${AppLocalizations.of(context)?.insightsTab ?? "Insights"} desbloqueados'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
         );
+      } else {
+        setState(() { _isLoadingInsights = false; });
+        if (!_insightsUnlockedByAd) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(AppLocalizations.of(context)?.adNotAvailable ?? 'Anuncio no disponible'),
+              backgroundColor: Colors.grey.shade700,
+              duration: const Duration(seconds: 2),
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          );
+        }
       }
     }
   }
@@ -138,23 +167,52 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
   /// Ver anuncio para desbloquear predictions temporalmente
   Future<void> _unlockPredictionsByAd() async {
     setState(() { _isLoadingPredictions = true; });
-    final shown = await AdMobService.instance.showRewardedAd(
-      onUserEarnedReward: (ad, reward) async {
+    final rewarded = await AdMobService.instance.showRewardedAd(
+      onUserEarnedReward: (ad, reward) {
         if (mounted) {
           setState(() { _predictionsUnlockedByAd = true; });
-          await _loadInsightsAndPredictions();
+        }
+      },
+      onAdDismissed: () {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(AppLocalizations.of(context)?.adNotAvailable ?? 'No se obtuvo recompensa'),
+              backgroundColor: Colors.orange,
+              duration: const Duration(seconds: 2),
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          );
         }
       },
     );
     if (mounted) {
-      setState(() { _isLoadingPredictions = false; });
-      if (!shown) {
+      if (rewarded) {
+        await _loadInsightsAndPredictions();
+        setState(() { _isLoadingPredictions = false; });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context)?.adNotAvailable ?? 'Ad not available right now'),
-            backgroundColor: Colors.orange,
+            content: Text('✨ ${AppLocalizations.of(context)?.predictionsTab ?? "Predicciones"} desbloqueadas'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
         );
+      } else {
+        setState(() { _isLoadingPredictions = false; });
+        if (!_predictionsUnlockedByAd) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(AppLocalizations.of(context)?.adNotAvailable ?? 'Anuncio no disponible'),
+              backgroundColor: Colors.grey.shade700,
+              duration: const Duration(seconds: 2),
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          );
+        }
       }
     }
   }

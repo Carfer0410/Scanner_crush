@@ -172,37 +172,67 @@ class TournamentService {
     tournament.currentMatchInRound = 0;
   }
 
-  /// Revive an eliminated participant — replaces the weakest survivor in the
-  /// upcoming round with the revived participant.
+  /// Revive an eliminated participant.
+  /// The revived player replaces the winner who beat them in the next round,
+  /// keeping bracket integrity intact.
   bool reviveParticipant(Tournament tournament, TournamentParticipant participant) {
     if (!participant.isEliminated || participant.isRevived) return false;
     if (tournament.isComplete) return false;
 
-    // Un-eliminate
-    participant.isEliminated = false;
-    participant.isRevived = true;
+    // 1) Find the match where this participant lost
+    TournamentMatch? lostMatch;
+    for (final round in tournament.rounds) {
+      for (final m in round) {
+        if (m.isPlayed &&
+            m.winner != null &&
+            (m.participant1 == participant || m.participant2 == participant) &&
+            m.winner != participant) {
+          lostMatch = m;
+        }
+      }
+    }
+    if (lostMatch == null) return false;
 
-    // Find the current round's matches and replace the weakest winner
-    // from the previous round with the revived participant
-    if (tournament.currentRound > 0 && tournament.currentRound < tournament.rounds.length) {
-      final currentRoundMatches = tournament.rounds[tournament.currentRound];
-      // Find the first unplayed match
-      for (final match in currentRoundMatches) {
-        if (!match.isPlayed) {
-          // Replace participant2 with the revived one
-          final oldParticipant = match.participant2;
-          // Create a new match with revived participant
-          final idx = currentRoundMatches.indexOf(match);
-          currentRoundMatches[idx] = TournamentMatch(
-            participant1: match.participant1,
-            participant2: participant,
-            roundNumber: match.roundNumber,
-            matchIndex: match.matchIndex,
+    // 2) The one who beat them
+    final beater = lostMatch.winner!;
+
+    // 3) Look for 'beater' in an upcoming (unplayed) match and replace them
+    for (int r = lostMatch.roundNumber + 1; r < tournament.rounds.length; r++) {
+      final roundMatches = tournament.rounds[r];
+      for (int i = 0; i < roundMatches.length; i++) {
+        final m = roundMatches[i];
+        if (m.isPlayed) continue;
+        if (m.participant1 == beater || m.participant2 == beater) {
+          // Swap beater → revived participant
+          roundMatches[i] = TournamentMatch(
+            participant1: m.participant1 == beater ? participant : m.participant1,
+            participant2: m.participant2 == beater ? participant : m.participant2,
+            roundNumber: m.roundNumber,
+            matchIndex: m.matchIndex,
           );
-          oldParticipant.isEliminated = true;
+          participant.isEliminated = false;
+          participant.isRevived = true;
+          beater.isEliminated = true;
+          // Prevent the newly-eliminated participant (the beater) from being
+          // immediately eligible for another revive — mark as "revived"
+          // so `getEliminatedParticipants` will exclude them.
+          beater.isRevived = true;
           return true;
         }
       }
+    }
+
+    // 4) If 'beater' hasn't advanced to the next round yet (round not generated),
+    //    do a direct swap: undo the match result so the revived player becomes
+    //    the winner of that match instead.
+    if (lostMatch.roundNumber == tournament.currentRound ||
+        lostMatch.roundNumber == tournament.currentRound - 1) {
+      lostMatch.winner = participant;
+      participant.isEliminated = false;
+      participant.isRevived = true;
+      beater.isEliminated = true;
+      beater.isRevived = true;
+      return true;
     }
 
     return false;

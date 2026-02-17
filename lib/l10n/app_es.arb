@@ -128,7 +128,7 @@
   "splashSlogan": "¡El amor es solo el principio! 💖",
   "welcomeTitle": "Descubre a tu Admirador Secreto",
   "welcomeSubtitle": "Descubre quién está enamorado de ti con nuestro algoritmo avanzado 💕",
-  "startScan": "Comenzar Escaneo",
+  "startScan": "Escaner a tu Crush",
   "celebrityScan": "Escaneo de Celebridades",
   "dailyLove": "Amor Diario",
   "settings": "Configuración",
@@ -302,7 +302,7 @@
   "specialThemesDescription": "Personaliza la app con temas únicos y exclusivos",
   "premiumSupportTitle": "Soporte Premium",
   "premiumSupportDescription": "Atención prioritaria y soporte técnico avanzado",
-  "purchasePremium": "Obtener Premium - $4.99/mes",
+  "purchasePremium": "Obtener Premium - $2.99/mes",
   "welcomeToPremium": "¡Bienvenido a Premium!",
   "premiumActivated": "Tu cuenta Premium ha sido activada exitosamente. ¡Disfruta de todas las características exclusivas!",
   "great": "¡Genial!",
@@ -562,7 +562,7 @@
 
   "purchasesRestoredSuccessfully": "Compras restauradas exitosamente",
 
-  "defaultPrice": "$4.99/mes",
+  "defaultPrice": "$2.99/mes",
 
   "themesTitle": "🎨 Temas Premium",
 

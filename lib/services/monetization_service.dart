@@ -19,7 +19,7 @@ class MonetizationService {
   static const int _dailyFreeScans = 5; // Aumentado de 3 a 5
   static const int _freeCelebrities = 50;
   static const int _dailyFreeShares = 3;
-  static const int _maxAdBonusScans = 10; // Máximo de escaneos bonus por ads
+  static const int _maxAdBonusScans = 6; // Máximo de escaneos bonus por ads (bajado de 10 para reforzar premium)
   
   SubscriptionTier _currentTier = SubscriptionTier.free;
   DateTime? _subscriptionExpiry;
@@ -226,6 +226,35 @@ class MonetizationService {
     return _prefs?.getInt('extra_scans_today') ?? 0;
   }
   
+  // ── Torneo de 16: desbloqueo diario con anuncio ────────────────────────
+  /// Indica si el usuario ya usó su unlock diario de torneo 16
+  Future<bool> hasTournament16AdUnlockToday() async {
+    final today = SecureTimeService.instance.getSecureDate().toIso8601String().split('T')[0];
+    final lastDate = _prefs?.getString('tournament16_ad_date');
+    return lastDate == today;
+  }
+
+  /// Verifica si puede acceder al torneo 16 (premium O ad-unlock del día)
+  Future<bool> canAccessTournament16() async {
+    if (isPremium) return true;
+    return await hasTournament16AdUnlockToday();
+  }
+
+  /// Muestra anuncio rewarded para desbloquear torneo 16 (1 vez/día)
+  Future<bool> watchAdForTournament16() async {
+    if (isPremium) return true;
+    if (await hasTournament16AdUnlockToday()) return true; // Ya desbloqueado hoy
+
+    final adShown = await AdMobService.instance.showRewardedAd(
+      onUserEarnedReward: (ad, reward) async {
+        final today = SecureTimeService.instance.getSecureDate().toIso8601String().split('T')[0];
+        await _prefs?.setString('tournament16_ad_date', today);
+      },
+    );
+
+    return adShown;
+  }
+
   // Suscripciones usando tiempo seguro
   Future<void> upgradeToPremium({int months = 1}) async {
     _currentTier = SubscriptionTier.premium;

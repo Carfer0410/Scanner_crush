@@ -655,13 +655,8 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   }
 
   void _navigateToAnalytics(BuildContext context) async {
-    // Verificar si tiene premium
-    if (!await MonetizationService.instance.isPremiumAsync()) {
-      _showPremiumRequired(context);
-      return;
-    }
-
-    // 🎵 Sonido de transición
+    // Abrir AnalyticsScreen siempre; el propio screen maneja el desbloqueo
+    // (estadísticas gratis; insights/predictions via premium o anuncio).
     AudioService.instance.playTransition();
 
     Navigator.push(

@@ -1,4 +1,5 @@
 ﻿import 'dart:io';
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -230,6 +231,8 @@ class AdMobService {
     Function()? onAdDismissed,
   }) async {
     if (_rewardedAd != null && _isRewardedAdLoaded) {
+      final completer = Completer<bool>();
+      var _rewardGiven = false;
       // Configurar callbacks ANTES de show() para evitar race condition
       _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
         onAdShowedFullScreenContent: (ad) {
@@ -237,22 +240,41 @@ class AdMobService {
           _trackAdEvent('rewarded_showed');
         },
         onAdDismissedFullScreenContent: (ad) {
-          onAdDismissed?.call();
+          // Llamar a onAdDismissed sólo si NO se obtuvo la recompensa
+          if (!_rewardGiven) onAdDismissed?.call();
+          try {
+            if (!completer.isCompleted) completer.complete(_rewardGiven);
+          } catch (_) {}
           ad.dispose();
           _isRewardedAdLoaded = false;
           _loadRewardedAd();
         },
         onAdFailedToShowFullScreenContent: (ad, error) {
           LoggerService.error('Rewarded ad failed to show: $error', origin: 'AdMobService');
+          try {
+            if (!completer.isCompleted) completer.complete(false);
+          } catch (_) {}
           ad.dispose();
           _isRewardedAdLoaded = false;
           _loadRewardedAd();
         },
       );
-      
-      await _rewardedAd!.show(onUserEarnedReward: onUserEarnedReward);
-      
-      return true;
+      // Envolver el callback de recompensa para saber si el usuario obtuvo la reward
+      await _rewardedAd!.show(onUserEarnedReward: (ad, reward) {
+        _rewardGiven = true;
+        try {
+          onUserEarnedReward(ad, reward);
+        } catch (e, st) {
+          LoggerService.error('Error in onUserEarnedReward callback: $e', origin: 'AdMobService');
+        }
+        try {
+          if (!completer.isCompleted) completer.complete(true);
+        } catch (_) {}
+      });
+
+      // Esperar hasta que ad se cierre y saber si se obtuvo la recompensa
+      final rewardResult = await completer.future;
+      return rewardResult;
     } else {
       LoggerService.debug('Rewarded ad not ready', origin: 'AdMobService');
       // Intentar cargar uno nuevo

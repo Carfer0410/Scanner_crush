@@ -140,6 +140,61 @@ class CrushService {
     "Ice Spice", "Central Cee", "Gayle", "Steve Lacy", "Daniel Caesar", "Summer Walker",
     "Giveon", "Brent Faiyaz", "Kali Uchis", "Rex Orange County", "Boy Pablo", "Cuco",
     "Omar Apollo", "Arlo Parks", "Beabadoobee", "Girl in Red", "Conan Gray", "Declan McKenna",
+
+    // ▶ Additional diverse famous names (added +100)
+    // Painters & Visual Artists
+    "Frida Kahlo", "Pablo Picasso", "Vincent van Gogh", "Claude Monet", "Leonardo da Vinci", "Salvador Dalí",
+    "Rembrandt", "Georgia O'Keeffe", "Jackson Pollock", "Edvard Munch", "Gustav Klimt", "Henri Matisse",
+    "Jean-Michel Basquiat", "Caravaggio", "Sandro Botticelli", "Titian", "Paul Cézanne", "Paul Klee",
+    "Ansel Adams", "Dorothea Lange",
+
+    // Classical composers & legendary musicians
+    "Wolfgang Amadeus Mozart", "Ludwig van Beethoven", "Johann Sebastian Bach", "Freddie Mercury", "David Bowie",
+    "Prince", "Aretha Franklin", "Nina Simone", "Ella Fitzgerald", "Frank Sinatra", "Bob Dylan", "Joni Mitchell",
+    "Paul McCartney", "John Lennon", "Mick Jagger", "Keith Richards", "Elvis Presley", "Stevie Wonder",
+    "Celine Dion", "Whitney Houston", "Mariah Carey",
+
+    // Writers & Poets
+    "William Shakespeare", "Gabriel García Márquez", "Isabel Allende", "Jorge Luis Borges", "Pablo Neruda",
+    "Federico García Lorca", "Octavio Paz", "Mario Vargas Llosa", "Ernest Hemingway", "F. Scott Fitzgerald",
+    "Jane Austen", "Charles Dickens", "Virginia Woolf", "Toni Morrison", "Haruki Murakami", "Khaled Hosseini",
+    "Mark Twain", "Leo Tolstoy", "Fyodor Dostoevsky", "Albert Camus",
+
+    // Poets, modern & classic
+    "Maya Angelou", "Rumi", "Sappho", "Emily Dickinson", "Sylvia Plath", "Langston Hughes", "Arthur Miller",
+    "Agatha Christie", "Arthur Conan Doyle",
+
+    // Scientists & Thinkers
+    "Albert Einstein", "Marie Curie", "Isaac Newton", "Nikola Tesla", "Stephen Hawking", "Charles Darwin",
+    "Galileo Galilei", "Ada Lovelace", "Rosalind Franklin", "Niels Bohr", "Jane Goodall", "Rachel Carson",
+
+    // Film auteurs & directors
+    "Alfred Hitchcock", "Stanley Kubrick", "Akira Kurosawa", "Ingmar Bergman", "Wes Anderson", "Quentin Tarantino",
+    "Martin Scorsese", "Steven Spielberg", "Christopher Nolan", "Hayao Miyazaki", "Pedro Almodóvar", "Guillermo del Toro",
+    "Alejandro González Iñárritu", "Sofia Coppola", "Peter Jackson",
+
+    // Fashion & Design
+    "Coco Chanel", "Yves Saint Laurent", "Gianni Versace", "Giorgio Armani", "Karl Lagerfeld", "Ralph Lauren",
+    "Zaha Hadid", "Frank Lloyd Wright",
+
+    // Statespeople & activists
+    "Nelson Mandela", "Barack Obama", "Michelle Obama", "Angela Merkel", "Winston Churchill", "Malala Yousafzai",
+
+    // Entrepreneurs & public figures
+    "Elon Musk", "Bill Gates", "Steve Jobs", "Jeff Bezos", "Oprah Winfrey",
+
+    // Rappers / Hip-Hop icons
+    "Kendrick Lamar", "Eminem", "Jay-Z", "Nas", "Tupac Shakur", "The Notorious B.I.G.", "Dr. Dre",
+
+    // Athletes (additional)
+    "Roger Federer", "Rafael Nadal", "Novak Djokovic", "Serena Williams", "Usain Bolt", "Muhammad Ali", "Pelé",
+    "Diego Maradona", "Zinedine Zidane",
+
+    // Actors & classic stars
+    "Meryl Streep", "Al Pacino", "Denzel Washington", "Jodie Foster", "Helen Mirren", "Judi Dench", "Dustin Hoffman",
+
+    // Chefs
+    "Gordon Ramsay", "Jamie Oliver", "Massimo Bottura", "Ferran Adrià", "Yotam Ottolenghi", "Alice Waters",
   ];
 
   /// Returns deduplicated celebrity list preserving first occurrence order.
@@ -171,8 +226,38 @@ class CrushService {
     "🌙",
   ];
 
+  // Heurística simple para inferir género por nombre (primer nombre)
+  // Lista reducida y extensible de nombres frecuentes en la lista de celebridades
+  final Set<String> _femaleFirstNames = {
+    'emma', 'zendaya', 'anya', 'margot', 'scarlett', 'blake', 'jennifer', 'saoirse', 'florence', 'julia', 'rachel', 'halle', 'yara', 'lana', 'anna', 'madison', 'dixie', 'addison', 'alia', 'deepika', 'priyanka', 'rosalia', 'camila', 'selena', 'becky', 'natti', 'tini', 'emilia', 'anitta', 'luisa', 'gigi', 'bella', 'kendall', 'hailey', 'lina',
+    // Added female first names from new celebrities
+    'frida', 'georgia', 'dorothea', 'joni', 'celine', 'whitney', 'mariah', 'isabel', 'virginia', 'toni', 'maya', 'emily', 'sylvia', 'agatha', 'ada', 'rosalind', 'sofia', 'coco', 'zaha', 'michelle', 'oprah', 'serena', 'meryl', 'jodie', 'helen', 'judi', 'alice', 'annie', 'monica', 'joanna', 'dorothy', 'dorotea'
+  };
+
+  final Set<String> _maleFirstNames = {
+    'ryan', 'timothée', 'timothee', 'tom', 'michael', 'chris', 'brad', 'leonardo', 'harry', 'drake', 'post', 'travis', 'justin', 'ed', 'bruno', 'noah', 'jacob', 'james', 'paulo', 'dwayne', 'cristiano', 'lionel', 'neymar', 'kylian', 'ronaldo', 'benedict', 'daniel', 'henry', 'marcus', 'jude', 'joshua', 'charles', 'keanu', 'robert', 'kevin',
+    // Added male first names from new celebrities
+    'pablo', 'vincent', 'claude', 'salvador', 'rembrandt', 'jackson', 'edvard', 'gustav', 'henri', 'jeanmichel', 'caravaggio', 'wolfgang', 'ludwig', 'johann', 'freddie', 'david', 'prince', 'bob', 'frank', 'john', 'mick', 'keith', 'elvis', 'stevie', 'roger', 'rafael', 'novak', 'usain', 'muhammad', 'edson', 'diego', 'zinedine', 'al', 'denzel', 'dustin', 'gordon', 'massimo', 'ferran', 'yotam', 'elon', 'bill', 'steve', 'jeff', 'kendrick', 'marshall', 'shawn', 'nasir', 'tupac', 'christopher', 'andre'
+  };
+
+  String _inferGenderFromName(String fullName) {
+    if (fullName.trim().isEmpty) return 'unknown';
+    final first = fullName.split(' ').first.toLowerCase();
+    // Remove non-letter characters
+    final normalized = first.replaceAll(RegExp(r"[^a-zñáéíóúü]"), '').toLowerCase();
+    if (_femaleFirstNames.contains(normalized)) return 'female';
+    if (_maleFirstNames.contains(normalized)) return 'male';
+    return 'unknown';
+  }
+
   /// Public access to celebrity names (for Tournament feature)
-  List<String> getCelebrityNames() => List<String>.from(_celebrities);
+  /// If `gender` is provided ('male' or 'female') the list will be filtered by
+  /// a lightweight inference heuristic; otherwise returns all celebrities.
+  List<String> getCelebrityNames({String? gender}) {
+    if (gender == null) return List<String>.from(_celebrities);
+    final g = gender.toLowerCase();
+    return _celebrities.where((c) => _inferGenderFromName(c) == g).toList();
+  }
 
   int _generateCompatibilityPercentage(String name1, String name2) {
     // Sort names alphabetically so order doesn't matter (A+B == B+A)

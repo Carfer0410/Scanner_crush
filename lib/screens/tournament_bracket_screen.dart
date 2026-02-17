@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -25,6 +26,30 @@ class TournamentBracketScreen extends StatefulWidget {
 class _TournamentBracketScreenState extends State<TournamentBracketScreen> {
   BannerAd? _bannerAd;
   bool _showingMatch = false;
+  final Random _random = Random();
+
+  // Battle hype phrases for the "Next Match" area
+  static const List<String> _hypePhrasesEs = [
+    '⚔️ ¡El siguiente duelo del amor espera!',
+    '🔥 ¡Prepárate para la batalla!',
+    '💘 ¿Quién conquistará el corazón?',
+    '⚡ ¡Los corazones se aceleran!',
+    '🌟 ¡El destino está por decidirse!',
+    '💫 ¡Que empiece la magia!',
+    '👑 ¡Solo uno puede avanzar!',
+    '🎯 ¡El amor está en juego!',
+  ];
+
+  static const List<String> _hypePhrasesEn = [
+    '⚔️ The next love duel awaits!',
+    '🔥 Get ready for battle!',
+    '💘 Who will conquer the heart?',
+    '⚡ Hearts are racing!',
+    '🌟 Destiny is about to decide!',
+    '💫 Let the magic begin!',
+    '👑 Only one can advance!',
+    '🎯 Love is on the line!',
+  ];
 
   @override
   void initState() {
@@ -175,27 +200,53 @@ class _TournamentBracketScreenState extends State<TournamentBracketScreen> {
     );
 
     if (selected != null && mounted) {
-      // Show rewarded ad to revive
+      // Show rewarded ad and only grant revive when the reward callback runs
       final adShown = await AdMobService.instance.showRewardedAd(
-        onUserEarnedReward: (ad, reward) {},
-      );
-      if (adShown) {
-        final success = TournamentService.instance.reviveParticipant(
-          widget.tournament,
-          selected,
-        );
-        if (success && mounted) {
-          setState(() {});
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('💫 ${selected.name} ${loc.tournamentRevived}'),
-              backgroundColor: Colors.green,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
-            ),
+        onUserEarnedReward: (ad, reward) {
+          final success = TournamentService.instance.reviveParticipant(
+            widget.tournament,
+            selected,
           );
-        }
+          if (success && mounted) {
+            setState(() {});
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('💫 ${selected.name} ${loc.tournamentRevived}'),
+                backgroundColor: Colors.green,
+                behavior: SnackBarBehavior.floating,
+                  duration: const Duration(seconds: 2),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+              ),
+            );
+          }
+        },
+        onAdDismissed: () {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('No se obtuvo recompensa. Revive cancelado.'),
+                backgroundColor: Colors.orange,
+                behavior: SnackBarBehavior.floating,
+                duration: const Duration(seconds: 2),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+              ),
+            );
+          }
+        },
+      );
+
+      if (!adShown && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Anuncio no disponible, inténtalo más tarde.'),
+            backgroundColor: Colors.grey.shade700,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 2),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        );
       }
     }
   }
@@ -248,14 +299,30 @@ class _TournamentBracketScreenState extends State<TournamentBracketScreen> {
                     if (TournamentService.instance
                         .getEliminatedParticipants(tournament)
                         .isNotEmpty && !tournament.isComplete)
-                      IconButton(
-                        onPressed: _offerRevive,
-                        icon: Icon(
-                          Icons.replay_circle_filled,
-                          color: Colors.amber,
-                          size: 28,
+                      SizedBox(
+                        height: 34,
+                        child: ElevatedButton.icon(
+                          onPressed: _offerRevive,
+                          icon: const Text('💫', style: TextStyle(fontSize: 16)),
+                          label: Text(
+                            Localizations.localeOf(context).languageCode == 'en'
+                                ? 'Revive'
+                                : 'Revivir',
+                            style: GoogleFonts.poppins(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.amber.shade700,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(18),
+                            ),
+                            elevation: 4,
+                          ),
                         ),
-                        tooltip: loc.tournamentReviveTitle,
                       )
                     else
                       const SizedBox(width: 48),
@@ -384,48 +451,82 @@ class _TournamentBracketScreenState extends State<TournamentBracketScreen> {
                         ).animate().fadeIn(delay: (roundIdx * 200).ms);
                       }),
 
-                      // Next match button
+                      // Next match button with hype
                       if (!tournament.isComplete &&
                           tournament.currentMatch != null)
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 16),
-                          child: SizedBox(
-                            width: double.infinity,
-                            height: 56,
-                            child: ElevatedButton(
-                              onPressed: _showingMatch ? null : _playNextMatch,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    ThemeService.instance.primaryColor,
-                                foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                elevation: 8,
-                                shadowColor: ThemeService.instance.primaryColor
-                                    .withOpacity(0.4),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Text('⚔️',
-                                      style: TextStyle(fontSize: 22)),
-                                  const SizedBox(width: 10),
-                                  Text(
-                                    loc.tournamentNextMatch,
+                          child: Column(
+                            children: [
+                              // Hype phrase
+                              Builder(
+                                builder: (context) {
+                                  final phrases = isEn ? _hypePhrasesEn : _hypePhrasesEs;
+                                  return Text(
+                                    phrases[_random.nextInt(phrases.length)],
                                     style: GoogleFonts.poppins(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: ThemeService.instance.primaryColor,
+                                      fontStyle: FontStyle.italic,
                                     ),
+                                    textAlign: TextAlign.center,
+                                  );
+                                },
+                              ).animate(
+                                onPlay: (c) => c.repeat(reverse: true),
+                              ).fadeIn().then().shimmer(duration: 2.seconds, color: ThemeService.instance.primaryColor.withOpacity(0.3)),
+                              const SizedBox(height: 8),
+                              // Preview: who's next
+                              Text(
+                                '${tournament.currentMatch!.participant1.name}  ⚔️  ${tournament.currentMatch!.participant2.name}',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                  color: ThemeService.instance.subtitleColor,
+                                ),
+                                textAlign: TextAlign.center,
+                              ).animate().fadeIn(delay: 200.ms),
+                              const SizedBox(height: 12),
+                              SizedBox(
+                                width: double.infinity,
+                                height: 56,
+                                child: ElevatedButton(
+                                  onPressed: _showingMatch ? null : _playNextMatch,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        ThemeService.instance.primaryColor,
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    elevation: 8,
+                                    shadowColor: ThemeService.instance.primaryColor
+                                        .withOpacity(0.4),
                                   ),
-                                ],
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Text('⚔️',
+                                          style: TextStyle(fontSize: 22)),
+                                      const SizedBox(width: 10),
+                                      Text(
+                                        loc.tournamentNextMatch,
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ).animate(
+                                  onPlay: (c) => c.repeat(reverse: true),
+                                ).shimmer(
+                                  duration: 2.seconds,
+                                  color: Colors.white24,
+                                ),
                               ),
-                            ).animate(
-                              onPlay: (c) => c.repeat(reverse: true),
-                            ).shimmer(
-                              duration: 2.seconds,
-                              color: Colors.white24,
-                            ),
+                            ],
                           ),
                         ),
 
@@ -463,6 +564,10 @@ class _TournamentBracketScreenState extends State<TournamentBracketScreen> {
     final isUpcoming = !match.isPlayed && isCurrentRound;
     final isNext = isUpcoming &&
         match.matchIndex == widget.tournament.currentMatchInRound;
+    
+    // Determine if match was close (within 10 percentage points)
+    final isCloseMatch = match.isPlayed && 
+        (match.percentage1 - match.percentage2).abs() <= 10;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
@@ -488,6 +593,24 @@ class _TournamentBracketScreenState extends State<TournamentBracketScreen> {
       ),
       child: Column(
         children: [
+          // Close match badge
+          if (isCloseMatch)
+            Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+              decoration: BoxDecoration(
+                color: Colors.orange.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                isEn ? '🔥 Close match!' : '🔥 ¡Duelo reñido!',
+                style: GoogleFonts.poppins(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.orange,
+                ),
+              ),
+            ),
           _buildMatchParticipantRow(
             match.participant1,
             match.isPlayed ? match.percentage1 : null,
@@ -528,6 +651,20 @@ class _TournamentBracketScreenState extends State<TournamentBracketScreen> {
             match.isPlayed ? match.percentage2 : null,
             isWinner: match.isPlayed && match.winner == match.participant2,
           ),
+          // Dominant victory indicator
+          if (match.isPlayed && (match.percentage1 - match.percentage2).abs() > 25)
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Text(
+                isEn ? '⚡ Dominant victory!' : '⚡ ¡Victoria aplastante!',
+                style: GoogleFonts.poppins(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  color: ThemeService.instance.primaryColor.withOpacity(0.7),
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ),
         ],
       ),
     );

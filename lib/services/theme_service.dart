@@ -97,8 +97,14 @@ class ThemeService extends ChangeNotifier {
     if (_currentTheme == ThemeType.lavender || isInherentlyDarkTheme() || _isDarkMode) {
       return Colors.white.withOpacity(0.7);
     }
-    // Para temas claros
-    return currentAppTheme.primaryColor.withOpacity(0.8);
+    // Para temas claros: derivar un gris oscuro cálido que contraste con cualquier fondo
+    final lum = currentAppTheme.primaryColor.computeLuminance();
+    if (lum > 0.5) {
+      // Tema con primary claro → gris oscuro
+      return const Color(0xFF5C4A42);
+    }
+    // Tema con primary oscuro → gris medio
+    return const Color(0xFF6B6B6B);
   }
 
   // Colores de tarjetas y superficies basados en el tema actual

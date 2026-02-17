@@ -123,6 +123,11 @@ class _PremiumScreenState extends State<PremiumScreen> {
       'description': 'noAdsDescription',
     },
     {
+      'icon': Icons.emoji_events,
+      'title': 'tournament16UnlimitedTitle',
+      'description': 'tournament16UnlimitedDescription',
+    },
+    {
       'icon': Icons.star,
       'title': 'exclusiveResultsTitle',
       'description': 'exclusiveResultsDescription',
@@ -141,11 +146,6 @@ class _PremiumScreenState extends State<PremiumScreen> {
       'icon': Icons.palette,
       'title': 'specialThemesTitle',
       'description': 'specialThemesDescription',
-    },
-    {
-      'icon': Icons.support_agent,
-      'title': 'premiumSupportTitle',
-      'description': 'premiumSupportDescription',
     },
   ];
 
@@ -303,8 +303,10 @@ class _PremiumScreenState extends State<PremiumScreen> {
         return AppLocalizations.of(context)?.crushHistoryTitle ?? key;
       case 'specialThemesTitle':
         return AppLocalizations.of(context)?.specialThemesTitle ?? key;
-      case 'premiumSupportTitle':
-        return AppLocalizations.of(context)?.premiumSupportTitle ?? key;
+      case 'tournament16UnlimitedTitle':
+        return Localizations.localeOf(context).languageCode == 'en'
+            ? 'Unlimited 16-Player Tournaments'
+            : 'Torneos de 16 Ilimitados';
       default:
         return key;
     }
@@ -324,8 +326,10 @@ class _PremiumScreenState extends State<PremiumScreen> {
         return AppLocalizations.of(context)?.crushHistoryDescription ?? key;
       case 'specialThemesDescription':
         return AppLocalizations.of(context)?.specialThemesDescription ?? key;
-      case 'premiumSupportDescription':
-        return AppLocalizations.of(context)?.premiumSupportDescription ?? key;
+      case 'tournament16UnlimitedDescription':
+        return Localizations.localeOf(context).languageCode == 'en'
+            ? 'Play epic 16-player tournaments every day with no limits'
+            : 'Juega torneos épicos de 16 jugadores todos los días sin límites';
       default:
         return key;
     }
