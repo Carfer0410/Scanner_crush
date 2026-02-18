@@ -43,27 +43,49 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
   void _loadBannerAd() async {
     // Solo cargar banner ads para usuarios no premium
     if (!await MonetizationService.instance.isPremiumAsync()) {
-      _bannerAd = AdMobService.instance.createBannerAd();
-      _bannerAd?.load().then((_) {
-        if (mounted) {
-          setState(() {
-            _isBannerAdReady = true;
-          });
-        }
-      });
+      _bannerAd = BannerAd(
+        adUnitId: AdMobService.instance.bannerAdUnitId,
+        size: AdSize.banner,
+        request: const AdRequest(),
+        listener: BannerAdListener(
+          onAdLoaded: (ad) {
+            if (mounted) {
+              setState(() {
+                _isBannerAdReady = true;
+              });
+            }
+          },
+          onAdFailedToLoad: (ad, error) {
+            ad.dispose();
+            _bannerAd = null;
+          },
+        ),
+      );
+      _bannerAd?.load();
     }
   }
 
   void _loadBottomBannerAd() async {
     if (!await MonetizationService.instance.isPremiumAsync()) {
-      _bottomBannerAd = AdMobService.instance.createBannerAd();
-      _bottomBannerAd?.load().then((_) {
-        if (mounted) {
-          setState(() {
-            _isBottomBannerAdReady = true;
-          });
-        }
-      });
+      _bottomBannerAd = BannerAd(
+        adUnitId: AdMobService.instance.bannerAdUnitId,
+        size: AdSize.banner,
+        request: const AdRequest(),
+        listener: BannerAdListener(
+          onAdLoaded: (ad) {
+            if (mounted) {
+              setState(() {
+                _isBottomBannerAdReady = true;
+              });
+            }
+          },
+          onAdFailedToLoad: (ad, error) {
+            ad.dispose();
+            _bottomBannerAd = null;
+          },
+        ),
+      );
+      _bottomBannerAd?.load();
     }
   }
 

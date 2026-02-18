@@ -19,7 +19,7 @@ class MonetizationService {
   static const int _dailyFreeScans = 5; // Aumentado de 3 a 5
   static const int _freeCelebrities = 50;
   static const int _dailyFreeShares = 3;
-  static const int _maxAdBonusScans = 6; // Máximo de escaneos bonus por ads (bajado de 10 para reforzar premium)
+  static const int _maxAdBonusScans = 10; // Máximo de escaneos bonus por ads (ajustado a 10 según prueba)
   
   SubscriptionTier _currentTier = SubscriptionTier.free;
   DateTime? _subscriptionExpiry;
@@ -122,6 +122,25 @@ class MonetizationService {
     final totalAvailable = baseScans + extraScans;
     
     return (totalAvailable - totalScansUsed).clamp(0, totalAvailable);
+  }
+  
+  /// Versión síncrona para UI (aproximada, sin cálculos async)
+  int getRemainingScansTodayForFreeSync() {
+    if (isPremium) return -1; // Ilimitado
+    
+    // Para versión síncrona, usamos una aproximación simple
+    // En producción, podrías cachear estos valores
+    final today = SecureTimeService.instance.getSecureDate().toIso8601String().split('T')[0];
+    final lastScanDate = _prefs?.getString('last_scan_date');
+    final todayScans = _prefs?.getInt('today_scans') ?? 0;
+    final extraScans = _prefs?.getInt('extra_scans_today') ?? 0;
+    
+    if (lastScanDate != today) {
+      return _dailyFreeScans; // Nuevo día, todos disponibles
+    }
+    
+    final totalAvailable = _dailyFreeScans + extraScans;
+    return (totalAvailable - todayScans).clamp(0, totalAvailable);
   }
   
   Future<int> getAvailableAdBonusScans() async {

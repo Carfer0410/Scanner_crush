@@ -34,7 +34,7 @@ class AdMobService {
   bool _isInitialized = false;
 
   // Getters para IDs de anuncios
-  String get _bannerAdUnitId {
+  String get bannerAdUnitId {
     if (Platform.isAndroid) {
       return _androidBannerAdUnitId;
     } else if (Platform.isIOS) {
@@ -93,7 +93,7 @@ class AdMobService {
     _bannerAd?.dispose();
     
     _bannerAd = BannerAd(
-      adUnitId: _bannerAdUnitId,
+      adUnitId: bannerAdUnitId,
       size: AdSize.banner,
       request: const AdRequest(),
       listener: BannerAdListener(

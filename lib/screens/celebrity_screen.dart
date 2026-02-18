@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../widgets/custom_widgets.dart';
+import '../widgets/friendly_limit_widgets.dart';
 import '../services/theme_service.dart';
 import '../services/crush_service.dart';
 import '../services/streak_service.dart';
@@ -227,7 +228,20 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
                       ),
                     ),
                     const Spacer(),
-                    const SizedBox(width: 40),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 120),
+                      child: Builder(
+                        builder: (context) {
+                          final remaining = MonetizationService.instance.getRemainingScansTodayForFreeSync();
+                          final isPremium = MonetizationService.instance.isPremium;
+                          
+                          return ScanCounterWidget(
+                            remainingScans: remaining,
+                            isPremium: isPremium,
+                          );
+                        },
+                      ),
+                    ),
                   ],
                 ),
               ),
