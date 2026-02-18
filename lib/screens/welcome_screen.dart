@@ -13,7 +13,6 @@ import '../services/admob_service.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'form_screen.dart';
 import 'settings_screen.dart';
-import 'premium_screen.dart';
 import 'celebrity_form_screen.dart';
 import 'daily_love_screen.dart';
 import 'analytics_screen.dart';
@@ -1229,65 +1228,4 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     };
   }
 
-  void _showPremiumRequired(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: ThemeService.instance.cardColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Row(
-          children: [
-            Icon(Icons.diamond, color: ThemeService.instance.primaryColor),
-            const SizedBox(width: 8),
-            Text(
-              AppLocalizations.of(context)!.premiumRequiredTitle,
-              style: GoogleFonts.poppins(
-                fontWeight: FontWeight.bold,
-                color: ThemeService.instance.textColor,
-              ),
-            ),
-          ],
-        ),
-        content: Text(
-          AppLocalizations.of(context)!.premiumRequiredContent,
-          style: GoogleFonts.poppins(
-            color: ThemeService.instance.subtitleColor,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              AppLocalizations.of(context)!.cancel,
-              style: GoogleFonts.poppins(
-                color: ThemeService.instance.subtitleColor,
-              ),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const PremiumScreen(),
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: ThemeService.instance.primaryColor,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: Text(
-              AppLocalizations.of(context)!.viewPremium,
-              style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }

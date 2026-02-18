@@ -8,6 +8,9 @@ import '../models/tournament.dart';
 import '../services/tournament_service.dart';
 import '../services/theme_service.dart';
 import '../services/audio_service.dart';
+import '../services/monetization_service.dart';
+import '../services/admob_service.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class TournamentMatchScreen extends StatefulWidget {
   final Tournament tournament;
@@ -45,6 +48,10 @@ class _TournamentMatchScreenState extends State<TournamentMatchScreen>
 
   // Floating emoji particles for winner celebration
   final List<_FloatingEmoji> _floatingEmojis = [];
+
+  // Banner ad
+  BannerAd? _bannerAd;
+  bool _isBannerAdReady = false;
 
   // Victory phrases — epic battle language
   static const List<String> _victoryPhrasesEs = [
@@ -149,6 +156,7 @@ class _TournamentMatchScreenState extends State<TournamentMatchScreen>
       CurvedAnimation(parent: _percentageController, curve: Curves.easeOutBack),
     );
 
+    _loadBannerAd();
     _startMatchSequence();
   }
 
@@ -255,8 +263,22 @@ class _TournamentMatchScreenState extends State<TournamentMatchScreen>
     widget.onMatchComplete();
   }
 
+  void _loadBannerAd() async {
+    if (!await MonetizationService.instance.isPremiumAsync()) {
+      _bannerAd = AdMobService.instance.createBannerAd();
+      _bannerAd?.load().then((_) {
+        if (mounted) {
+          setState(() {
+            _isBannerAdReady = true;
+          });
+        }
+      });
+    }
+  }
+
   @override
   void dispose() {
+    _bannerAd?.dispose();
     _vsController.dispose();
     _percentageController.dispose();
     _winnerController.dispose();
@@ -281,6 +303,15 @@ class _TournamentMatchScreenState extends State<TournamentMatchScreen>
 
     return Scaffold(
       backgroundColor: Colors.black,
+      bottomNavigationBar: (_bannerAd != null && _isBannerAdReady)
+          ? Container(
+              alignment: Alignment.center,
+              color: Colors.black,
+              width: _bannerAd!.size.width.toDouble(),
+              height: _bannerAd!.size.height.toDouble(),
+              child: AdWidget(ad: _bannerAd!),
+            )
+          : null,
       body: Stack(
         children: [
           // Dramatic gradient background

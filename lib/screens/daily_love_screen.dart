@@ -24,6 +24,8 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
   String? _errorMessage;
   BannerAd? _bannerAd;
   bool _isBannerAdReady = false;
+  BannerAd? _bottomBannerAd;
+  bool _isBottomBannerAdReady = false;
 
   @override
   void initState() {
@@ -35,6 +37,7 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
 
     _initializeData();
     _loadBannerAd();
+    _loadBottomBannerAd();
   }
 
   void _loadBannerAd() async {
@@ -51,9 +54,23 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
     }
   }
 
+  void _loadBottomBannerAd() async {
+    if (!await MonetizationService.instance.isPremiumAsync()) {
+      _bottomBannerAd = AdMobService.instance.createBannerAd();
+      _bottomBannerAd?.load().then((_) {
+        if (mounted) {
+          setState(() {
+            _isBottomBannerAdReady = true;
+          });
+        }
+      });
+    }
+  }
+
   @override
   void dispose() {
     _bannerAd?.dispose();
+    _bottomBannerAd?.dispose();
     _pulseController.dispose();
     super.dispose();
   }
@@ -92,6 +109,21 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
                   ? _buildErrorScreen()
                   : _buildMainContent(),
         ),
+      ),
+      bottomNavigationBar: FutureBuilder<bool>(
+        future: MonetizationService.instance.isPremiumAsync(),
+        builder: (context, snapshot) {
+          final isPremium = snapshot.data ?? false;
+          if (_bottomBannerAd != null && _isBottomBannerAdReady && !isPremium) {
+            return Container(
+              alignment: Alignment.center,
+              width: _bottomBannerAd!.size.width.toDouble(),
+              height: _bottomBannerAd!.size.height.toDouble(),
+              child: AdWidget(ad: _bottomBannerAd!),
+            );
+          }
+          return const SizedBox.shrink();
+        },
       ),
     );
   }

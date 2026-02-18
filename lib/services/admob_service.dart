@@ -17,10 +17,11 @@ class AdMobService {
   // IDs REALES - CONFIGURADOS PARA PRODUCCIÓN
   // Banner=ca-app-pub-6436417991123423/1992572008, Interstitial=ca-app-pub-6436417991123423/1801000311, Rewarded=ca-app-pub-6436417991123423/1900222602
   static const String _androidBannerAdUnitId = 'ca-app-pub-6436417991123423/1992572008'; // ID REAL - PRODUCCIÓN
+  // Usar IDs de prueba en Android durante el desarrollo para evitar bloqueos y errores.
   static const String _iosBannerAdUnitId = 'ca-app-pub-3940256099942544/2934735716'; // Test ID - SEGURO (iOS aún en test)
-  static const String _androidInterstitialAdUnitId = 'ca-app-pub-6436417991123423/1801000311'; // ID REAL - PRODUCCIÓN
+  static const String _androidInterstitialAdUnitId = 'ca-app-pub-3940256099942544/1033173712'; // Test ID - ANDROID (interstitial)
   static const String _iosInterstitialAdUnitId = 'ca-app-pub-3940256099942544/4411468910'; // Test ID - SEGURO (iOS aún en test)
-  static const String _androidRewardedAdUnitId = 'ca-app-pub-6436417991123423/1900222602'; // ID REAL - PRODUCCIÓN
+  static const String _androidRewardedAdUnitId = 'ca-app-pub-3940256099942544/5224354917'; // Test ID - ANDROID (rewarded)
   static const String _iosRewardedAdUnitId = 'ca-app-pub-3940256099942544/1712485313'; // Test ID - SEGURO (iOS aún en test)
 
   // Estado de anuncios
@@ -264,7 +265,7 @@ class AdMobService {
         _rewardGiven = true;
         try {
           onUserEarnedReward(ad, reward);
-        } catch (e, st) {
+        } catch (e) {
           LoggerService.error('Error in onUserEarnedReward callback: $e', origin: 'AdMobService');
         }
         try {

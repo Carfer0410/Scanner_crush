@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../services/background_animation_service.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../widgets/custom_widgets.dart';
 import '../services/theme_service.dart';
@@ -27,11 +28,42 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   BannerAd? _bannerAd;
   bool _isBannerAdReady = false;
+  bool _showBackgroundAnimation = true;
+  late final VoidCallback _backgroundListener;
 
   @override
   void initState() {
     super.initState();
     _loadBannerAd();
+    _loadBackgroundPref();
+    // Listen for global changes
+    _backgroundListener = () {
+      if (mounted) setState(() {
+        _showBackgroundAnimation = BackgroundAnimationService.instance.enabled.value;
+      });
+    };
+    BackgroundAnimationService.instance.enabled.addListener(_backgroundListener);
+  }
+
+  Future<void> _loadBackgroundPref() async {
+    try {
+      // Ensure service has loaded value; read from service
+      _showBackgroundAnimation = BackgroundAnimationService.instance.enabled.value;
+      if (mounted) setState(() {});
+    } catch (_) {}
+  }
+
+  Future<void> _toggleBackgroundAnimation(bool value) async {
+    await BackgroundAnimationService.instance.setEnabled(value);
+  }
+
+  @override
+  void dispose() {
+    try {
+      BackgroundAnimationService.instance.enabled.removeListener(_backgroundListener);
+    } catch (_) {}
+    _bannerAd?.dispose();
+    super.dispose();
   }
 
   void _loadBannerAd() async {
@@ -48,16 +80,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  @override
-  void dispose() {
-    _bannerAd?.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: AnimatedBackground(
+        showHearts: _showBackgroundAnimation,
         child: SafeArea(
           child: Column(
             children: [
@@ -169,6 +197,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               )?.specialThemesDescription ??
                               'Cambiar el tema de la aplicación', // TODO: Add localization key
                           onTap: () => _toggleTheme(),
+                        ),
+                        _buildSettingsItem(
+                          icon: Icons.blur_on,
+                          title: 'Animación de fondo',
+                          subtitle: 'Mostrar flores y corazones flotantes',
+                          onTap: () => _toggleBackgroundAnimation(!_showBackgroundAnimation),
+                          trailing: Switch(
+                            value: _showBackgroundAnimation,
+                            onChanged: (value) => _toggleBackgroundAnimation(value),
+                            activeColor: ThemeService.instance.primaryColor,
+                          ),
                         ),
                       ],
                     ),

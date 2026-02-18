@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../services/theme_service.dart';
 import '../services/audio_service.dart';
+import '../services/background_animation_service.dart';
 import 'dart:math' as math;
+
 
 class AnimatedBackground extends StatefulWidget {
   final Widget child;
@@ -21,6 +23,10 @@ class AnimatedBackground extends StatefulWidget {
 
 class _AnimatedBackgroundState extends State<AnimatedBackground> {
   @override
+  void initState() {
+    super.initState();
+  }
+  @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
       listenable: ThemeService.instance,
@@ -31,7 +37,13 @@ class _AnimatedBackgroundState extends State<AnimatedBackground> {
           ),
           child: Stack(
             children: [
-              if (widget.showHearts) const FloatingHearts(),
+              if (widget.showHearts)
+                ValueListenableBuilder<bool>(
+                  valueListenable: BackgroundAnimationService.instance.enabled,
+                  builder: (context, enabled, child) {
+                    return enabled ? const FloatingHearts() : const SizedBox.shrink();
+                  },
+                ),
               widget.child,
             ],
           ),

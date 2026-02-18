@@ -171,7 +171,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     child: Row(
                       children: [
                         IconButton(
-                          onPressed: () => Navigator.pop(context),
+                          onPressed: () async {
+                            if (!_isPremium) {
+                              final shouldShow = await AdMobService.instance.shouldShowInterstitialAd();
+                              if (shouldShow && AdMobService.instance.isInterstitialAdReady) {
+                                await AdMobService.instance.showInterstitialAd();
+                              }
+                            }
+                            if (mounted) Navigator.pop(context);
+                          },
                           icon: Icon(
                             Icons.arrow_back_ios,
                             color: ThemeService.instance.textColor,

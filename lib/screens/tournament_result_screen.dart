@@ -131,9 +131,18 @@ class _TournamentResultScreenState extends State<TournamentResultScreen>
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     IconButton(
-                      onPressed: () {
-                        // Pop until we reach the welcome screen
-                        Navigator.popUntil(context, (route) => route.isFirst);
+                      onPressed: () async {
+                        // Interstitial estratégico al cerrar resultados
+                        if (!await MonetizationService.instance.isPremiumAsync()) {
+                          final shouldShow = await AdMobService.instance.shouldShowInterstitialAd();
+                          if (shouldShow && AdMobService.instance.isInterstitialAdReady) {
+                            await AdMobService.instance.showInterstitialAd();
+                          }
+                        }
+                        if (mounted) {
+                          // Pop until we reach the welcome screen
+                          Navigator.popUntil(context, (route) => route.isFirst);
+                        }
                       },
                       icon: Icon(
                         Icons.close,
