@@ -81,6 +81,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         displayResults = allResults.take(_freeHistoryLimit).toList();
       }
       
+      if (!mounted) return;
       setState(() {
         _results = displayResults;
         _isLoading = false;
@@ -89,6 +90,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       // Track que el usuario abrió el historial
       AdMobService.instance.trackUserAction();
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
       });
@@ -178,7 +180,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 await AdMobService.instance.showInterstitialAd();
                               }
                             }
-                            if (mounted) Navigator.pop(context);
+                            if (!context.mounted) return;
+                            Navigator.pop(context);
                           },
                           icon: Icon(
                             Icons.arrow_back_ios,

@@ -476,10 +476,14 @@
   "cancelAnytime": "Cancela cuando quieras",
   
   "support": "Soporte",
+  "settingsHistorySubtitle": "Ver todos tus escaneos anteriores",
+  "changeThemeSubtitle": "Cambiar el tema de la aplicacion",
+  "backgroundAnimationTitle": "Animacion de fondo",
+  "backgroundAnimationSubtitle": "Mostrar flores y corazones flotantes",
   "helpAndQuestions": "Ayuda y Preguntas",
   "getHelpOnApp": "Obtén ayuda sobre cómo usar la app",
   "helpDialogTitle": "💕 Ayuda",
-  "helpDialogContent": "Escáner de Crush es una app divertida que calcula la compatibilidad entre dos personas basándose en sus nombres.\\n\\n• Ingresa tu nombre y el de tu crush\\n• Presiona \\\"Escanear Amor\\\"\\n• Descubre tu compatibilidad\\n• Comparte el resultado\\n\\n¡Es solo por diversión! 😄",
+  "helpDialogContent": "Escaner de Crush es una app divertida que estima compatibilidad con base en nombres.\\n\\n- Ingresa tu nombre y el de tu crush\\n- Toca \\\"Escanear Amor\\\"\\n- Revisa tu resultado de compatibilidad\\n- Comparte tu resultado favorito\\n\\nEsta app es solo para entretenimiento.",
   "understood": "Entendido",
   "aboutDialogTitle": "💘 Acerca de", 
   "aboutDialogContent": "Escáner de Crush v1.0.0\n\nUna aplicación divertida para descubrir la compatibilidad amorosa.\n\nHecha con amor por Perlaza Studio\n\n© 2025 Escáner de Crush",
@@ -610,7 +614,7 @@
 
   "scansRemaining": "Quedan {count} escaneos gratis",
 
-  "noScansLeft": "¡Sin escaneos! Ve anuncios para más",
+  "noScansLeft": "¡Sin escaneos gratis!",
 
   "premiumBenefits": "🚀 Escaneos ilimitados • 🚫 Sin anuncios • ⭐ Contenido exclusivo",
 
@@ -676,6 +680,81 @@
   "orGetPremium": "o hazte Premium",
   "insightsUnlocked": "✨ Insights desbloqueados",
   "predictionsUnlocked": "✨ Predicciones desbloqueadas",
+  "coinsClaimedMessage": "+{count} coins reclamadas.",
+  "@coinsClaimedMessage": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "scanPackBoughtMessage": "Ganaste +{scans} escaneos por {cost} coins.",
+  "@scanPackBoughtMessage": {
+    "placeholders": {
+      "scans": { "type": "int" },
+      "cost": { "type": "int" }
+    }
+  },
+  "notEnoughCoinsCurrentPackMessage": "No tienes suficientes coins. El pack actual cuesta {cost}.",
+  "@notEnoughCoinsCurrentPackMessage": {
+    "placeholders": { "cost": { "type": "int" } }
+  },
+  "notEnoughCoinsThisPackMessage": "No tienes suficientes coins. Este pack cuesta {cost}.",
+  "@notEnoughCoinsThisPackMessage": {
+    "placeholders": { "cost": { "type": "int" } }
+  },
+  "dailyPackLimitReachedMessage": "Limite diario de packs alcanzado. Vuelve manana.",
+  "dailyPackLimitReachedTryTomorrowMessage": "Limite diario de packs alcanzado. Intenta manana.",
+  "premiumUnlimitedScansMessage": "Premium ya tiene escaneos ilimitados.",
+  "coinsEarnedMessage": "+{count} coins ganadas.",
+  "@coinsEarnedMessage": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "coinsWonMessage": "+{count} coins ganadas",
+  "@coinsWonMessage": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "noAdAvailableNowMessage": "No hay anuncio disponible ahora.",
+  "loadingRetentionRewards": "Cargando recompensas de retencion...",
+  "retentionPanelUnavailable": "Panel de retencion no disponible. Toca para reintentar.",
+  "dailyRetentionRewardsTitle": "Recompensas de retencion diaria",
+  "coinsLabel": "Coins: {count}",
+  "@coinsLabel": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "streakDaysLabel": "Racha: {days}d",
+  "@streakDaysLabel": {
+    "placeholders": { "days": { "type": "int" } }
+  },
+  "premiumScannerEconomyNotice": "Premium activo: escaneos ilimitados, sin anuncios y progreso de coins acelerado. Usa tus coins en ventajas del Torneo.",
+  "scanPackButtonLabel": "+{scans} escaneos ({cost}c) - {remaining} disponibles",
+  "@scanPackButtonLabel": {
+    "placeholders": {
+      "scans": { "type": "int" },
+      "cost": { "type": "int" },
+      "remaining": { "type": "int" }
+    }
+  },
+  "scanPackExhaustedToday": "Packs de escaneo agotados hoy",
+  "adCoinsButtonLabel": "Anuncio +{count}c",
+  "@adCoinsButtonLabel": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "dailyMissionsTitle": "Misiones diarias",
+  "claimedLabel": "Reclamada",
+  "retentionRewardsTitle": "Recompensas de retencion",
+  "youGotPlusTwoScansMessage": "Ganaste +2 escaneos.",
+  "useCoinsLabel": "Usar coins",
+  "plusTwoScansWithCoins": "+2 escaneos con coins",
+  "useCoinsPackPlusTwoScans": "Usar coins (pack +2 escaneos)",
+  "watchAdPlusTwoScans": "Ver anuncio (+2 escaneos)",
+  "tournamentFunnelTodayTitle": "🎯 Funnel de Torneo (Hoy)",
+  "funnelStartsLabel": "Inicios",
+  "funnelCompletionsLabel": "Completados",
+  "funnelCompletionRateLabel": "Tasa de finalizacion",
+  "funnelTicketAdsLabel": "Anuncios de ticket",
+  "funnelReviveAdsLabel": "Anuncios de revive",
+  "funnelReviveCoinsLabel": "Revive con coins",
+  "funnelShopBuysLabel": "Compras en tienda",
+  "loveIntelligenceStudio": "Estudio de Inteligencia del Amor",
+  "tournament16UnlimitedTitle": "Torneos de 16 Ilimitados",
+  "tournament16UnlimitedDescription": "Juega torneos epicos de 16 jugadores todos los dias sin limites",
 
   "tournamentTitle": "🏆 Torneo del Amor",
   "tournamentWelcomeSubtitle": "¡Enfrenta a tus crushes en un torneo épico!",

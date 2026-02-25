@@ -345,30 +345,39 @@ class _TournamentMatchScreenState extends State<TournamentMatchScreen>
                 // Round header
                 Padding(
                   padding: const EdgeInsets.all(20),
-                  child: Column(
-                    children: [
-                      Text(
-                        roundName,
-                        style: GoogleFonts.poppins(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white70,
-                        ),
-                      ).animate().fadeIn(duration: 500.ms),
-                      if (_showVS && !_showWinner)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 4),
-                          child: Text(
-                            battleCry,
-                            style: GoogleFonts.poppins(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.amber.withOpacity(0.8),
-                              fontStyle: FontStyle.italic,
-                            ),
-                          ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.3, end: 0),
-                        ),
-                    ],
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: Colors.white.withOpacity(0.18)),
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          roundName,
+                          style: GoogleFonts.poppins(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white70,
+                          ),
+                        ).animate().fadeIn(duration: 500.ms),
+                        if (_showVS && !_showWinner)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Text(
+                              battleCry,
+                              style: GoogleFonts.poppins(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.amber.withOpacity(0.8),
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.3, end: 0),
+                          ),
+                      ],
+                    ),
                   ),
                 ),
 

@@ -1282,6 +1282,10 @@
   "@support": {
     "description": "Support section title"
   },
+  "settingsHistorySubtitle": "View all your previous scans",
+  "changeThemeSubtitle": "Change the app theme",
+  "backgroundAnimationTitle": "Background Animation",
+  "backgroundAnimationSubtitle": "Show floating flowers and hearts",
   
   "helpAndQuestions": "Help & Questions",
   "@helpAndQuestions": {
@@ -1298,7 +1302,7 @@
     "description": "Help dialog title"
   },
   
-  "helpDialogContent": "Crush Scanner is a fun app that calculates compatibility between two people based on their names.\\n\\n• Enter your name and your crush's name\\n• Press \\\"Scan Love\\\"\\n• Discover your compatibility\\n• Share the result\\n\\nIt's just for fun! 😄",
+  "helpDialogContent": "Crush Scanner is a fun app that estimates compatibility based on names.\\n\\n- Enter your name and your crush's name\\n- Tap \\\"Scan Love\\\"\\n- Check your compatibility result\\n- Share your favorite result\\n\\nThis app is for entertainment purposes.",
   "@helpDialogContent": {
     "description": "Help dialog content text"
   },
@@ -1803,6 +1807,81 @@
   "orGetPremium": "or go Premium",
   "insightsUnlocked": "✨ Insights unlocked",
   "predictionsUnlocked": "✨ Predictions unlocked",
+  "coinsClaimedMessage": "+{count} coins claimed.",
+  "@coinsClaimedMessage": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "scanPackBoughtMessage": "You got +{scans} scans for {cost} coins.",
+  "@scanPackBoughtMessage": {
+    "placeholders": {
+      "scans": { "type": "int" },
+      "cost": { "type": "int" }
+    }
+  },
+  "notEnoughCoinsCurrentPackMessage": "Not enough coins. Current pack costs {cost}.",
+  "@notEnoughCoinsCurrentPackMessage": {
+    "placeholders": { "cost": { "type": "int" } }
+  },
+  "notEnoughCoinsThisPackMessage": "Not enough coins. This pack costs {cost}.",
+  "@notEnoughCoinsThisPackMessage": {
+    "placeholders": { "cost": { "type": "int" } }
+  },
+  "dailyPackLimitReachedMessage": "Daily pack limit reached. Come back tomorrow.",
+  "dailyPackLimitReachedTryTomorrowMessage": "Daily pack limit reached. Try again tomorrow.",
+  "premiumUnlimitedScansMessage": "Premium already has unlimited scans.",
+  "coinsEarnedMessage": "+{count} coins earned.",
+  "@coinsEarnedMessage": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "coinsWonMessage": "+{count} coins earned",
+  "@coinsWonMessage": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "noAdAvailableNowMessage": "No ad available now.",
+  "loadingRetentionRewards": "Loading retention rewards...",
+  "retentionPanelUnavailable": "Retention panel unavailable. Tap to retry.",
+  "dailyRetentionRewardsTitle": "Daily retention rewards",
+  "coinsLabel": "Coins: {count}",
+  "@coinsLabel": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "streakDaysLabel": "Streak: {days}d",
+  "@streakDaysLabel": {
+    "placeholders": { "days": { "type": "int" } }
+  },
+  "premiumScannerEconomyNotice": "Premium active: unlimited scans, no ads, faster coin progression. Use coins for Tournament perks.",
+  "scanPackButtonLabel": "+{scans} scans ({cost}c) - {remaining} left",
+  "@scanPackButtonLabel": {
+    "placeholders": {
+      "scans": { "type": "int" },
+      "cost": { "type": "int" },
+      "remaining": { "type": "int" }
+    }
+  },
+  "scanPackExhaustedToday": "Scan packs exhausted today",
+  "adCoinsButtonLabel": "Ad +{count}c",
+  "@adCoinsButtonLabel": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "dailyMissionsTitle": "Daily missions",
+  "claimedLabel": "Claimed",
+  "retentionRewardsTitle": "Retention rewards",
+  "youGotPlusTwoScansMessage": "You got +2 scans.",
+  "useCoinsLabel": "Use coins",
+  "plusTwoScansWithCoins": "+2 scans with coins",
+  "useCoinsPackPlusTwoScans": "Use coins (pack +2 scans)",
+  "watchAdPlusTwoScans": "Watch ad (+2 scans)",
+  "tournamentFunnelTodayTitle": "🎯 Tournament Funnel (Today)",
+  "funnelStartsLabel": "Starts",
+  "funnelCompletionsLabel": "Completions",
+  "funnelCompletionRateLabel": "Completion Rate",
+  "funnelTicketAdsLabel": "Ticket Ads",
+  "funnelReviveAdsLabel": "Revive Ads",
+  "funnelReviveCoinsLabel": "Revive Coins",
+  "funnelShopBuysLabel": "Shop Buys",
+  "loveIntelligenceStudio": "Love Intelligence Studio",
+  "tournament16UnlimitedTitle": "Unlimited 16-Player Tournaments",
+  "tournament16UnlimitedDescription": "Play epic 16-player tournaments every day with no limits",
 
   "tournamentTitle": "🏆 Love Tournament",
   "tournamentWelcomeSubtitle": "Pit your crushes against each other in an epic tournament!",

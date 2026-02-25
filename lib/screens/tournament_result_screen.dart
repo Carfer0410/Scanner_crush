@@ -10,6 +10,8 @@ import '../services/theme_service.dart';
 import '../services/audio_service.dart';
 import '../services/admob_service.dart';
 import '../services/monetization_service.dart';
+import '../services/tournament_service.dart';
+import '../services/analytics_service.dart';
 import '../widgets/custom_widgets.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -29,6 +31,9 @@ class _TournamentResultScreenState extends State<TournamentResultScreen>
   BannerAd? _bannerAd;
   late String _coronationPhrase;
   final Random _random = Random();
+  TournamentCompletionReward? _completionReward;
+  TournamentPassState? _passState;
+  bool _unlockingTicket = false;
 
   static const List<String> _coronationPhrasesEs = [
     '¡El amor ha hablado! {name} se lleva la corona del corazón de {user} 👑',
@@ -78,7 +83,69 @@ class _TournamentResultScreenState extends State<TournamentResultScreen>
     });
 
     _loadBannerAd();
+    _grantCompletionReward();
     AdMobService.instance.trackUserAction();
+    AnalyticsService.instance.trackEvent('tournament_result_opened');
+  }
+
+  Future<void> _grantCompletionReward() async {
+    final reward = await TournamentService.instance.recordTournamentCompletion(widget.tournament);
+    final passState = await TournamentService.instance.getPassState();
+    if (!mounted) return;
+    setState(() {
+      _completionReward = reward;
+      _passState = passState;
+    });
+    await AnalyticsService.instance.trackEvent(
+      'tournament_completion_reward_granted',
+      params: {
+        'coins': reward.coinsEarned,
+        'streak': reward.streakDays,
+        'format': widget.tournament.format.name,
+      },
+    );
+    if (!mounted) return;
+
+    final isEn = Localizations.localeOf(context).languageCode == 'en';
+    final message = isEn
+        ? '+${reward.coinsEarned} Love Coins earned! Streak: ${reward.streakDays} day(s).'
+        : '¡Ganaste +${reward.coinsEarned} Love Coins! Racha: ${reward.streakDays} día(s).';
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.green.shade600,
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
+  Future<void> _unlockTicketWithAd() async {
+    if (_unlockingTicket) return;
+    setState(() => _unlockingTicket = true);
+
+    final success = await TournamentService.instance.watchAdForExtraTournamentEntry();
+    final passState = await TournamentService.instance.getPassState();
+
+    if (!mounted) return;
+    setState(() {
+      _unlockingTicket = false;
+      _passState = passState;
+    });
+    await AnalyticsService.instance.trackEvent(
+      'tournament_result_ticket_ad_attempt',
+      params: {'success': success},
+    );
+    if (!mounted) return;
+
+    final isEn = Localizations.localeOf(context).languageCode == 'en';
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(success
+            ? (isEn ? 'New ticket unlocked! Ready for another tournament.' : '¡Nuevo ticket desbloqueado! Listo para otro torneo.')
+            : (isEn ? 'No ad available right now.' : 'No hay anuncios disponibles ahora.')),
+        backgroundColor: success ? Colors.green : Colors.orange,
+      ),
+    );
   }
 
   void _loadBannerAd() async {
@@ -102,6 +169,7 @@ class _TournamentResultScreenState extends State<TournamentResultScreen>
     try {
       final langCode = Localizations.localeOf(context).languageCode;
       await Share.share(widget.tournament.getShareText(languageCode: langCode));
+      await AnalyticsService.instance.trackEvent('tournament_result_shared');
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -124,12 +192,39 @@ class _TournamentResultScreenState extends State<TournamentResultScreen>
         child: SafeArea(
           child: Column(
             children: [
-              // Close button
+              // Header
               Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: ThemeService.instance.cardColor.withOpacity(0.76),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: ThemeService.instance.borderColor.withOpacity(0.9),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 14,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      const SizedBox(width: 42),
+                      Expanded(
+                        child: Text(
+                          loc.tournamentComplete,
+                          style: GoogleFonts.poppins(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: ThemeService.instance.textColor,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
                     IconButton(
                       onPressed: () async {
                         // Interstitial estratégico al cerrar resultados
@@ -139,18 +234,18 @@ class _TournamentResultScreenState extends State<TournamentResultScreen>
                             await AdMobService.instance.showInterstitialAd();
                           }
                         }
-                        if (mounted) {
-                          // Pop until we reach the welcome screen
-                          Navigator.popUntil(context, (route) => route.isFirst);
-                        }
+                        if (!context.mounted) return;
+                        // Pop until we reach the welcome screen
+                        Navigator.popUntil(context, (route) => route.isFirst);
                       },
                       icon: Icon(
-                        Icons.close,
+                        Icons.close_rounded,
                         color: ThemeService.instance.textColor,
-                        size: 28,
+                        size: 24,
                       ),
                     ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
 
@@ -231,6 +326,11 @@ class _TournamentResultScreenState extends State<TournamentResultScreen>
                       ).animate().fadeIn(delay: 500.ms).slideY(begin: 0.2, end: 0),
 
                       const SizedBox(height: 32),
+
+                      if (_completionReward != null)
+                        _buildDailyRewardCard().animate().fadeIn(delay: 700.ms),
+
+                      const SizedBox(height: 20),
 
                       // Podium
                       _buildPodium(tournament),
@@ -374,6 +474,76 @@ class _TournamentResultScreenState extends State<TournamentResultScreen>
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildDailyRewardCard() {
+    final isEn = Localizations.localeOf(context).languageCode == 'en';
+    final reward = _completionReward!;
+    final pass = _passState;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            ThemeService.instance.primaryColor.withOpacity(0.15),
+            ThemeService.instance.secondaryColor.withOpacity(0.12),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: ThemeService.instance.primaryColor.withOpacity(0.25)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            isEn ? 'Daily Reward Unlocked' : 'Recompensa Diaria Desbloqueada',
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: ThemeService.instance.textColor,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '🪙 +${reward.coinsEarned}   •   🔥 ${reward.streakDays}',
+            style: GoogleFonts.poppins(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: ThemeService.instance.textColor,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            isEn
+                ? 'Come back tomorrow to keep your streak and stack more coins.'
+                : 'Vuelve mañana para mantener tu racha y acumular más coins.',
+            style: GoogleFonts.poppins(
+              fontSize: 12,
+              color: ThemeService.instance.subtitleColor,
+            ),
+          ),
+          if (pass != null && !pass.isPremium && pass.adTicketsRemainingToday > 0) ...[
+            const SizedBox(height: 10),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton.icon(
+                onPressed: _unlockingTicket ? null : _unlockTicketWithAd,
+                icon: _unlockingTicket
+                    ? const SizedBox(
+                        width: 12,
+                        height: 12,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.play_circle_fill),
+                label: Text(isEn ? 'Watch ad: +1 ticket' : 'Ver anuncio: +1 ticket'),
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 

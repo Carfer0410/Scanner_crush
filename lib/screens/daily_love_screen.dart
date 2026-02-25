@@ -214,7 +214,23 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
       child: Column(
         children: [
           // Header
-          Row(
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            decoration: BoxDecoration(
+              color: ThemeService.instance.cardColor.withOpacity(0.78),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: ThemeService.instance.borderColor.withOpacity(0.9),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.06),
+                  blurRadius: 16,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: Row(
             children: [
               IconButton(
                 onPressed: () async {
@@ -228,23 +244,25 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
                   if (mounted) Navigator.pop(context);
                 },
                 icon: Icon(
-                  Icons.arrow_back_ios,
+                  Icons.arrow_back_ios_new_rounded,
                   color: ThemeService.instance.textColor,
+                  size: 20,
                 ),
               ),
               Expanded(
                 child: Text(
                   AppLocalizations.of(context)?.yourLoveUniverse ?? '',
                   style: GoogleFonts.poppins(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 19,
+                    fontWeight: FontWeight.w700,
                     color: ThemeService.instance.textColor,
                   ),
                   textAlign: TextAlign.center,
                 ),
               ),
-              const SizedBox(width: 48),
+              const SizedBox(width: 42),
             ],
+          ),
           ),
 
           const SizedBox(height: 30),

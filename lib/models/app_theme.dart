@@ -37,234 +37,228 @@ class AppTheme {
   });
 
   static const List<AppTheme> availableThemes = [
-    // Tema clásico (gratuito)
     AppTheme(
       type: ThemeType.classic,
-      name: '💘 Clásico',
-      description: 'El tema original de amor', // TODO: Add localization
+      name: 'Classic Bloom',
+      description: 'Romantic rose with clean contrast.',
       icon: Icons.favorite,
       backgroundGradient: LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
-          Color(0xFFFFE0E6), // Rosa claro
-          Color(0xFFFFB3C1), // Rosa medio
-          Color(0xFFFF8A95), // Rosa más intenso
+          Color(0xFFFFF1F5),
+          Color(0xFFFFDDE7),
+          Color(0xFFFFC6D5),
         ],
       ),
       backgroundGradientDark: LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
-        colors: [Color(0xFF1A1A2E), Color(0xFF16213E), Color(0xFF0F3460)],
+        colors: [
+          Color(0xFF231722),
+          Color(0xFF2E1D2A),
+          Color(0xFF3B2131),
+        ],
       ),
-      primaryColor: Color(0xFFFF6F91),
-      secondaryColor: Color(0xFFFFC0CB),
-      accentColor: Color(0xFFFF1744),
+      primaryColor: Color(0xFFD44778),
+      secondaryColor: Color(0xFFE86FA3),
+      accentColor: Color(0xFF8A1E4F),
       isPremium: false,
     ),
-
-    // Tema atardecer (premium)
     AppTheme(
       type: ThemeType.sunset,
-      name: '🌌 Aurora Pastel',
-      description: 'Degradé moderno de violeta, rosa y azul', // TODO: Add localization
+      name: 'Sunset Luxe',
+      description: 'Warm peach and violet twilight.',
       icon: Icons.wb_sunny,
       backgroundGradient: LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
-          Color(0xFF8EC5FC), // Azul suave
-          Color(0xFFE0C3FC), // Lila claro
-          Color(0xFFFFA8A8), // Rosa pastel
-          Color(0xFFFF7EB3), // Rosa sunset
+          Color(0xFFFFF0E6),
+          Color(0xFFFFD6C6),
+          Color(0xFFE3C4FF),
         ],
       ),
       backgroundGradientDark: LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
-          Color(0xFF232526), // Gris azulado oscuro
-          Color(0xFF8F94FB), // Azul violeta
-          Color(0xFFFC67FA), // Rosa violeta
+          Color(0xFF2A1A1A),
+          Color(0xFF3C233A),
+          Color(0xFF4C2D57),
         ],
       ),
-      primaryColor: Color(0xFF8F94FB), // Violeta azulado
-      secondaryColor: Color(0xFFFF7EB3), // Rosa sunset
-      accentColor: Color(0xFF8EC5FC), // Azul suave
+      primaryColor: Color(0xFFB2587D),
+      secondaryColor: Color(0xFF8E6DD6),
+      accentColor: Color(0xFFE07A5F),
       isPremium: true,
     ),
-
-    // Tema océano (premium)
     AppTheme(
       type: ThemeType.ocean,
-      name: '🌊 Océan',
-      description: 'Profundos azules marinos', // TODO: Add localization
+      name: 'Ocean Glass',
+      description: 'Cool marine tones with depth.',
       icon: Icons.waves,
       backgroundGradient: LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
-          Color(0xFFE1F5FE), // Azul muy claro
-          Color(0xFF81D4FA), // Azul claro
-          Color(0xFF0277BD), // Azul profundo
+          Color(0xFFEAF8FF),
+          Color(0xFFCFEFFF),
+          Color(0xFFB3E2F2),
         ],
       ),
       backgroundGradientDark: LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
-        colors: [Color(0xFF0A1A2E), Color(0xFF0E2347), Color(0xFF1565C0)],
+        colors: [
+          Color(0xFF0F2333),
+          Color(0xFF163849),
+          Color(0xFF1D4A57),
+        ],
       ),
-      primaryColor: Color(0xFF0277BD),
-      secondaryColor: Color(0xFF81D4FA),
-      accentColor: Color(0xFF01579B),
+      primaryColor: Color(0xFF1F6C87),
+      secondaryColor: Color(0xFF2A8FAE),
+      accentColor: Color(0xFF0F4E63),
       isPremium: true,
     ),
-
-    // Tema bosque (premium)
     AppTheme(
       type: ThemeType.forest,
-      name: '🌲 Bosque',
-      description: 'Verdes naturales y frescos',
+      name: 'Forest Velvet',
+      description: 'Emerald canopy and earthy calm.',
       icon: Icons.nature,
       backgroundGradient: LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
-          Color(0xFFE8F5E8), // Verde muy claro
-          Color(0xFFA5D6A7), // Verde claro
-          Color(0xFF388E3C), // Verde intenso
+          Color(0xFFEEF8F1),
+          Color(0xFFD9F0DF),
+          Color(0xFFC5E6CF),
         ],
       ),
       backgroundGradientDark: LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
-        colors: [Color(0xFF0A1A0A), Color(0xFF1B5E20), Color(0xFF2E7D32)],
+        colors: [
+          Color(0xFF10251A),
+          Color(0xFF183427),
+          Color(0xFF224334),
+        ],
       ),
-      primaryColor: Color(0xFF388E3C),
-      secondaryColor: Color(0xFFA5D6A7),
-      accentColor: Color(0xFF1B5E20),
+      primaryColor: Color(0xFF2F7A4D),
+      secondaryColor: Color(0xFF4C9A69),
+      accentColor: Color(0xFF1F5636),
       isPremium: true,
     ),
-
-    // Tema lavanda (premium)
     AppTheme(
       type: ThemeType.lavender,
-      name: '🌈 Neon Sunset',
-      description: 'Vibrante degradé de fucsia, violeta y azul eléctrico',
+      name: 'Lavender Neon',
+      description: 'Modern violet with electric cyan.',
       icon: Icons.bolt,
       backgroundGradient: LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
-          Color(0xFFFF5EDF), // Fucsia neón
-          Color(0xFF7A5FFF), // Violeta eléctrico
-          Color(0xFF01C8EE), // Azul neón
+          Color(0xFFF4EEFF),
+          Color(0xFFDCCEFF),
+          Color(0xFFC8E8FF),
         ],
       ),
       backgroundGradientDark: LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
-          Color(0xFF232526), // Gris azulado oscuro
-          Color(0xFF7A5FFF), // Violeta eléctrico
-          Color(0xFF0F2027), // Azul profundo
+          Color(0xFF1C1B2F),
+          Color(0xFF2B2450),
+          Color(0xFF1A3550),
         ],
       ),
-      primaryColor: Color(0xFF7A5FFF), // Violeta eléctrico
-      secondaryColor: Color(0xFFFF5EDF), // Fucsia neón
-      accentColor: Color(0xFF01C8EE), // Azul neón
+      primaryColor: Color(0xFF6D4CCF),
+      secondaryColor: Color(0xFF8F6BE8),
+      accentColor: Color(0xFF2BA8C9),
       isPremium: true,
     ),
-
-    // Tema cósmico (premium)
     AppTheme(
       type: ThemeType.cosmic,
-      name: '🌌 Cósmico',
-      description: 'Misterioso espacio profundo',
+      name: 'Cosmic Noir',
+      description: 'Deep-space navy with magenta glow.',
       icon: Icons.nights_stay,
       backgroundGradient: LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
-          Color(0xFF1A1A2E), // Azul muy oscuro
-          Color(0xFF16213E), // Azul marino
-          Color(0xFF0F3460), // Azul profundo
-          Color(0xFF533A7B), // Púrpura oscuro
+          Color(0xFF1A1D34),
+          Color(0xFF272447),
+          Color(0xFF3B2A56),
         ],
       ),
       backgroundGradientDark: LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
-          Color(0xFF000000), // Negro absoluto
-          Color(0xFF1A1A2E), // Azul muy oscuro
-          Color(0xFF2D1B69), // Púrpura profundo
-          Color(0xFF9C27B0), // Púrpura vibrante
+          Color(0xFF090B16),
+          Color(0xFF14172B),
+          Color(0xFF221A38),
         ],
       ),
-      primaryColor: Color(0xFF9C27B0),
-      secondaryColor: Color(0xFF673AB7),
-      accentColor: Color(0xFF3F51B5),
+      primaryColor: Color(0xFF8F59C7),
+      secondaryColor: Color(0xFF5C7AE3),
+      accentColor: Color(0xFFC85A9E),
       isPremium: true,
     ),
-
-    // Tema cerezo (premium)
     AppTheme(
       type: ThemeType.cherry,
-      name: '🌸 Cerezo',
-      description: 'Elegante rosa sakura japonés',
+      name: 'Cherry Silk',
+      description: 'Sakura pink with elegant plum.',
       icon: Icons.local_florist,
       backgroundGradient: LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
-          Color(0xFFF3E5F5), // Lavanda muy claro
-          Color(0xFFE1BEE7), // Lila suave
-          Color(0xFFBA68C8), // Púrpura medio
+          Color(0xFFFFF1F7),
+          Color(0xFFF9DDEB),
+          Color(0xFFEFCBE0),
         ],
       ),
       backgroundGradientDark: LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
-          Color(0xFF1A0A1A), // Púrpura muy oscuro
-          Color(0xFF4A148C), // Púrpura profundo
-          Color(0xFF7B1FA2), // Púrpura vibrante
+          Color(0xFF2B1624),
+          Color(0xFF3B1E31),
+          Color(0xFF4A2740),
         ],
       ),
-      primaryColor: Color(0xFFBA68C8),
-      secondaryColor: Color(0xFFE1BEE7),
-      accentColor: Color(0xFF8E24AA),
+      primaryColor: Color(0xFFA94472),
+      secondaryColor: Color(0xFFC45C89),
+      accentColor: Color(0xFF6E2B4F),
       isPremium: true,
     ),
-
-    // Tema dorado (premium)
     AppTheme(
       type: ThemeType.golden,
-      name: '✨ Dorado',
-      description: 'Lujo y elegancia dorada',
+      name: 'Golden Opal',
+      description: 'Champagne gold with premium warmth.',
       icon: Icons.star,
       backgroundGradient: LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
-          Color(0xFFFFF8E1), // Amarillo muy claro
-          Color(0xFFFFD54F), // Amarillo dorado
-          Color(0xFFFFA000), // Ámbar intenso
+          Color(0xFFFFF8E8),
+          Color(0xFFFFEDC2),
+          Color(0xFFFFDC99),
         ],
       ),
       backgroundGradientDark: LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
-          Color(0xFF1A1A0A), // Marrón muy oscuro
-          Color(0xFF3E2723), // Marrón chocolate
-          Color(0xFFBF360C), // Naranja oscuro
+          Color(0xFF241A0F),
+          Color(0xFF352312),
+          Color(0xFF4A2F15),
         ],
       ),
-      primaryColor: Color(0xFFFFA000),
-      secondaryColor: Color(0xFFFFD54F),
-      accentColor: Color(0xFFFF8F00),
+      primaryColor: Color(0xFFB7791F),
+      secondaryColor: Color(0xFFD59A2D),
+      accentColor: Color(0xFF7A4F13),
       isPremium: true,
     ),
   ];

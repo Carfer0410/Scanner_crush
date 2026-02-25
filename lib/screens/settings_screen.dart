@@ -91,29 +91,40 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: [
               // App bar
               Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  children: [
-                    IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: Icon(
-                        Icons.arrow_back_ios,
-                        color: ThemeService.instance.textColor,
-                        size: 24,
-                      ),
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: ThemeService.instance.cardColor.withOpacity(0.74),
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(
+                      color: ThemeService.instance.borderColor.withOpacity(0.9),
                     ),
-                    const Spacer(),
-                    Text(
-                      AppLocalizations.of(context)!.settings,
-                      style: GoogleFonts.poppins(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: ThemeService.instance.textColor,
+                  ),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: Icon(
+                          Icons.arrow_back_ios_new_rounded,
+                          color: ThemeService.instance.textColor,
+                          size: 20,
+                        ),
                       ),
-                    ),
-                    const Spacer(),
-                    const SizedBox(width: 48),
-                  ],
+                      Expanded(
+                        child: Text(
+                          AppLocalizations.of(context)!.settings,
+                          style: GoogleFonts.poppins(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: ThemeService.instance.textColor,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      const SizedBox(width: 42),
+                    ],
+                  ),
                 ),
               ),
 
@@ -163,9 +174,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         _buildSettingsItem(
                           icon: Icons.history,
                           title: AppLocalizations.of(context)!.history,
-                          subtitle:
-                                        AppLocalizations.of(context)?.crushHistoryDescription ??
-                              'Ver todos tus escaneos anteriores', // TODO: Add localization key
+                          subtitle: AppLocalizations.of(context)!.settingsHistorySubtitle,
                           onTap: () => _navigateToHistory(),
                         ),
                         _buildSettingsItem(
@@ -191,17 +200,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       .replaceAll('Mode', 'Theme')
                                       .replaceAll('Modo Oscuro', 'Tema Claro')
                                       .replaceAll('Oscuro', 'Claro'),
-                          subtitle:
-                              AppLocalizations.of(
-                                context,
-                              )?.specialThemesDescription ??
-                              'Cambiar el tema de la aplicación', // TODO: Add localization key
+                          subtitle: AppLocalizations.of(context)!.changeThemeSubtitle,
                           onTap: () => _toggleTheme(),
                         ),
                         _buildSettingsItem(
                           icon: Icons.blur_on,
-                          title: 'Animación de fondo',
-                          subtitle: 'Mostrar flores y corazones flotantes',
+                          title: AppLocalizations.of(context)!.backgroundAnimationTitle,
+                          subtitle: AppLocalizations.of(context)!.backgroundAnimationSubtitle,
                           onTap: () => _toggleBackgroundAnimation(!_showBackgroundAnimation),
                           trailing: Switch(
                             value: _showBackgroundAnimation,
@@ -426,10 +431,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 future: MonetizationService.instance.getExtraScansFromAds(),
                 builder: (context, adSnapshot) {
                   final extraScans = adSnapshot.data ?? 0;
-                  final totalFreeScans = baseScans + extraScans;
-                  // Calcular los escaneos utilizados hoy
-                  final scansUsedToday = (totalFreeScans - remainingScans).clamp(0, totalFreeScans);
-              
+                  return FutureBuilder<int>(
+                    future: MonetizationService.instance.getExtraScansFromCoins(),
+                    builder: (context, coinSnapshot) {
+                      final coinScans = coinSnapshot.data ?? 0;
+                      final totalFreeScans = baseScans + extraScans + coinScans;
+                      // Calcular los escaneos utilizados hoy
+                      final scansUsedToday =
+                          (totalFreeScans - remainingScans).clamp(0, totalFreeScans);
+
               return GestureDetector(
                 onTap: () => _navigateToPremium(),
                 child: Container(
@@ -552,6 +562,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
               ).animate().scale(delay: 200.ms);
+                    },
+                  );
                 },
               );
             },
@@ -790,13 +802,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
             ),
+            backgroundColor: ThemeService.instance.cardColor,
             title: Text(
               AppLocalizations.of(context)!.helpDialogTitle,
-              style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.bold,
+                color: ThemeService.instance.textColor,
+              ),
             ),
             content: Text(
               AppLocalizations.of(context)!.helpDialogContent,
-              style: GoogleFonts.poppins(fontSize: 14),
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                color: ThemeService.instance.textColor,
+              ),
             ),
             actions: [
               TextButton(
@@ -822,13 +841,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
             ),
+            backgroundColor: ThemeService.instance.cardColor,
             title: Text(
               AppLocalizations.of(context)!.aboutDialogTitle,
-              style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.bold,
+                color: ThemeService.instance.textColor,
+              ),
             ),
             content: Text(
               AppLocalizations.of(context)!.aboutDialogContent,
-              style: GoogleFonts.poppins(fontSize: 14),
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                color: ThemeService.instance.textColor,
+              ),
             ),
             actions: [
               TextButton(
@@ -854,13 +880,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
             ),
+            backgroundColor: ThemeService.instance.cardColor,
             title: Text(
               AppLocalizations.of(context)!.privacyDialogTitle,
-              style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.bold,
+                color: ThemeService.instance.textColor,
+              ),
             ),
             content: Text(
               AppLocalizations.of(context)!.privacyDialogContent,
-              style: GoogleFonts.poppins(fontSize: 14),
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                color: ThemeService.instance.textColor,
+              ),
             ),
             actions: [
               TextButton(
@@ -1032,3 +1065,5 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 }
+
+

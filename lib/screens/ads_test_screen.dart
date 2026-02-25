@@ -37,6 +37,7 @@ class _AdsTestScreenState extends State<AdsTestScreen> {
         });
       }
     }).catchError((error) {
+      if (!mounted) return;
       setState(() {
         _status = (AppLocalizations.of(context)?.bannerLoadError ?? 'Error cargando Banner Ad:') + ' $error';
       });
@@ -50,6 +51,7 @@ class _AdsTestScreenState extends State<AdsTestScreen> {
   }
 
   void _addResult(String result) {
+    if (!mounted) return;
     setState(() {
       _testResults.add("${DateTime.now().toString().substring(11, 19)} - $result");
     });
@@ -65,21 +67,25 @@ class _AdsTestScreenState extends State<AdsTestScreen> {
   }
 
   Future<void> _testInterstitialAd() async {
-  _addResult(AppLocalizations.of(context)?.testingInterstitialAd ?? "🎯 Testing Interstitial Ad...");
+    final loc = AppLocalizations.of(context);
+    _addResult(loc?.testingInterstitialAd ?? "Testing Interstitial Ad...");
     final isReady = AdMobService.instance.isInterstitialAdReady;
     if (isReady) {
-      _addResult(AppLocalizations.of(context)?.interstitialAdAvailable ?? "✅ Interstitial Ad disponible");
+      _addResult(loc?.interstitialAdAvailable ?? "Interstitial Ad disponible");
       final success = await AdMobService.instance.showInterstitialAd();
-      _addResult(success ? (AppLocalizations.of(context)?.interstitialShown ?? "✅ Interstitial mostrado") : (AppLocalizations.of(context)?.interstitialShowError ?? "❌ Error mostrando Interstitial"));
+      if (!mounted) return;
+      _addResult(success ? (loc?.interstitialShown ?? "Interstitial mostrado") : (loc?.interstitialShowError ?? "Error mostrando Interstitial"));
     } else {
-      _addResult(AppLocalizations.of(context)?.interstitialNotReady ?? "⚠️ Interstitial Ad no está listo");
+      _addResult(loc?.interstitialNotReady ?? "Interstitial Ad no esta listo");
     }
   }
 
   Future<void> _testRewardedAd() async {
-  _addResult(AppLocalizations.of(context)?.testingRewardedAd ?? "🎯 Testing Rewarded Ad...");
-  final success = await MonetizationService.instance.watchAdForExtraScans();
-  _addResult(success ? (AppLocalizations.of(context)?.rewardedAdShown ?? "✅ Rewarded Ad mostrado y recompensa otorgada") : (AppLocalizations.of(context)?.rewardedAdError ?? "❌ Error con Rewarded Ad"));
+    final loc = AppLocalizations.of(context);
+    _addResult(loc?.testingRewardedAd ?? "Testing Rewarded Ad...");
+    final success = await MonetizationService.instance.watchAdForExtraScans();
+    if (!mounted) return;
+    _addResult(success ? (loc?.rewardedAdShown ?? "Rewarded Ad mostrado") : (loc?.rewardedAdError ?? "Error con Rewarded Ad"));
   }
 
   @override

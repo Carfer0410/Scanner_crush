@@ -594,6 +594,7 @@ class _ThemesScreenState extends State<ThemesScreen>
 
     final isPremium =
         await MonetizationService.instance.isPremiumAsync();
+    if (!mounted) return;
 
     // Permitir seleccionar el tema premium si tiene acceso temporal válido
     final hasTempAccess = PremiumThemeService.instance
@@ -603,7 +604,7 @@ class _ThemesScreenState extends State<ThemesScreen>
     if (!canSelect) {
       // Si es un tema premium y no tiene acceso, mostrar opción de ver anuncio
       if (theme.isPremium && !isPremium) {
-        _showPremiumOrAdOptions(theme);
+        await _showPremiumOrAdOptions(theme);
       } else {
         _showPremiumRequired();
       }
@@ -649,7 +650,16 @@ class _ThemesScreenState extends State<ThemesScreen>
     }
   }
 
-  void _showPremiumOrAdOptions(AppTheme theme) {
+  Future<void> _showPremiumOrAdOptions(AppTheme theme) async {
+    final remainingUnlocks = await PremiumThemeService.instance
+        .getRemainingAdThemeUnlocksToday();
+    final unlockDuration = await PremiumThemeService.instance
+        .getAdUnlockDurationForTheme(theme.type.name);
+    if (!mounted) return;
+    final unlockLabel =
+        unlockDuration.inHours >= 1 ? '${unlockDuration.inHours}h' : '${unlockDuration.inMinutes} min';
+
+    final screenContext = context;
     bool isProcessing = false;
     void refreshParent() => setState(() {});
     showDialog(
@@ -707,7 +717,9 @@ class _ThemesScreenState extends State<ThemesScreen>
                                         theme.type.name,
                                       )
                                   ? 'Ya tienes acceso temporal activo a este tema.'
-                                  : 'Acceso por 4 horas SOLO a este tema',
+                                  : remainingUnlocks > 0
+                                      ? 'Acceso por $unlockLabel SOLO a este tema. Te quedan $remainingUnlocks desbloqueos hoy.'
+                                      : 'Limite diario alcanzado. Vuelve manana o hazte Premium.',
                               style: TextStyle(
                                 color: ThemeService.instance.subtitleColor,
                                 fontSize: 12,
@@ -773,11 +785,13 @@ class _ThemesScreenState extends State<ThemesScreen>
                           PremiumThemeService.instance
                                       .hasTemporaryAccessToTheme(
                                         theme.type.name,
-                                      ) ||
-                                  isProcessing
+                                       ) ||
+                                  remainingUnlocks <= 0 ||
+                                   isProcessing
                               ? null
                               : () async {
                                 setStateDialog(() => isProcessing = true);
+                                bool granted = false;
                                 final adShown = await AdMobService.instance
                                     .showRewardedAd(
                                       onUserEarnedReward: (ad, reward) async {
@@ -785,26 +799,39 @@ class _ThemesScreenState extends State<ThemesScreen>
                                             .hasTemporaryAccessToTheme(
                                               theme.type.name,
                                             )) {
-                                          await PremiumThemeService.instance
+                                          granted = await PremiumThemeService.instance
                                               .grantTemporaryAccessToTheme(
                                                 theme.type.name,
                                               );
                                           // Cambiar automáticamente al tema después de otorgar acceso temporal
-                                          await ThemeService.instance.changeTheme(theme.type);
+                                          if (granted) {
+                                            await ThemeService.instance.changeTheme(theme.type);
+                                          }
                                         }
                                       },
                                     );
+                                if (!screenContext.mounted) return;
                                 setStateDialog(() => isProcessing = false);
-                                if (adShown) {
-                                  Navigator.pop(context);
+                                if (adShown && granted) {
+                                  Navigator.pop(screenContext);
                                   refreshParent(); // Refresca la lista de temas inmediatamente
-                                  ScaffoldMessenger.of(context).showSnackBar(
+                                  ScaffoldMessenger.of(screenContext).showSnackBar(
                                     SnackBar(
                                       content: Text(
-                                        '¡Acceso temporal a este tema otorgado por 4 horas! 🎉',
+                                        'Acceso temporal otorgado por $unlockLabel.',
                                       ),
                                       backgroundColor: Colors.green,
                                       duration: const Duration(seconds: 6),
+                                    ),
+                                  );
+                                } else if (adShown && !granted) {
+                                  ScaffoldMessenger.of(screenContext).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'Limite diario alcanzado para desbloqueos por anuncio.',
+                                      ),
+                                      backgroundColor: Colors.orange,
+                                      duration: Duration(seconds: 6),
                                     ),
                                   );
                                 }
@@ -894,3 +921,4 @@ class _ThemesScreenState extends State<ThemesScreen>
     );
   }
 }
+

@@ -67,6 +67,8 @@ class MonetizationService {
     await _prefs?.setInt('subscription_tier', _currentTier.index);
     if (_subscriptionExpiry != null) {
       await _prefs?.setString('subscription_expiry', _subscriptionExpiry!.toIso8601String());
+    } else {
+      await _prefs?.remove('subscription_expiry');
     }
   }
   
@@ -86,7 +88,7 @@ class MonetizationService {
     if (isPremium) return true;
     
     final totalScansToday = await _getTotalScansToday();
-    final maxAllowed = _dailyFreeScans + await getExtraScansFromAds();
+    final maxAllowed = _dailyFreeScans + await getExtraScansFromAds() + await getExtraScansFromCoins();
     
     return totalScansToday < maxAllowed;
   }
@@ -119,7 +121,8 @@ class MonetizationService {
     final totalScansUsed = await _getTotalScansToday();
     final baseScans = _dailyFreeScans;
     final extraScans = await getExtraScansFromAds();
-    final totalAvailable = baseScans + extraScans;
+    final coinScans = await getExtraScansFromCoins();
+    final totalAvailable = baseScans + extraScans + coinScans;
     
     return (totalAvailable - totalScansUsed).clamp(0, totalAvailable);
   }
@@ -127,20 +130,43 @@ class MonetizationService {
   /// Versión síncrona para UI (aproximada, sin cálculos async)
   int getRemainingScansTodayForFreeSync() {
     if (isPremium) return -1; // Ilimitado
-    
+
     // Para versión síncrona, usamos una aproximación simple
     // En producción, podrías cachear estos valores
     final today = SecureTimeService.instance.getSecureDate().toIso8601String().split('T')[0];
     final lastScanDate = _prefs?.getString('last_scan_date');
+    final lastAdDate = _prefs?.getString('last_ad_date');
+    final lastCoinDate = _prefs?.getString('last_coin_scan_date');
     final todayScans = _prefs?.getInt('today_scans') ?? 0;
     final extraScans = _prefs?.getInt('extra_scans_today') ?? 0;
-    
-    if (lastScanDate != today) {
-      return _dailyFreeScans; // Nuevo día, todos disponibles
+    final coinScans = _prefs?.getInt('coin_scans_today') ?? 0;
+
+    // Si es un nuevo día para escaneos, reiniciar contador de escaneos
+    final isNewDayForScans = lastScanDate != today;
+    // Si es un nuevo día para anuncios, los escaneos bonus son 0
+    final isNewDayForAds = lastAdDate != today;
+    final isNewDayForCoinScans = lastCoinDate != today;
+
+    // Actualizar SharedPreferences si es necesario (para mantener consistencia)
+    if (isNewDayForScans) {
+      _prefs?.setString('last_scan_date', today);
+      _prefs?.setInt('today_scans', 0);
     }
-    
-    final totalAvailable = _dailyFreeScans + extraScans;
-    return (totalAvailable - todayScans).clamp(0, totalAvailable);
+    if (isNewDayForAds) {
+      _prefs?.setString('last_ad_date', today);
+      _prefs?.setInt('extra_scans_today', 0);
+    }
+    if (isNewDayForCoinScans) {
+      _prefs?.setString('last_coin_scan_date', today);
+      _prefs?.setInt('coin_scans_today', 0);
+    }
+
+    final effectiveTodayScans = isNewDayForScans ? 0 : todayScans;
+    final effectiveExtraScans = isNewDayForAds ? 0 : extraScans;
+    final effectiveCoinScans = isNewDayForCoinScans ? 0 : coinScans;
+
+    final totalAvailable = _dailyFreeScans + effectiveExtraScans + effectiveCoinScans;
+    return (totalAvailable - effectiveTodayScans).clamp(0, totalAvailable);
   }
   
   Future<int> getAvailableAdBonusScans() async {
@@ -244,6 +270,28 @@ class MonetizationService {
     
     return _prefs?.getInt('extra_scans_today') ?? 0;
   }
+
+  Future<int> getExtraScansFromCoins() async {
+    final today = SecureTimeService.instance.getSecureDate().toIso8601String().split('T')[0];
+    final lastCoinDate = _prefs?.getString('last_coin_scan_date');
+
+    if (lastCoinDate != today) {
+      await _prefs?.setString('last_coin_scan_date', today);
+      await _prefs?.setInt('coin_scans_today', 0);
+      return 0;
+    }
+
+    return _prefs?.getInt('coin_scans_today') ?? 0;
+  }
+
+  Future<void> grantCoinExtraScans(int amount) async {
+    if (isPremium || amount <= 0) return;
+    final today = SecureTimeService.instance.getSecureDate().toIso8601String().split('T')[0];
+    final lastCoinDate = _prefs?.getString('last_coin_scan_date');
+    final current = lastCoinDate == today ? (_prefs?.getInt('coin_scans_today') ?? 0) : 0;
+    await _prefs?.setString('last_coin_scan_date', today);
+    await _prefs?.setInt('coin_scans_today', current + amount);
+  }
   
   // ── Torneo de 16: desbloqueo diario con anuncio ────────────────────────
   /// Indica si el usuario ya usó su unlock diario de torneo 16
@@ -276,14 +324,42 @@ class MonetizationService {
 
   // Suscripciones usando tiempo seguro
   Future<void> upgradeToPremium({int months = 1}) async {
+    final normalizedMonths = months < 1 ? 1 : months;
     _currentTier = SubscriptionTier.premium;
-    _subscriptionExpiry = SecureTimeService.instance.getSecureTime().add(Duration(days: 30 * months));
+    _subscriptionExpiry = SecureTimeService.instance.getSecureTime().add(Duration(days: 30 * normalizedMonths));
     await _saveSubscriptionData();
   }
   
   Future<void> upgradeToPremiumPlus({int months = 1}) async {
+    final normalizedMonths = months < 1 ? 1 : months;
     _currentTier = SubscriptionTier.premiumPlus;
-    _subscriptionExpiry = SecureTimeService.instance.getSecureTime().add(Duration(days: 30 * months));
+    _subscriptionExpiry = SecureTimeService.instance.getSecureTime().add(Duration(days: 30 * normalizedMonths));
+    await _saveSubscriptionData();
+  }
+
+  Future<void> applyValidatedSubscription({
+    required SubscriptionTier tier,
+    DateTime? expiryDateUtc,
+    int fallbackMonths = 1,
+  }) async {
+    if (tier == SubscriptionTier.free) {
+      await downgradeToFree();
+      return;
+    }
+
+    final now = SecureTimeService.instance.getSecureTime().toUtc();
+    final normalizedMonths = fallbackMonths < 1 ? 1 : fallbackMonths;
+
+    _currentTier = tier;
+    _subscriptionExpiry = expiryDateUtc != null
+        ? expiryDateUtc.toUtc()
+        : now.add(Duration(days: 30 * normalizedMonths));
+    await _saveSubscriptionData();
+  }
+
+  Future<void> downgradeToFree() async {
+    _currentTier = SubscriptionTier.free;
+    _subscriptionExpiry = null;
     await _saveSubscriptionData();
   }
   

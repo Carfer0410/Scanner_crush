@@ -8,6 +8,7 @@ import '../services/tournament_service.dart';
 import '../services/theme_service.dart';
 import '../services/admob_service.dart';
 import '../services/monetization_service.dart';
+import '../services/analytics_service.dart';
 import '../widgets/custom_widgets.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'tournament_match_screen.dart';
@@ -56,6 +57,7 @@ class _TournamentBracketScreenState extends State<TournamentBracketScreen> {
     super.initState();
     _loadBannerAd();
     AdMobService.instance.trackUserAction();
+    AnalyticsService.instance.trackEvent('tournament_bracket_opened');
   }
 
   void _loadBannerAd() async {
@@ -84,6 +86,8 @@ class _TournamentBracketScreenState extends State<TournamentBracketScreen> {
     }
 
     setState(() => _showingMatch = true);
+    await AnalyticsService.instance.trackEvent('tournament_match_started');
+    if (!mounted) return;
 
     await Navigator.push(
       context,
@@ -113,6 +117,7 @@ class _TournamentBracketScreenState extends State<TournamentBracketScreen> {
 
     // Check if tournament is complete
     if (widget.tournament.isComplete) {
+      await AnalyticsService.instance.trackEvent('tournament_completed_navigation');
       await Future.delayed(const Duration(milliseconds: 500));
       if (mounted) _navigateToResults();
     }
@@ -200,54 +205,176 @@ class _TournamentBracketScreenState extends State<TournamentBracketScreen> {
     );
 
     if (selected != null && mounted) {
-      // Show rewarded ad and only grant revive when the reward callback runs
-      final adShown = await AdMobService.instance.showRewardedAd(
-        onUserEarnedReward: (ad, reward) {
-          final success = TournamentService.instance.reviveParticipant(
-            widget.tournament,
-            selected,
-          );
-          if (success && mounted) {
-            setState(() {});
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('💫 ${selected.name} ${loc.tournamentRevived}'),
-                backgroundColor: Colors.green,
-                behavior: SnackBarBehavior.floating,
-                  duration: const Duration(seconds: 2),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-              ),
-            );
-          }
-        },
-        onAdDismissed: () {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('No se obtuvo recompensa. Revive cancelado.'),
-                backgroundColor: Colors.orange,
-                behavior: SnackBarBehavior.floating,
-                duration: const Duration(seconds: 2),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-              ),
-            );
-          }
-        },
-      );
+      await AnalyticsService.instance.trackEvent('tournament_revive_candidate_selected');
+      await _showReviveOptions(selected, loc);
+    }
+  }
 
-      if (!adShown && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Anuncio no disponible, inténtalo más tarde.'),
-            backgroundColor: Colors.grey.shade700,
-            behavior: SnackBarBehavior.floating,
-            duration: const Duration(seconds: 2),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+  Future<void> _showReviveOptions(
+    TournamentParticipant selected,
+    AppLocalizations loc,
+  ) async {
+    final isEn = Localizations.localeOf(context).languageCode == 'en';
+    final isPremium = await MonetizationService.instance.isPremiumAsync();
+    final pass = await TournamentService.instance.getPassState();
+    if (!mounted) return;
+
+    final option = await showModalBottomSheet<String>(
+      context: context,
+      backgroundColor: ThemeService.instance.cardColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return Padding(
+          padding: const EdgeInsets.all(18),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                isEn ? 'Revive ${selected.name}' : 'Revivir a ${selected.name}',
+                style: GoogleFonts.poppins(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: ThemeService.instance.textColor,
+                ),
+              ),
+              const SizedBox(height: 12),
+              if (isPremium)
+                ListTile(
+                  leading: const Text('👑'),
+                  title: Text(isEn ? 'Premium Instant Revive' : 'Revive Instantáneo Premium'),
+                  onTap: () => Navigator.pop(ctx, 'premium'),
+                ),
+              ListTile(
+                leading: const Text('🪙'),
+                title: Text(isEn ? 'Use coins' : 'Usar coins'),
+                subtitle: Text('${TournamentService.instance.reviveCoinCost} coins (balance: ${pass.coins})'),
+                onTap: () => Navigator.pop(ctx, 'coins'),
+              ),
+              ListTile(
+                leading: const Text('🎬'),
+                title: Text(isEn ? 'Watch rewarded ad' : 'Ver anuncio con recompensa'),
+                onTap: () => Navigator.pop(ctx, 'ad'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.close),
+                title: Text(isEn ? 'Cancel' : 'Cancelar'),
+                onTap: () => Navigator.pop(ctx, 'cancel'),
+              ),
+            ],
           ),
         );
+      },
+    );
+
+    if (option == null || option == 'cancel' || !mounted) return;
+    if (option == 'premium' && isPremium) {
+      final success = TournamentService.instance.reviveParticipant(widget.tournament, selected);
+      await AnalyticsService.instance.trackEvent(
+        'tournament_revive_premium',
+        params: {'success': success},
+      );
+      if (!mounted) return;
+      if (success) {
+        setState(() {});
       }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(success
+              ? '💫 ${selected.name} ${loc.tournamentRevived}'
+              : (isEn ? 'Revive unavailable.' : 'Revive no disponible.')),
+          backgroundColor: success ? Colors.green : Colors.orange,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 2),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      );
+      return;
+    }
+
+    if (option == 'coins') {
+      final result = await TournamentService.instance.reviveWithCoins(widget.tournament, selected);
+      await AnalyticsService.instance.trackEvent(
+        'tournament_revive_coins',
+        params: {'result': result.name},
+      );
+      if (!mounted) return;
+      if (result == CoinSpendResult.success) {
+        setState(() {});
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            result == CoinSpendResult.success
+                ? '💫 ${selected.name} ${loc.tournamentRevived}'
+                : result == CoinSpendResult.insufficientCoins
+                    ? (isEn ? 'Not enough coins.' : 'No tienes suficientes coins.')
+                    : (isEn ? 'Revive unavailable right now.' : 'Revive no disponible ahora.'),
+          ),
+          backgroundColor: result == CoinSpendResult.success ? Colors.green : Colors.orange,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 2),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      );
+      return;
+    }
+
+    // option == ad
+    final adShown = await AdMobService.instance.showRewardedAd(
+      onUserEarnedReward: (ad, reward) {
+        final success = TournamentService.instance.reviveParticipant(
+          widget.tournament,
+          selected,
+        );
+        AnalyticsService.instance.trackEvent(
+          'tournament_revive_ad_reward',
+          params: {'success': success},
+        );
+        if (success && mounted) {
+          setState(() {});
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('💫 ${selected.name} ${loc.tournamentRevived}'),
+              backgroundColor: Colors.green,
+              behavior: SnackBarBehavior.floating,
+              duration: const Duration(seconds: 2),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          );
+        }
+      },
+      onAdDismissed: () {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(isEn ? 'Reward not earned. Revive cancelled.' : 'No se obtuvo recompensa. Revive cancelado.'),
+              backgroundColor: Colors.orange,
+              behavior: SnackBarBehavior.floating,
+              duration: const Duration(seconds: 2),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          );
+        }
+      },
+    );
+
+    await AnalyticsService.instance.trackEvent(
+      'tournament_revive_ad_attempt',
+      params: {'adShown': adShown},
+    );
+
+    if (!adShown && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(isEn ? 'Ad not available. Try again later.' : 'Anuncio no disponible, inténtalo más tarde.'),
+          backgroundColor: Colors.grey.shade700,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 2),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      );
     }
   }
 
@@ -274,13 +401,29 @@ class _TournamentBracketScreenState extends State<TournamentBracketScreen> {
             children: [
               // Header
               Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: ThemeService.instance.cardColor.withOpacity(0.76),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: ThemeService.instance.borderColor.withOpacity(0.9),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 14,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                  ),
+                  child: Row(
                   children: [
                     IconButton(
                       onPressed: () => _confirmExit(),
                       icon: Icon(
-                        Icons.close,
+                        Icons.close_rounded,
                         color: ThemeService.instance.textColor,
                       ),
                     ),
@@ -288,8 +431,8 @@ class _TournamentBracketScreenState extends State<TournamentBracketScreen> {
                       child: Text(
                         loc.tournamentBracket,
                         style: GoogleFonts.poppins(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
                           color: ThemeService.instance.textColor,
                         ),
                         textAlign: TextAlign.center,
@@ -327,6 +470,7 @@ class _TournamentBracketScreenState extends State<TournamentBracketScreen> {
                     else
                       const SizedBox(width: 48),
                   ],
+                  ),
                 ),
               ),
 

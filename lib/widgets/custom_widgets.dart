@@ -233,6 +233,8 @@ class GradientButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final baseBg = backgroundColor ?? ThemeService.instance.primaryColor;
+    final foreground = ThemeService.instance.onColor(baseBg);
     return Container(
       decoration: BoxDecoration(
         gradient: backgroundColor != null
@@ -252,22 +254,22 @@ class GradientButton extends StatelessWidget {
                 onPressed();
               },
         icon: isLoading
-            ? const SizedBox(
+            ? SizedBox(
                 width: 20,
                 height: 20,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  valueColor: AlwaysStoppedAnimation<Color>(foreground),
                 ),
               )
-            : Icon(icon ?? Icons.favorite, color: Colors.white),
+            : Icon(icon ?? Icons.favorite, color: foreground),
         label: Text(
           text,
           textAlign: TextAlign.center,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: foreground,
             fontSize: 14,
             fontWeight: FontWeight.bold,
           ),

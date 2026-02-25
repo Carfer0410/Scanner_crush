@@ -17,6 +17,9 @@ class PremiumThemeService {
   static PremiumThemeService get instance => _instance;
 
   SharedPreferences? _prefs;
+  static const Duration _firstAdUnlockDuration = Duration(hours: 4);
+  static const Duration _repeatAdUnlockDuration = Duration(hours: 1);
+  static const int _maxAdUnlocksPerDay = 3;
 
   /// Map of temporary access: {themeTypeName: expiryIsoString}
   Map<String, String> _tempPremiumThemes = {};
@@ -38,14 +41,47 @@ class PremiumThemeService {
   // Temporary access management
   // ---------------------------------------------------------------------------
 
-  /// Grants 4-hour temporary access to a premium theme after watching an ad.
-  Future<void> grantTemporaryAccessToTheme(String themeId) async {
-    final expiry = SecureTimeService.instance
-        .getSecureTime()
-        .add(const Duration(hours: 4));
+  String _todayKey() =>
+      SecureTimeService.instance.getSecureDate().toIso8601String().split('T')[0];
+
+  Future<int> getRemainingAdThemeUnlocksToday() async {
+    final prefs = _prefs ?? await SharedPreferences.getInstance();
+    final today = _todayKey();
+    final date = prefs.getString('theme_ad_unlock_date');
+    final used = date == today ? (prefs.getInt('theme_ad_unlock_count') ?? 0) : 0;
+    return (_maxAdUnlocksPerDay - used).clamp(0, _maxAdUnlocksPerDay);
+  }
+
+  Future<bool> canWatchAdForThemeUnlock() async {
+    final remaining = await getRemainingAdThemeUnlocksToday();
+    return remaining > 0;
+  }
+
+  Future<Duration> getAdUnlockDurationForTheme(String themeId) async {
+    final prefs = _prefs ?? await SharedPreferences.getInstance();
+    final everUnlocked = prefs.getBool('theme_ad_unlocked_once_$themeId') ?? false;
+    return everUnlocked ? _repeatAdUnlockDuration : _firstAdUnlockDuration;
+  }
+
+  /// Grants temporary access to a premium theme after watching an ad.
+  /// First unlock per theme: 4h. Re-unlocks: 1h.
+  /// Returns false if daily ad-unlock limit has been reached.
+  Future<bool> grantTemporaryAccessToTheme(String themeId) async {
+    final prefs = _prefs ?? await SharedPreferences.getInstance();
+    final today = _todayKey();
+    final date = prefs.getString('theme_ad_unlock_date');
+    final used = date == today ? (prefs.getInt('theme_ad_unlock_count') ?? 0) : 0;
+    if (used >= _maxAdUnlocksPerDay) return false;
+
+    final duration = await getAdUnlockDurationForTheme(themeId);
+    final expiry = SecureTimeService.instance.getSecureTime().add(duration);
     _tempPremiumThemes[themeId] = expiry.toIso8601String();
+    await prefs.setBool('theme_ad_unlocked_once_$themeId', true);
+    await prefs.setString('theme_ad_unlock_date', today);
+    await prefs.setInt('theme_ad_unlock_count', (used + 1).clamp(0, _maxAdUnlocksPerDay));
     await _saveTempPremiumThemes();
     tempAccessNotifier.value++;
+    return true;
   }
 
   /// Debug helper – grant access with a custom expiry duration.

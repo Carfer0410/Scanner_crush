@@ -13,16 +13,31 @@ class AdMobService {
   AdMobService._internal();
 
   SharedPreferences? _prefs;
-  
-  // IDs REALES - CONFIGURADOS PARA PRODUCCIÓN
-  // Banner=ca-app-pub-6436417991123423/1992572008, Interstitial=ca-app-pub-6436417991123423/1801000311, Rewarded=ca-app-pub-6436417991123423/1900222602
-  static const String _androidBannerAdUnitId = 'ca-app-pub-6436417991123423/1992572008'; // ID REAL - PRODUCCIÓN
-  // Usar IDs de prueba en Android durante el desarrollo para evitar bloqueos y errores.
-  static const String _iosBannerAdUnitId = 'ca-app-pub-3940256099942544/2934735716'; // Test ID - SEGURO (iOS aún en test)
-  static const String _androidInterstitialAdUnitId = 'ca-app-pub-3940256099942544/1033173712'; // Test ID - ANDROID (interstitial)
-  static const String _iosInterstitialAdUnitId = 'ca-app-pub-3940256099942544/4411468910'; // Test ID - SEGURO (iOS aún en test)
-  static const String _androidRewardedAdUnitId = 'ca-app-pub-3940256099942544/5224354917'; // Test ID - ANDROID (rewarded)
-  static const String _iosRewardedAdUnitId = 'ca-app-pub-3940256099942544/1712485313'; // Test ID - SEGURO (iOS aún en test)
+
+  /// En release usamos IDs de producción.
+  /// En debug/profile usamos test IDs por seguridad (evita riesgo de baneo).
+  static const bool _forceProductionAds = bool.fromEnvironment(
+    'USE_PROD_ADS',
+    defaultValue: false,
+  );
+
+  // IDs de producción Android
+  static const String _androidProdBannerAdUnitId = 'ca-app-pub-6436417991123423/1992572008';
+  static const String _androidProdInterstitialAdUnitId = 'ca-app-pub-6436417991123423/1801000311';
+  static const String _androidProdRewardedAdUnitId = 'ca-app-pub-6436417991123423/1900222602';
+
+  // IDs de producción iOS (opcionales vía --dart-define hasta publicar iOS)
+  static const String _iosProdBannerAdUnitId = String.fromEnvironment('IOS_BANNER_AD_UNIT_ID', defaultValue: '');
+  static const String _iosProdInterstitialAdUnitId = String.fromEnvironment('IOS_INTERSTITIAL_AD_UNIT_ID', defaultValue: '');
+  static const String _iosProdRewardedAdUnitId = String.fromEnvironment('IOS_REWARDED_AD_UNIT_ID', defaultValue: '');
+
+  // IDs de prueba oficiales de Google
+  static const String _androidTestBannerAdUnitId = 'ca-app-pub-3940256099942544/6300978111';
+  static const String _iosTestBannerAdUnitId = 'ca-app-pub-3940256099942544/2934735716';
+  static const String _androidTestInterstitialAdUnitId = 'ca-app-pub-3940256099942544/1033173712';
+  static const String _iosTestInterstitialAdUnitId = 'ca-app-pub-3940256099942544/4411468910';
+  static const String _androidTestRewardedAdUnitId = 'ca-app-pub-3940256099942544/5224354917';
+  static const String _iosTestRewardedAdUnitId = 'ca-app-pub-3940256099942544/1712485313';
 
   // Estado de anuncios
   BannerAd? _bannerAd;
@@ -33,12 +48,19 @@ class AdMobService {
   bool _isRewardedAdLoaded = false;
   bool _isInitialized = false;
 
+  bool get _useProductionAds => kReleaseMode || _forceProductionAds;
+
   // Getters para IDs de anuncios
   String get bannerAdUnitId {
     if (Platform.isAndroid) {
-      return _androidBannerAdUnitId;
+      return _useProductionAds
+          ? _androidProdBannerAdUnitId
+          : _androidTestBannerAdUnitId;
     } else if (Platform.isIOS) {
-      return _iosBannerAdUnitId;
+      if (_useProductionAds && _iosProdBannerAdUnitId.isNotEmpty) {
+        return _iosProdBannerAdUnitId;
+      }
+      return _iosTestBannerAdUnitId;
     } else {
       throw UnsupportedError('Unsupported platform');
     }
@@ -46,9 +68,14 @@ class AdMobService {
 
   String get _interstitialAdUnitId {
     if (Platform.isAndroid) {
-      return _androidInterstitialAdUnitId;
+      return _useProductionAds
+          ? _androidProdInterstitialAdUnitId
+          : _androidTestInterstitialAdUnitId;
     } else if (Platform.isIOS) {
-      return _iosInterstitialAdUnitId;
+      if (_useProductionAds && _iosProdInterstitialAdUnitId.isNotEmpty) {
+        return _iosProdInterstitialAdUnitId;
+      }
+      return _iosTestInterstitialAdUnitId;
     } else {
       throw UnsupportedError('Unsupported platform');
     }
@@ -56,9 +83,14 @@ class AdMobService {
 
   String get _rewardedAdUnitId {
     if (Platform.isAndroid) {
-      return _androidRewardedAdUnitId;
+      return _useProductionAds
+          ? _androidProdRewardedAdUnitId
+          : _androidTestRewardedAdUnitId;
     } else if (Platform.isIOS) {
-      return _iosRewardedAdUnitId;
+      if (_useProductionAds && _iosProdRewardedAdUnitId.isNotEmpty) {
+        return _iosProdRewardedAdUnitId;
+      }
+      return _iosTestRewardedAdUnitId;
     } else {
       throw UnsupportedError('Unsupported platform');
     }
@@ -70,7 +102,14 @@ class AdMobService {
     
     try {
       _prefs = await SharedPreferences.getInstance();
-      
+
+      // En desarrollo, marcar emulador como test device explícito.
+      if (!_useProductionAds) {
+        await MobileAds.instance.updateRequestConfiguration(
+          RequestConfiguration(testDeviceIds: const <String>['EMULATOR']),
+        );
+      }
+
       // Inicializar Mobile Ads SDK
       await MobileAds.instance.initialize();
       
@@ -81,7 +120,10 @@ class AdMobService {
       _isInitialized = true;
       
       if (kDebugMode) {
-        LoggerService.info('AdMob initialized successfully', origin: 'admob_service');
+        LoggerService.info(
+          'AdMob initialized successfully (${_useProductionAds ? 'PROD ADS' : 'TEST ADS'})',
+          origin: 'admob_service',
+        );
       }
     } catch (e) {
       LoggerService.error('Error initializing AdMob: $e', origin: 'AdMobService');
@@ -233,7 +275,7 @@ class AdMobService {
   }) async {
     if (_rewardedAd != null && _isRewardedAdLoaded) {
       final completer = Completer<bool>();
-      var _rewardGiven = false;
+      var rewardGiven = false;
       // Configurar callbacks ANTES de show() para evitar race condition
       _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
         onAdShowedFullScreenContent: (ad) {
@@ -242,9 +284,9 @@ class AdMobService {
         },
         onAdDismissedFullScreenContent: (ad) {
           // Llamar a onAdDismissed sólo si NO se obtuvo la recompensa
-          if (!_rewardGiven) onAdDismissed?.call();
+          if (!rewardGiven) onAdDismissed?.call();
           try {
-            if (!completer.isCompleted) completer.complete(_rewardGiven);
+            if (!completer.isCompleted) completer.complete(rewardGiven);
           } catch (_) {}
           ad.dispose();
           _isRewardedAdLoaded = false;
@@ -262,7 +304,7 @@ class AdMobService {
       );
       // Envolver el callback de recompensa para saber si el usuario obtuvo la reward
       await _rewardedAd!.show(onUserEarnedReward: (ad, reward) {
-        _rewardGiven = true;
+        rewardGiven = true;
         try {
           onUserEarnedReward(ad, reward);
         } catch (e) {
@@ -291,8 +333,8 @@ class AdMobService {
   /// Tracking de eventos de anuncios
   Future<void> _trackAdEvent(String eventName) async {
     final today = SecureTimeService.instance.getSecureDate().toIso8601String().split('T')[0];
-    final currentCount = _prefs?.getInt('ad_events_$eventName\_$today') ?? 0;
-    await _prefs?.setInt('ad_events_$eventName\_$today', currentCount + 1);
+    final currentCount = _prefs?.getInt('ad_events_${eventName}_$today') ?? 0;
+    await _prefs?.setInt('ad_events_${eventName}_$today', currentCount + 1);
   }
 
   /// Analytics de anuncios

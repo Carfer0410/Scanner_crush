@@ -31,6 +31,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
   bool _isLoadingPredictions = false;
   BannerAd? _bannerAd;
   bool _isBannerAdReady = false;
+  Map<String, int> _tournamentFunnelToday = <String, int>{};
 
   @override
   void initState() {
@@ -58,11 +59,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
 
   Future<void> _checkPremiumAndLoad() async {
     _isPremium = await MonetizationService.instance.isPremiumAsync();
-    // Siempre cargar estadísticas (gratis para todos)
     await _loadStats();
-    // Track que el usuario abrió analytics
+    await _loadTournamentFunnel();
     AdMobService.instance.trackUserAction();
-    // Insights y predictions solo se cargan si es premium
     if (_isPremium) {
       await _loadInsightsAndPredictions();
     }
@@ -86,6 +85,19 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
         });
       }
     }
+  }
+
+  Future<void> _loadTournamentFunnel() async {
+    try {
+      final funnel = await AnalyticsService.instance.getEventCountsToday(
+        prefix: 'tournament_',
+      );
+      if (mounted) {
+        setState(() {
+          _tournamentFunnelToday = funnel;
+        });
+      }
+    } catch (_) {}
   }
 
   Future<void> _loadInsightsAndPredictions() async {
@@ -137,6 +149,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
     if (mounted) {
       if (rewarded) {
         await _loadInsightsAndPredictions();
+        if (!mounted) return;
         setState(() { _isLoadingInsights = false; });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -190,6 +203,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
     if (mounted) {
       if (rewarded) {
         await _loadInsightsAndPredictions();
+        if (!mounted) return;
         setState(() { _isLoadingPredictions = false; });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -233,48 +247,66 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
             children: [
               // App bar
               Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  children: [
-                    IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: Icon(
-                        Icons.arrow_back_ios,
-                        color: ThemeService.instance.textColor,
-                        size: 24,
-                      ),
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: ThemeService.instance.cardColor.withOpacity(0.78),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: ThemeService.instance.borderColor.withOpacity(0.9),
                     ),
-                    const Spacer(),
-                        Text(
-                          AppLocalizations.of(context)?.loveAnalytics ?? '',
-                      style: GoogleFonts.poppins(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: ThemeService.instance.textColor,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 12,
+                        offset: const Offset(0, 6),
                       ),
-                    ),
-                    const Spacer(),
-                    if (_isPremium)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [ThemeService.instance.primaryColor, ThemeService.instance.secondaryColor],
-                          ),
-                          borderRadius: BorderRadius.circular(20),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: Icon(
+                          Icons.arrow_back_ios_new_rounded,
+                          color: ThemeService.instance.textColor,
+                          size: 20,
                         ),
+                      ),
+                      Expanded(
                         child: Text(
-                          'PREMIUM',
+                          AppLocalizations.of(context)?.loveAnalytics ?? '',
                           style: GoogleFonts.poppins(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            fontSize: 19,
+                            fontWeight: FontWeight.w700,
+                            color: ThemeService.instance.textColor,
                           ),
+                          textAlign: TextAlign.center,
                         ),
-                      )
-                    else
-                      const SizedBox(width: 48),
-                  ],
+                      ),
+                      if (_isPremium)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [ThemeService.instance.primaryColor, ThemeService.instance.secondaryColor],
+                            ),
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                          child: Text(
+                            'PREMIUM',
+                            style: GoogleFonts.poppins(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                          ),
+                        )
+                      else
+                        const SizedBox(width: 42),
+                    ],
+                  ),
                 ),
               ),
 
@@ -551,6 +583,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
               ),
             ],
           ),
+
+          const SizedBox(height: 16),
+
+          _buildTournamentFunnelCard(),
 
           const SizedBox(height: 24),
 
@@ -913,6 +949,76 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
     ).animate().scale(delay: 400.ms);
   }
 
+  Widget _buildTournamentFunnelCard() {
+    final loc = AppLocalizations.of(context)!;
+    final started = _tournamentFunnelToday['tournament_started'] ?? 0;
+    final completed = _tournamentFunnelToday['tournament_completed_navigation'] ?? 0;
+    final ticketAds = (_tournamentFunnelToday['tournament_ticket_ad_attempt'] ?? 0) +
+        (_tournamentFunnelToday['tournament_result_ticket_ad_attempt'] ?? 0);
+    final reviveAds = _tournamentFunnelToday['tournament_revive_ad_attempt'] ?? 0;
+    final reviveCoins = _tournamentFunnelToday['tournament_revive_coins'] ?? 0;
+    final shopBuys = (_tournamentFunnelToday['tournament_shop_buy_1'] ?? 0) +
+        (_tournamentFunnelToday['tournament_shop_buy_bundle3'] ?? 0);
+
+    final conversion = started > 0 ? ((completed / started) * 100).toStringAsFixed(0) : '0';
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: ThemeService.instance.cardColor,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: ThemeService.instance.cardShadow,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            loc.tournamentFunnelTodayTitle,
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: ThemeService.instance.textColor,
+            ),
+          ),
+          const SizedBox(height: 12),
+          _buildFunnelRow(loc.funnelStartsLabel, '$started'),
+          _buildFunnelRow(loc.funnelCompletionsLabel, '$completed'),
+          _buildFunnelRow(loc.funnelCompletionRateLabel, '$conversion%'),
+          _buildFunnelRow(loc.funnelTicketAdsLabel, '$ticketAds'),
+          _buildFunnelRow(loc.funnelReviveAdsLabel, '$reviveAds'),
+          _buildFunnelRow(loc.funnelReviveCoinsLabel, '$reviveCoins'),
+          _buildFunnelRow(loc.funnelShopBuysLabel, '$shopBuys'),
+        ],
+      ),
+    );
+  }
+  Widget _buildFunnelRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              label,
+              style: GoogleFonts.poppins(
+                fontSize: 13,
+                color: ThemeService.instance.subtitleColor,
+              ),
+            ),
+          ),
+          Text(
+            value,
+            style: GoogleFonts.poppins(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: ThemeService.instance.textColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildTrendChart() {
     if (_stats!.trendData.isEmpty) {
       return Container(
@@ -1119,3 +1225,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
     }
   }
 }
+
+
+
+
+
+

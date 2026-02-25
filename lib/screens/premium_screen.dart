@@ -220,6 +220,13 @@ class _PremiumScreenState extends State<PremiumScreen> {
                 : l10n.purchaseUnexpectedError,
           );
           break;
+
+        case PurchaseResult.validationFailed:
+          _showErrorSnackBar(
+            PurchaseService.instance.lastErrorMessage ??
+                'Purchase validation failed. Please contact support.',
+          );
+          break;
       }
     } catch (e) {
       if (mounted) {
@@ -279,7 +286,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
       PurchaseService.premiumMonthlyId,
     );
 
-    if (price != 'N/A') {
+    if (price != '-') {
       final l10n = AppLocalizations.of(context);
       final perMonth = l10n?.perMonth ?? '/month';
       return '$price$perMonth';
@@ -304,9 +311,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
       case 'specialThemesTitle':
         return AppLocalizations.of(context)?.specialThemesTitle ?? key;
       case 'tournament16UnlimitedTitle':
-        return Localizations.localeOf(context).languageCode == 'en'
-            ? 'Unlimited 16-Player Tournaments'
-            : 'Torneos de 16 Ilimitados';
+        return AppLocalizations.of(context)?.tournament16UnlimitedTitle ?? key;
       default:
         return key;
     }
@@ -327,9 +332,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
       case 'specialThemesDescription':
         return AppLocalizations.of(context)?.specialThemesDescription ?? key;
       case 'tournament16UnlimitedDescription':
-        return Localizations.localeOf(context).languageCode == 'en'
-            ? 'Play epic 16-player tournaments every day with no limits'
-            : 'Juega torneos épicos de 16 jugadores todos los días sin límites';
+        return AppLocalizations.of(context)?.tournament16UnlimitedDescription ?? key;
       default:
         return key;
     }
@@ -344,29 +347,47 @@ class _PremiumScreenState extends State<PremiumScreen> {
             children: [
               // App bar
               Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  children: [
-                    IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: Icon(
-                        Icons.arrow_back_ios,
-                        color: ThemeService.instance.textColor,
-                        size: 24,
-                      ),
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: ThemeService.instance.cardColor.withOpacity(0.78),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: ThemeService.instance.borderColor.withOpacity(0.9),
                     ),
-                    const Spacer(),
-                    Text(
-                      AppLocalizations.of(context)?.premium ?? '',
-                      style: GoogleFonts.poppins(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: ThemeService.instance.textColor,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.06),
+                        blurRadius: 14,
+                        offset: const Offset(0, 6),
                       ),
-                    ),
-                    const Spacer(),
-                    const SizedBox(width: 48),
-                  ],
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: Icon(
+                          Icons.arrow_back_ios_new_rounded,
+                          color: ThemeService.instance.textColor,
+                          size: 20,
+                        ),
+                      ),
+                      Expanded(
+                        child: Text(
+                          AppLocalizations.of(context)?.premium ?? '',
+                          style: GoogleFonts.poppins(
+                            fontSize: 19,
+                            fontWeight: FontWeight.w700,
+                            color: ThemeService.instance.textColor,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      const SizedBox(width: 42),
+                    ],
+                  ),
                 ),
               ),
 
@@ -375,50 +396,81 @@ class _PremiumScreenState extends State<PremiumScreen> {
                   padding: const EdgeInsets.all(20),
                   child: Column(
                     children: [
-                      // Premium crown icon
                       Container(
-                        width: 100,
-                        height: 100,
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 18,
+                          vertical: 20,
+                        ),
                         decoration: BoxDecoration(
-                          shape: BoxShape.circle,
                           gradient: LinearGradient(
-                            colors: [Colors.amber, Colors.orange],
+                            colors: [
+                              Colors.amber.withOpacity(0.18),
+                              ThemeService.instance.primaryColor.withOpacity(0.2),
+                              ThemeService.instance.secondaryColor.withOpacity(0.15),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(24),
+                          border: Border.all(
+                            color: Colors.amber.withOpacity(0.35),
+                            width: 1.2,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.amber.withOpacity(0.4),
-                              blurRadius: 20,
-                              offset: const Offset(0, 10),
+                              color: ThemeService.instance.primaryColor.withOpacity(0.14),
+                              blurRadius: 18,
+                              offset: const Offset(0, 8),
                             ),
                           ],
                         ),
-                        child: Icon(Icons.stars, color: Colors.white, size: 50),
-                      ).animate().scale(delay: 200.ms, duration: 800.ms),
-
-                      const SizedBox(height: 30),
-
-                      Text(
-                        AppLocalizations.of(context)?.unlockFullPotential ??
-                            'Unlock the full potential of love!',
-                        style: GoogleFonts.poppins(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: ThemeService.instance.textColor,
-                          height: 1.2,
+                        child: Column(
+                          children: [
+                            Container(
+                              width: 88,
+                              height: 88,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                gradient: const LinearGradient(
+                                  colors: [Colors.amber, Colors.orange],
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.amber.withOpacity(0.36),
+                                    blurRadius: 18,
+                                    offset: const Offset(0, 8),
+                                  ),
+                                ],
+                              ),
+                              child: const Icon(Icons.stars, color: Colors.white, size: 46),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              AppLocalizations.of(context)?.unlockFullPotential ??
+                                  'Unlock the full potential of love!',
+                              style: GoogleFonts.poppins(
+                                fontSize: 27,
+                                fontWeight: FontWeight.w800,
+                                color: ThemeService.instance.textColor,
+                                height: 1.2,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              AppLocalizations.of(context)?.getFullAccess ??
+                                  'Get full access to all special features',
+                              style: GoogleFonts.poppins(
+                                fontSize: 15,
+                                color: ThemeService.instance.subtitleColor,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
                         ),
-                        textAlign: TextAlign.center,
-                      ).animate().fadeIn(delay: 400.ms),
-                      const SizedBox(height: 16),
+                      ).animate().fadeIn(delay: 200.ms).scale(duration: 700.ms),
 
-                      Text(
-                        AppLocalizations.of(context)?.getFullAccess ??
-                            'Get full access to all special features',
-                        style: GoogleFonts.poppins(
-                          fontSize: 16,
-                          color: ThemeService.instance.subtitleColor,
-                        ),
-                        textAlign: TextAlign.center,
-                      ).animate().fadeIn(delay: 600.ms),
                       const SizedBox(height: 40),
 
                       // Features list
@@ -626,3 +678,4 @@ class _PremiumScreenState extends State<PremiumScreen> {
     );
   }
 }
+

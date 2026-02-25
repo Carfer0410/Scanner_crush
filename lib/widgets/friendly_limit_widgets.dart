@@ -7,12 +7,14 @@ import '../services/theme_service.dart';
 class FriendlyLimitDialog extends StatelessWidget {
   final int remainingScans;
   final VoidCallback? onWatchAd;
+  final VoidCallback? onUseCoins;
   final VoidCallback? onUpgrade;
   
   const FriendlyLimitDialog({
     Key? key,
     required this.remainingScans,
     this.onWatchAd,
+    this.onUseCoins,
     this.onUpgrade,
   }) : super(key: key);
 
@@ -79,18 +81,32 @@ class FriendlyLimitDialog extends StatelessWidget {
             
             // Opciones no agresivas
             if (remainingScans == 0) ...[
-              // Opción 1: Ver anuncio
-              _buildOption(
-                icon: Icons.play_circle_outline,
-                title: AppLocalizations.of(context)?.watchShortAd ?? 'Ver anuncio corto',
-                subtitle: AppLocalizations.of(context)?.extraScansFree ?? '+2 escaneos gratis',
-                color: Colors.green,
-                onTap: onWatchAd,
-              ),
-              
-              const SizedBox(height: 12),
+              // Opción 1: Ver anuncio (solo si aún puede ganar bonus)
+              if (onWatchAd != null) ...[
+                _buildOption(
+                  icon: Icons.play_circle_outline,
+                  title: AppLocalizations.of(context)?.watchShortAd ?? 'Ver anuncio corto',
+                  subtitle: AppLocalizations.of(context)?.extraScansFree ?? '+2 escaneos gratis',
+                  color: Colors.green,
+                  onTap: onWatchAd,
+                ),
+                
+                const SizedBox(height: 12),
+              ],
               
               // Opción 2: Premium
+              if (onUseCoins != null) ...[
+                _buildOption(
+                  icon: Icons.toll,
+                  title: AppLocalizations.of(context)!.useCoinsLabel,
+                  subtitle: AppLocalizations.of(context)!.plusTwoScansWithCoins,
+                  color: Colors.teal,
+                  onTap: onUseCoins,
+                ),
+                const SizedBox(height: 12),
+              ],
+
+              // Opción 3: Premium
               _buildOption(
                 icon: Icons.star_border,
                 title: AppLocalizations.of(context)?.unlimitedScans ?? 'Escaneos ilimitados',
@@ -101,7 +117,7 @@ class FriendlyLimitDialog extends StatelessWidget {
               
               const SizedBox(height: 12),
               
-              // Opción 3: Esperar
+              // Opción 4: Esperar
               _buildOption(
                 icon: Icons.schedule,
                 title: AppLocalizations.of(context)?.waitUntilTomorrow ?? 'Esperar hasta mañana',

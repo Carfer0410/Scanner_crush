@@ -9,6 +9,7 @@ import '../services/theme_service.dart';
 import '../services/admob_service.dart';
 import '../services/audio_service.dart';
 import '../services/monetization_service.dart';
+import '../services/scanner_economy_service.dart';
 import '../models/crush_result.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'form_screen.dart';
@@ -108,6 +109,10 @@ class _ResultScreenState extends State<ResultScreen>
     try {
       final langCode = Localizations.localeOf(context).languageCode;
       await Share.share(widget.result.getShareText(languageCode: langCode));
+      if (await MonetizationService.instance.canShareToday()) {
+        await MonetizationService.instance.recordShare();
+        await ScannerEconomyService.instance.recordShareAction();
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -124,6 +129,7 @@ class _ResultScreenState extends State<ResultScreen>
   Future<void> _scanAgain() async {
     // Verificar límites antes de permitir escanear de nuevo
     final canScan = await MonetizationService.instance.canScanToday();
+    if (!mounted) return;
     
     if (canScan) {
       _navigateToForm();
@@ -132,22 +138,23 @@ class _ResultScreenState extends State<ResultScreen>
 
     // Usuario ha alcanzado límite - mostrar opciones
     final canWatchAd = await MonetizationService.instance.canWatchAdForScans();
+    if (!mounted) return;
     
     showDialog(
       context: context,
       builder: (context) {
-        final localizations = AppLocalizations.of(context);
+        final localizations = AppLocalizations.of(context)!;
         return AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           backgroundColor: ThemeService.instance.cardColor,
           title: Text(
-            localizations?.limitReachedTitle ?? '¡Límite alcanzado! 🎯',
+            localizations.limitReachedTitle,
             style: TextStyle(color: ThemeService.instance.textColor),
           ),
           content: Text(
             canWatchAd 
-              ? (localizations?.limitReachedBody ?? 'Has usado todos tus escaneos de hoy. ¿Qué quieres hacer?')
-              : (localizations?.upgradeForUnlimited ?? 'Has usado todos tus escaneos de hoy. Upgrade a Premium para escaneos ilimitados.'),
+              ? localizations.limitReachedBody
+              : localizations.upgradeForUnlimited,
             style: TextStyle(color: ThemeService.instance.textColor),
           ),
           actions: [
@@ -157,9 +164,37 @@ class _ResultScreenState extends State<ResultScreen>
                   Navigator.pop(context);
                   await _watchAdForMoreScans();
                 },
-                child: Text(localizations?.watchAdForScans ?? 'Ver anuncio (+2 escaneos)'),
+                child: Text(localizations.watchAdPlusTwoScans),
               ),
             ],
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                final currentCost = await ScannerEconomyService.instance.getCurrentScanPackCost();
+                final spendResult = await ScannerEconomyService.instance.buyExtraScansWithCoins();
+                if (!context.mounted) return;
+                final loc = AppLocalizations.of(context)!;
+                final text = spendResult == ScannerCoinSpendResult.success
+                    ? loc.scanPackBoughtMessage(
+                        ScannerEconomyService.instance.scanPackScans,
+                        currentCost,
+                      )
+                    : spendResult == ScannerCoinSpendResult.insufficientCoins
+                        ? loc.notEnoughCoinsThisPackMessage(currentCost)
+                        : spendResult == ScannerCoinSpendResult.premiumNotNeeded
+                            ? loc.premiumUnlimitedScansMessage
+                            : loc.dailyPackLimitReachedTryTomorrowMessage;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(text), duration: const Duration(seconds: 6)),
+                );
+                if (spendResult == ScannerCoinSpendResult.success) {
+                  _navigateToForm();
+                }
+              },
+              child: Text(
+                localizations.useCoinsPackPlusTwoScans,
+              ),
+            ),
             TextButton(
               onPressed: () async {
                 Navigator.pop(context);
@@ -171,11 +206,11 @@ class _ResultScreenState extends State<ResultScreen>
                 _navigateToForm();
               }
             },
-            child: Text(localizations?.goPremium ?? 'Ir a Premium'),
+            child: Text(localizations.goPremium),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(localizations?.waitUntilTomorrow ?? 'Esperar hasta mañana'),
+            child: Text(localizations.waitUntilTomorrow),
           ),
         ],
       );
@@ -199,7 +234,7 @@ class _ResultScreenState extends State<ResultScreen>
             ),
             const SizedBox(height: 16),
             Text(
-              AppLocalizations.of(context)?.processing ?? 'Cargando anuncio...',
+              AppLocalizations.of(context)!.processing,
               style: GoogleFonts.poppins(
                 color: Colors.white,
                 fontSize: 16,
@@ -212,13 +247,14 @@ class _ResultScreenState extends State<ResultScreen>
     
     // Intentar mostrar anuncio con recompensa
     final success = await MonetizationService.instance.watchAdForExtraScans();
+    if (!mounted) return;
     
     Navigator.pop(context);
     
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(AppLocalizations.of(context)?.extraScansWon ?? '¡+2 escaneos ganados! Ahora puedes escanear de nuevo 🎉'),
+          content: Text(AppLocalizations.of(context)!.extraScansWon),
           backgroundColor: Colors.green,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -230,7 +266,7 @@ class _ResultScreenState extends State<ResultScreen>
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(AppLocalizations.of(context)?.noAdsAvailable ?? 'No hay anuncios disponibles. Intenta más tarde.'),
+          content: Text(AppLocalizations.of(context)!.noAdsAvailable),
           backgroundColor: Colors.orange,
           duration: const Duration(seconds: 6),
         ),
@@ -250,6 +286,7 @@ class _ResultScreenState extends State<ResultScreen>
       }
     }
     
+    if (!mounted) return;
     Widget destinationScreen;
 
     if (widget.fromScreen == 'celebrity') {
@@ -304,40 +341,49 @@ class _ResultScreenState extends State<ResultScreen>
             children: [
               // App bar
               Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  children: [
-                    IconButton(
-                      onPressed:
-                          () => Navigator.popUntil(
-                            context,
-                            (route) => route.isFirst,
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: ThemeService.instance.cardColor.withOpacity(0.74),
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: ThemeService.instance.borderColor.withOpacity(0.9)),
+                  ),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        onPressed:
+                            () => Navigator.popUntil(
+                              context,
+                              (route) => route.isFirst,
+                            ),
+                        icon: Icon(
+                          Icons.home_rounded,
+                          color: ThemeService.instance.textColor,
+                          size: 22,
+                        ),
+                      ),
+                      Expanded(
+                        child: Text(
+                          AppLocalizations.of(context)!.resultTitle,
+                          style: GoogleFonts.poppins(
+                            fontSize: 19,
+                            fontWeight: FontWeight.w700,
+                            color: ThemeService.instance.textColor,
                           ),
-                      icon: Icon(
-                        Icons.home,
-                        color: ThemeService.instance.textColor,
-                        size: 24,
+                          textAlign: TextAlign.center,
+                        ),
                       ),
-                    ),
-                    const Spacer(),
-                    Text(
-                      AppLocalizations.of(context)!.resultTitle,
-                      style: GoogleFonts.poppins(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: ThemeService.instance.textColor,
+                      IconButton(
+                        onPressed: _shareResult,
+                        icon: Icon(
+                          Icons.ios_share_rounded,
+                          color: ThemeService.instance.textColor,
+                          size: 22,
+                        ),
                       ),
-                    ),
-                    const Spacer(),
-                    IconButton(
-                      onPressed: _shareResult,
-                      icon: Icon(
-                        Icons.share,
-                        color: ThemeService.instance.textColor,
-                        size: 24,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
 
@@ -352,10 +398,15 @@ class _ResultScreenState extends State<ResultScreen>
                       Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          gradient: ThemeService.instance.cardGradient,
-                          borderRadius: BorderRadius.circular(20),
+                          gradient: LinearGradient(
+                            colors: [
+                              ThemeService.instance.cardColor.withOpacity(0.95),
+                              ThemeService.instance.surfaceColor.withOpacity(0.82),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(24),
                           border: Border.all(
-                            color: ThemeService.instance.borderColor,
+                            color: ThemeService.instance.borderColor.withOpacity(0.9),
                             width: 1,
                           ),
                           boxShadow: ThemeService.instance.cardShadow,
@@ -429,8 +480,8 @@ class _ResultScreenState extends State<ResultScreen>
                         animation: _percentageAnimation,
                         builder: (context, child) {
                           return Container(
-                            width: 200,
-                            height: 200,
+                            width: 212,
+                            height: 212,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               gradient: LinearGradient(
@@ -452,22 +503,31 @@ class _ResultScreenState extends State<ResultScreen>
                               ],
                             ),
                             child: Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    '${_percentageAnimation.value.round()}%',
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 40,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
+                              child: Container(
+                                width: 156,
+                                height: 156,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.black.withOpacity(0.16),
+                                  border: Border.all(color: Colors.white.withOpacity(0.2)),
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      '${_percentageAnimation.value.round()}%',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 42,
+                                        fontWeight: FontWeight.w800,
+                                        color: Colors.white,
+                                      ),
                                     ),
-                                  ),
-                                  Text(
-                                    widget.result.emoji,
-                                    style: const TextStyle(fontSize: 30),
-                                  ),
-                                ],
+                                    Text(
+                                      widget.result.emoji,
+                                      style: const TextStyle(fontSize: 28),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           );
@@ -477,20 +537,30 @@ class _ResultScreenState extends State<ResultScreen>
                       const SizedBox(height: 30),
 
                       // Compatibility level
-                      Text(
-                        widget.result.percentage >= 80
-                            ? AppLocalizations.of(context)!.perfectCompatibility
-                            : widget.result.percentage >= 60
-                            ? AppLocalizations.of(context)!.greatCompatibility
-                            : widget.result.percentage >= 40
-                            ? AppLocalizations.of(context)!.goodCompatibility
-                            : AppLocalizations.of(context)!.thereIsPotential,
-                        style: GoogleFonts.poppins(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: _getPercentageColor(widget.result.percentage),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: _getPercentageColor(widget.result.percentage).withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(999),
+                          border: Border.all(
+                            color: _getPercentageColor(widget.result.percentage).withOpacity(0.35),
+                          ),
                         ),
-                        textAlign: TextAlign.center,
+                        child: Text(
+                          widget.result.percentage >= 80
+                              ? AppLocalizations.of(context)!.perfectCompatibility
+                              : widget.result.percentage >= 60
+                                  ? AppLocalizations.of(context)!.greatCompatibility
+                                  : widget.result.percentage >= 40
+                                      ? AppLocalizations.of(context)!.goodCompatibility
+                                      : AppLocalizations.of(context)!.thereIsPotential,
+                          style: GoogleFonts.poppins(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w700,
+                            color: _getPercentageColor(widget.result.percentage),
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
                       ).animate().fadeIn(delay: 1.seconds),
 
                       const SizedBox(height: 30),
@@ -578,3 +648,5 @@ class _ResultScreenState extends State<ResultScreen>
     );
   }
 }
+
+

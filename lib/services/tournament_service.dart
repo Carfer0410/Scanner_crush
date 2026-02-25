@@ -1,6 +1,64 @@
 import 'dart:math';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/tournament.dart';
 import 'crush_service.dart';
+import 'admob_service.dart';
+import 'monetization_service.dart';
+import 'secure_time_service.dart';
+import 'logger_service.dart';
+import 'global_economy_service.dart';
+
+enum CoinSpendResult { success, insufficientCoins, actionNotAvailable }
+
+class TournamentPassState {
+  final bool isPremium;
+  final int remainingEntriesToday;
+  final int adTicketsRemainingToday;
+  final int coins;
+  final int streakDays;
+
+  const TournamentPassState({
+    required this.isPremium,
+    required this.remainingEntriesToday,
+    required this.adTicketsRemainingToday,
+    required this.coins,
+    required this.streakDays,
+  });
+}
+
+class WeeklyMission {
+  final String id;
+  final String titleEn;
+  final String titleEs;
+  final int target;
+  final int progress;
+  final int rewardCoins;
+  final bool claimed;
+
+  const WeeklyMission({
+    required this.id,
+    required this.titleEn,
+    required this.titleEs,
+    required this.target,
+    required this.progress,
+    required this.rewardCoins,
+    required this.claimed,
+  });
+
+  bool get completed => progress >= target;
+}
+
+class TournamentCompletionReward {
+  final int coinsEarned;
+  final int streakDays;
+  final bool firstCompletionToday;
+
+  const TournamentCompletionReward({
+    required this.coinsEarned,
+    required this.streakDays,
+    required this.firstCompletionToday,
+  });
+}
 
 class TournamentService {
   static final TournamentService _instance = TournamentService._internal();
@@ -8,6 +66,333 @@ class TournamentService {
   TournamentService._internal();
 
   final Random _random = Random();
+  SharedPreferences? _prefs;
+
+  static const int _dailyFreeEntries = int.fromEnvironment(
+    'AB_TOURNAMENT_DAILY_FREE_ENTRIES',
+    defaultValue: 1,
+  );
+  static const int _maxAdEntriesPerDay = int.fromEnvironment(
+    'AB_TOURNAMENT_MAX_AD_ENTRIES_PER_DAY',
+    defaultValue: 3,
+  );
+  static const int _baseCoinReward = int.fromEnvironment(
+    'AB_TOURNAMENT_BASE_COIN_REWARD',
+    defaultValue: 12,
+  );
+  static const int _firstDailyCompletionBonus = int.fromEnvironment(
+    'AB_TOURNAMENT_FIRST_DAILY_COMPLETION_BONUS',
+    defaultValue: 20,
+  );
+  static const int _ticketCoinCost = int.fromEnvironment(
+    'AB_TOURNAMENT_TICKET_COIN_COST',
+    defaultValue: 28,
+  );
+  static const int _reviveCoinCost = int.fromEnvironment(
+    'AB_TOURNAMENT_REVIVE_COIN_COST',
+    defaultValue: 35,
+  );
+  static const int _bundleDiscount = int.fromEnvironment(
+    'AB_TOURNAMENT_BUNDLE3_DISCOUNT',
+    defaultValue: 8,
+  );
+
+  int get ticketCoinCost => _ticketCoinCost;
+  int get reviveCoinCost => _reviveCoinCost;
+
+  Map<String, int> getEconomyConfig() {
+    return {
+      'daily_free_entries': _dailyFreeEntries,
+      'max_ad_entries_per_day': _maxAdEntriesPerDay,
+      'base_coin_reward': _baseCoinReward,
+      'first_daily_completion_bonus': _firstDailyCompletionBonus,
+      'ticket_coin_cost': _ticketCoinCost,
+      'revive_coin_cost': _reviveCoinCost,
+      'bundle3_discount': _bundleDiscount,
+    };
+  }
+
+  Future<SharedPreferences> get _safePrefs async {
+    _prefs ??= await SharedPreferences.getInstance();
+    return _prefs!;
+  }
+
+  String _todayKey() =>
+      SecureTimeService.instance.getSecureDate().toIso8601String().split('T')[0];
+
+  String _weekKey() {
+    final d = SecureTimeService.instance.getSecureDate().toUtc();
+    final firstDay = DateTime.utc(d.year, 1, 1);
+    final daysOffset = d.difference(firstDay).inDays;
+    final week = ((daysOffset + firstDay.weekday - 1) ~/ 7) + 1;
+    return '${d.year}-W$week';
+  }
+
+  int _weeklyCounter(SharedPreferences prefs, String counterId) {
+    return prefs.getInt('tournament_weekly_${_weekKey()}_$counterId') ?? 0;
+  }
+
+  Future<void> _incrementWeeklyCounter(String counterId, {int by = 1}) async {
+    final prefs = await _safePrefs;
+    final key = 'tournament_weekly_${_weekKey()}_$counterId';
+    final current = prefs.getInt(key) ?? 0;
+    await prefs.setInt(key, current + by);
+  }
+
+  int _formatCoinBonus(TournamentFormat format) {
+    switch (format) {
+      case TournamentFormat.four:
+        return 4;
+      case TournamentFormat.eight:
+        return 8;
+      case TournamentFormat.sixteen:
+        return 14;
+    }
+  }
+
+  Future<TournamentPassState> getPassState() async {
+    final prefs = await _safePrefs;
+    final isPremium = await MonetizationService.instance.isPremiumAsync();
+    final today = _todayKey();
+
+    final entriesDate = prefs.getString('tournament_entries_date');
+    final entriesUsed = entriesDate == today ? (prefs.getInt('tournament_entries_used') ?? 0) : 0;
+
+    final adDate = prefs.getString('tournament_ad_entries_date');
+    final adEarned = adDate == today ? (prefs.getInt('tournament_ad_entries_earned') ?? 0) : 0;
+    final shopDate = prefs.getString('tournament_shop_tickets_date');
+    final shopTickets = shopDate == today ? (prefs.getInt('tournament_shop_tickets_today') ?? 0) : 0;
+
+    final coins = await GlobalEconomyService.instance.getCoins();
+    final streak = prefs.getInt('tournament_daily_streak') ?? 0;
+
+    if (isPremium) {
+      return TournamentPassState(
+        isPremium: true,
+        remainingEntriesToday: -1,
+        adTicketsRemainingToday: 0,
+        coins: coins,
+        streakDays: streak,
+      );
+    }
+
+    final available = _dailyFreeEntries + adEarned + shopTickets;
+    final remaining = (available - entriesUsed).clamp(0, available);
+    final adRemaining = (_maxAdEntriesPerDay - adEarned).clamp(0, _maxAdEntriesPerDay);
+
+    return TournamentPassState(
+      isPremium: false,
+      remainingEntriesToday: remaining,
+      adTicketsRemainingToday: adRemaining,
+      coins: coins,
+      streakDays: streak,
+    );
+  }
+
+  Future<bool> canStartTournament() async {
+    final state = await getPassState();
+    return state.isPremium || state.remainingEntriesToday > 0;
+  }
+
+  Future<bool> consumeTournamentEntry() async {
+    final prefs = await _safePrefs;
+    final state = await getPassState();
+    if (!state.isPremium && state.remainingEntriesToday <= 0) return false;
+
+    if (state.isPremium) return true;
+
+    final today = _todayKey();
+    await prefs.setString('tournament_entries_date', today);
+    final current = prefs.getInt('tournament_entries_used') ?? 0;
+    await prefs.setInt('tournament_entries_used', current + 1);
+    return true;
+  }
+
+  Future<bool> watchAdForExtraTournamentEntry() async {
+    final prefs = await _safePrefs;
+    final state = await getPassState();
+    if (state.isPremium) return false;
+    if (state.adTicketsRemainingToday <= 0) return false;
+
+    final shown = await AdMobService.instance.showRewardedAd(
+      onUserEarnedReward: (ad, reward) async {
+        final today = _todayKey();
+        final adDate = prefs.getString('tournament_ad_entries_date');
+        final current = adDate == today ? (prefs.getInt('tournament_ad_entries_earned') ?? 0) : 0;
+        final next = (current + 1).clamp(0, _maxAdEntriesPerDay);
+        await prefs.setString('tournament_ad_entries_date', today);
+        await prefs.setInt('tournament_ad_entries_earned', next);
+        await _incrementWeeklyCounter('ads_tickets_watched');
+      },
+    );
+
+    return shown;
+  }
+
+  Future<TournamentCompletionReward> recordTournamentCompletion(
+    Tournament tournament,
+  ) async {
+    final prefs = await _safePrefs;
+    final today = _todayKey();
+
+    final completionDate = prefs.getString('tournament_completion_date');
+    final completionsToday = completionDate == today ? (prefs.getInt('tournament_completions_today') ?? 0) : 0;
+    final firstToday = completionsToday == 0;
+
+    final streakDate = prefs.getString('tournament_streak_date');
+    int streak = prefs.getInt('tournament_daily_streak') ?? 0;
+    if (streakDate != today) {
+      if (streakDate == null) {
+        streak = 1;
+      } else {
+        final last = DateTime.tryParse(streakDate);
+        final now = SecureTimeService.instance.getSecureDate();
+        if (last != null && now.difference(last).inDays == 1) {
+          streak += 1;
+        } else {
+          streak = 1;
+        }
+      }
+      await prefs.setString('tournament_streak_date', today);
+      await prefs.setInt('tournament_daily_streak', streak);
+    }
+
+    final streakBonus = (streak > 0 && streak % 3 == 0) ? 15 : 0;
+    final coinsEarned = _baseCoinReward +
+        _formatCoinBonus(tournament.format) +
+        (firstToday ? _firstDailyCompletionBonus : 0) +
+        streakBonus;
+
+    await GlobalEconomyService.instance.addCoins(coinsEarned);
+    await prefs.setString('tournament_completion_date', today);
+    await prefs.setInt('tournament_completions_today', completionsToday + 1);
+    await prefs.setInt(
+      'tournament_total_completions',
+      (prefs.getInt('tournament_total_completions') ?? 0) + 1,
+    );
+    await _incrementWeeklyCounter('tournaments_completed');
+    if (tournament.format == TournamentFormat.sixteen) {
+      await _incrementWeeklyCounter('sixteen_completed');
+    }
+
+    LoggerService.info(
+      'Tournament reward granted: +$coinsEarned coins (streak=$streak, firstToday=$firstToday)',
+      origin: 'TournamentService',
+    );
+
+    return TournamentCompletionReward(
+      coinsEarned: coinsEarned,
+      streakDays: streak,
+      firstCompletionToday: firstToday,
+    );
+  }
+
+  Future<List<WeeklyMission>> getWeeklyMissions() async {
+    final prefs = await _safePrefs;
+    final weekKey = _weekKey();
+
+    final missions = <WeeklyMission>[
+      WeeklyMission(
+        id: 'play_5',
+        titleEn: 'Complete 5 tournaments',
+        titleEs: 'Completa 5 torneos',
+        target: 5,
+        progress: _weeklyCounter(prefs, 'tournaments_completed'),
+        rewardCoins: 60,
+        claimed: prefs.getBool('tournament_weekly_${weekKey}_claimed_play_5') ?? false,
+      ),
+      WeeklyMission(
+        id: 'ads_3',
+        titleEn: 'Watch 3 ticket ads',
+        titleEs: 'Mira 3 anuncios de ticket',
+        target: 3,
+        progress: _weeklyCounter(prefs, 'ads_tickets_watched'),
+        rewardCoins: 40,
+        claimed: prefs.getBool('tournament_weekly_${weekKey}_claimed_ads_3') ?? false,
+      ),
+      WeeklyMission(
+        id: 'format_16',
+        titleEn: 'Finish 1 tournament (16 players)',
+        titleEs: 'Termina 1 torneo de 16',
+        target: 1,
+        progress: _weeklyCounter(prefs, 'sixteen_completed'),
+        rewardCoins: 90,
+        claimed: prefs.getBool('tournament_weekly_${weekKey}_claimed_format_16') ?? false,
+      ),
+    ];
+
+    return missions;
+  }
+
+  Future<int> claimWeeklyMission(String missionId) async {
+    final prefs = await _safePrefs;
+    final missions = await getWeeklyMissions();
+    final mission = missions.cast<WeeklyMission?>().firstWhere(
+      (m) => m?.id == missionId,
+      orElse: () => null,
+    );
+    if (mission == null || !mission.completed || mission.claimed) return 0;
+
+    final weekKey = _weekKey();
+    await prefs.setBool('tournament_weekly_${weekKey}_claimed_${mission.id}', true);
+    await GlobalEconomyService.instance.addCoins(mission.rewardCoins);
+    return mission.rewardCoins;
+  }
+
+  Future<CoinSpendResult> buyTournamentTicketsWithCoins({int quantity = 1}) async {
+    if (quantity < 1) return CoinSpendResult.actionNotAvailable;
+    final prefs = await _safePrefs;
+
+    final totalCost = _ticketCoinCost * quantity;
+    final coins = await GlobalEconomyService.instance.getCoins();
+    if (coins < totalCost) return CoinSpendResult.insufficientCoins;
+
+    final today = _todayKey();
+    final date = prefs.getString('tournament_shop_tickets_date');
+    final current = date == today ? (prefs.getInt('tournament_shop_tickets_today') ?? 0) : 0;
+
+    final spent = await GlobalEconomyService.instance.spendCoins(totalCost);
+    if (!spent) return CoinSpendResult.insufficientCoins;
+    await prefs.setString('tournament_shop_tickets_date', today);
+    await prefs.setInt('tournament_shop_tickets_today', current + quantity);
+    return CoinSpendResult.success;
+  }
+
+  Future<CoinSpendResult> buyTournamentTicketBundle3() async {
+    final prefs = await _safePrefs;
+    final bundleCost = (_ticketCoinCost * 3) - _bundleDiscount;
+    final coins = await GlobalEconomyService.instance.getCoins();
+    if (coins < bundleCost) return CoinSpendResult.insufficientCoins;
+
+    final today = _todayKey();
+    final date = prefs.getString('tournament_shop_tickets_date');
+    final current = date == today ? (prefs.getInt('tournament_shop_tickets_today') ?? 0) : 0;
+
+    final spent = await GlobalEconomyService.instance.spendCoins(bundleCost);
+    if (!spent) return CoinSpendResult.insufficientCoins;
+    await prefs.setString('tournament_shop_tickets_date', today);
+    await prefs.setInt('tournament_shop_tickets_today', current + 3);
+    return CoinSpendResult.success;
+  }
+
+  Future<CoinSpendResult> reviveWithCoins(
+    Tournament tournament,
+    TournamentParticipant participant,
+  ) async {
+    if (tournament.isComplete || !participant.isEliminated || participant.isRevived) {
+      return CoinSpendResult.actionNotAvailable;
+    }
+
+    final coins = await GlobalEconomyService.instance.getCoins();
+    if (coins < _reviveCoinCost) return CoinSpendResult.insufficientCoins;
+
+    final ok = reviveParticipant(tournament, participant);
+    if (!ok) return CoinSpendResult.actionNotAvailable;
+
+    final spent = await GlobalEconomyService.instance.spendCoins(_reviveCoinCost);
+    if (!spent) return CoinSpendResult.insufficientCoins;
+    return CoinSpendResult.success;
+  }
 
   /// Creates a new tournament with shuffled participants
   Tournament createTournament({

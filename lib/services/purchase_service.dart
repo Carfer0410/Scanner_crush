@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'logger_service.dart';
 import 'monetization_service.dart';
+import 'receipt_validation_service.dart';
 
 /// Resultado de una operación de compra
 enum PurchaseResult {
@@ -19,6 +20,8 @@ enum PurchaseResult {
   purchaseInitFailed,
   /// Excepción inesperada
   error,
+  /// Recibo no validado por backend o inválido
+  validationFailed,
 }
 
 /// Servicio de compras dentro de la app para Scanner Crush
@@ -132,6 +135,7 @@ class PurchaseService {
 
       _products = productDetailResponse.productDetails;
       _notFoundIds = productDetailResponse.notFoundIDs;
+      _queryProductError = null;
       
       LoggerService.debug('Productos cargados: ${_products.length}', origin: 'PurchaseService');
       for (final product in _products) {
@@ -185,16 +189,10 @@ class PurchaseService {
 
       LoggerService.debug('Iniciando compra de: ${productDetails.title}', origin: 'PurchaseService');
       
-      bool purchaseStarted;
-      if (productDetails.id.contains('monthly') || productDetails.id.contains('yearly')) {
-        purchaseStarted = await _inAppPurchase.buyNonConsumable(
-          purchaseParam: purchaseParam,
-        );
-      } else {
-        purchaseStarted = await _inAppPurchase.buyConsumable(
-          purchaseParam: purchaseParam,
-        );
-      }
+      // Para suscripciones y no consumibles se utiliza buyNonConsumable.
+      final bool purchaseStarted = await _inAppPurchase.buyNonConsumable(
+        purchaseParam: purchaseParam,
+      );
 
       if (!purchaseStarted) {
         _purchasePending = false;
@@ -244,6 +242,7 @@ class PurchaseService {
     
     for (final PurchaseDetails purchaseDetails in purchaseDetailsList) {
       LoggerService.debug('Procesando compra: ${purchaseDetails.productID} - Estado: ${purchaseDetails.status}', origin: 'PurchaseService');
+      _upsertPurchase(purchaseDetails);
       
       if (purchaseDetails.status == PurchaseStatus.pending) {
         _showPendingUI();
@@ -276,36 +275,90 @@ class PurchaseService {
     _lastErrorMessage = error.message;
   }
 
+  void _upsertPurchase(PurchaseDetails purchaseDetails) {
+    final index = _purchases.indexWhere((p) => p.productID == purchaseDetails.productID);
+    if (index == -1) {
+      _purchases.add(purchaseDetails);
+    } else {
+      _purchases[index] = purchaseDetails;
+    }
+  }
+
+  int _subscriptionMonthsForProduct(String productId) {
+    if (productId == premiumYearlyId || productId == premiumPlusYearlyId) {
+      return 12;
+    }
+    return 1;
+  }
+
+  SubscriptionTier _tierForProduct(String productId) {
+    switch (productId) {
+      case premiumMonthlyId:
+      case premiumYearlyId:
+        return SubscriptionTier.premium;
+      case premiumPlusMonthlyId:
+      case premiumPlusYearlyId:
+        return SubscriptionTier.premiumPlus;
+      default:
+        return SubscriptionTier.free;
+    }
+  }
+
   /// Manejar compra exitosa
   void _handleSuccessfulPurchase(PurchaseDetails purchaseDetails) async {
     LoggerService.info('Compra exitosa: ${purchaseDetails.productID}', origin: 'PurchaseService');
     _purchasePending = false;
     
-    // Actualizar estado en MonetizationService
-    SubscriptionTier newTier = SubscriptionTier.free;
-    
-    switch (purchaseDetails.productID) {
-      case premiumMonthlyId:
-      case premiumYearlyId:
-        newTier = SubscriptionTier.premium;
-        break;
-      case premiumPlusMonthlyId:
-      case premiumPlusYearlyId:
-        newTier = SubscriptionTier.premiumPlus;
-        break;
+    final mappedTier = _tierForProduct(purchaseDetails.productID);
+    if (mappedTier == SubscriptionTier.free) {
+      LoggerService.warning(
+        'Producto no reconocido en compra exitosa: ${purchaseDetails.productID}',
+        origin: 'PurchaseService',
+      );
+      return;
+    }
+
+    final validation = await ReceiptValidationService.instance.validatePurchase(
+      purchaseDetails,
+      expectedTier: mappedTier,
+    );
+
+    final shouldGrant = validation.shouldGrantEntitlement(
+      isReleaseMode: kReleaseMode,
+      requireServerValidationInRelease:
+          ReceiptValidationService.requireServerValidationInRelease,
+    );
+
+    if (!shouldGrant) {
+      _lastPurchaseResult = PurchaseResult.validationFailed;
+      _lastErrorMessage = validation.message;
+      LoggerService.warning(
+        'Compra NO validada. Entitlement denegado para ${purchaseDetails.productID}. '
+        'status=${validation.status.name}, message=${validation.message}',
+        origin: 'PurchaseService',
+      );
+      return;
     }
     
-    if (newTier != SubscriptionTier.free) {
-      if (newTier == SubscriptionTier.premium) {
-        await MonetizationService.instance.upgradeToPremium();
-      } else if (newTier == SubscriptionTier.premiumPlus) {
-        await MonetizationService.instance.upgradeToPremiumPlus();
-      }
-      LoggerService.info('Suscripción actualizada a: $newTier', origin: 'PurchaseService');
-      
-      // Notificar a la UI que la compra fue exitosa
-      purchaseSuccessNotifier.value = !purchaseSuccessNotifier.value;
-    }
+    final months = _subscriptionMonthsForProduct(purchaseDetails.productID);
+    final effectiveTier = validation.tier ?? mappedTier;
+    await MonetizationService.instance.applyValidatedSubscription(
+      tier: effectiveTier,
+      expiryDateUtc: validation.expiryDateUtc,
+      fallbackMonths: months,
+    );
+
+    LoggerService.info(
+      'Suscripción validada y aplicada: $effectiveTier '
+      '(expira: ${validation.expiryDateUtc?.toIso8601String() ?? 'fallback $months mes(es)'})',
+      origin: 'PurchaseService',
+    );
+
+    _lastPurchaseResult = PurchaseResult.success;
+    _lastErrorMessage = null;
+
+    // Notificar a la UI que la compra fue exitosa
+    purchaseSuccessNotifier.value = !purchaseSuccessNotifier.value;
   }
 
   /// Verificar si un producto está disponible
@@ -325,13 +378,14 @@ class PurchaseService {
   /// Obtener precio formateado de un producto
   String getFormattedPrice(String productId) {
     final product = getProduct(productId);
-    return product?.price ?? 'N/A';
+    return product?.price ?? '-';
   }
 
   /// Verificar si hay suscripciones activas
   bool hasActiveSubscription() {
     return _purchases.any((purchase) => 
-      purchase.status == PurchaseStatus.purchased &&
+      (purchase.status == PurchaseStatus.purchased ||
+          purchase.status == PurchaseStatus.restored) &&
       _kIds.contains(purchase.productID)
     );
   }

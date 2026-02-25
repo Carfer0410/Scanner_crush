@@ -10,6 +10,7 @@ import '../services/locale_service.dart';
 import '../services/streak_service.dart';
 import '../services/monetization_service.dart';
 import '../services/admob_service.dart';
+import '../services/global_economy_service.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'form_screen.dart';
 import 'settings_screen.dart';
@@ -113,23 +114,24 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                             await DailyLoveService.instance.updateStreak();
 
                             // Dismiss loading
-                            if (mounted) Navigator.pop(context);
+                            if (!context.mounted) return;
+                            Navigator.pop(context);
 
-                            if (mounted) {
-                              Navigator.push(
+                            if (!context.mounted) return;
+                            Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => const DailyLoveScreen(),
                                 ),
                               );
-                            }
                           } catch (e) {
                             // Dismiss loading
-                            if (mounted) Navigator.pop(context);
+                            if (!context.mounted) return;
+                            Navigator.pop(context);
 
                             // Show error dialog
-                            if (mounted) {
-                              showDialog(
+                            if (!context.mounted) return;
+                            showDialog(
                                 context: context,
                                 builder: (context) => AlertDialog(
                                   backgroundColor: ThemeService.instance.cardColor,
@@ -161,7 +163,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                   ],
                                 ),
                               );
-                            }
                           }
                         },
                         child: Container(
@@ -223,6 +224,13 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                         ),
                       ),
                     ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: _buildCoinsChip(),
                   ),
                 ),
 
@@ -304,6 +312,26 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                 ),
                                 textAlign: TextAlign.center,
                               ),
+                              const SizedBox(height: 10),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: ThemeService.instance.cardColor.withOpacity(0.65),
+                                  borderRadius: BorderRadius.circular(999),
+                                  border: Border.all(
+                                    color: ThemeService.instance.primaryColor.withOpacity(0.35),
+                                  ),
+                                ),
+                                child: Text(
+                                  AppLocalizations.of(context)!.loveIntelligenceStudio,
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 0.35,
+                                    color: getTextColor(),
+                                  ),
+                                ),
+                              ),
                               const SizedBox(height: 8),
                               Text('💘', style: const TextStyle(fontSize: 40))
                                   .animate(
@@ -353,7 +381,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                     context,
                                   )!.regularScanSubtitle,
                               icon: Icons.favorite,
-                              colors: [ThemeService.instance.primaryColor, ThemeService.instance.secondaryColor],
+                              colors: const [Color(0xFF00A86B), Color(0xFF36D399)],
                               onTap: () => _navigateToRegularScanner(context),
                               delay: 1200,
                             ),
@@ -399,7 +427,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                               colors: [Colors.blue, Colors.blueAccent],
                               onTap: () => _navigateToAnalytics(context),
                               delay: 1800,
-                              isPremium: true,
                             ),
 
                             const SizedBox(height: 20),
@@ -413,7 +440,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                               colors: [Colors.purple, Colors.purpleAccent],
                               onTap: () => _navigateToThemes(context),
                               delay: 2000,
-                              isPremium: true,
                             ),
                           ],
                         ),
@@ -479,31 +505,39 @@ class _WelcomeScreenState extends State<WelcomeScreen>
           onTap: onTap,
           child: Container(
             width: double.infinity,
-            constraints: const BoxConstraints(minHeight: 80, maxHeight: 120),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            constraints: const BoxConstraints(minHeight: 92, maxHeight: 128),
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: colors,
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
+                stops: const [0.1, 0.9],
               ),
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.22),
+                width: 1,
+              ),
               boxShadow: [
                 BoxShadow(
-                  color: colors.first.withOpacity(0.4),
-                  blurRadius: 15,
-                  offset: const Offset(0, 8),
+                  color: colors.first.withOpacity(0.45),
+                  blurRadius: 24,
+                  offset: const Offset(0, 12),
                 ),
               ],
             ),
             child: Row(
               children: [
                 Container(
-                  width: 50,
-                  height: 50,
+                  width: 54,
+                  height: 54,
                   decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(16),
+                    color: Colors.white.withOpacity(0.16),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.24),
+                    ),
                   ),
                   child: Icon(icon, size: 24, color: Colors.white),
                 ),
@@ -520,9 +554,10 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                             child: Text(
                               title,
                               style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
                                 color: Colors.white,
+                                height: 1.05,
                               ),
                               maxLines: 2,
                             ),
@@ -539,7 +574,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                 'PRO', // TODO: Add localization key 'proBadge'
                                 style: GoogleFonts.poppins(
                                   fontSize: 10,
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight: FontWeight.w700,
                                   color: Colors.black,
                                 ),
                               ),
@@ -552,13 +587,22 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                         subtitle,
                         style: GoogleFonts.poppins(
                           fontSize: 12,
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withOpacity(0.88),
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ],
                   ),
                 ),
-                Icon(Icons.arrow_forward_ios, color: Colors.white, size: 18),
+                Container(
+                  width: 30,
+                  height: 30,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withOpacity(0.18),
+                  ),
+                  child: const Icon(Icons.arrow_forward, color: Colors.white, size: 16),
+                ),
               ],
             ),
           ),
@@ -699,6 +743,40 @@ class _WelcomeScreenState extends State<WelcomeScreen>
           );
         },
       ),
+    );
+  }
+
+  Widget _buildCoinsChip() {
+    return FutureBuilder<int>(
+      future: GlobalEconomyService.instance.getCoins(),
+      builder: (context, snapshot) {
+        final coins = snapshot.data ?? 0;
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: ThemeService.instance.cardColor.withOpacity(0.88),
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(
+              color: Colors.amber.withOpacity(0.45),
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.toll, size: 16, color: Colors.amber),
+              const SizedBox(width: 6),
+              Text(
+                'Coins: $coins',
+                style: GoogleFonts.poppins(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: ThemeService.instance.textColor,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 

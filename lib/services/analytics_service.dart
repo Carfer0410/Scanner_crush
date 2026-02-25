@@ -24,6 +24,46 @@ class AnalyticsService {
     return _prefs!;
   }
 
+  Future<void> trackEvent(
+    String eventName, {
+    Map<String, dynamic>? params,
+  }) async {
+    final p = await prefs;
+    final today = SecureTimeService.instance.getSecureDate().toIso8601String().split('T')[0];
+    final counterKey = 'event_${today}_$eventName';
+    final count = p.getInt(counterKey) ?? 0;
+    await p.setInt(counterKey, count + 1);
+
+    final recentKey = 'event_recent_$today';
+    final raw = p.getStringList(recentKey) ?? <String>[];
+    final payload = jsonEncode({
+      'name': eventName,
+      'ts': SecureTimeService.instance.getSecureTime().toIso8601String(),
+      if (params != null) 'params': params,
+    });
+    raw.add(payload);
+    if (raw.length > 60) {
+      raw.removeRange(0, raw.length - 60);
+    }
+    await p.setStringList(recentKey, raw);
+  }
+
+  Future<Map<String, int>> getEventCountsToday({String? prefix}) async {
+    final p = await prefs;
+    final today = SecureTimeService.instance.getSecureDate().toIso8601String().split('T')[0];
+    final eventPrefix = 'event_${today}_';
+    final result = <String, int>{};
+
+    for (final key in p.getKeys()) {
+      if (!key.startsWith(eventPrefix)) continue;
+      final eventName = key.substring(eventPrefix.length);
+      if (prefix != null && !eventName.startsWith(prefix)) continue;
+      result[eventName] = p.getInt(key) ?? 0;
+    }
+
+    return result;
+  }
+
   // 📊 ANÁLISIS DE COMPATIBILIDAD
 
   // Obtener estadísticas generales (disponible para todos los usuarios)

@@ -9,6 +9,7 @@ import '../services/theme_service.dart';
 import '../services/audio_service.dart';
 import '../services/admob_service.dart';
 import '../services/monetization_service.dart';
+import '../services/analytics_service.dart';
 import '../widgets/custom_widgets.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'tournament_bracket_screen.dart';
@@ -31,6 +32,11 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
   bool _isPremium = false;
   String? _celebrityGenderPreference;
   bool _tournament16AdUnlocked = false;
+  TournamentPassState? _passState;
+  bool _loadingPass = true;
+  bool _unlockingEntryAd = false;
+  List<WeeklyMission> _weeklyMissions = <WeeklyMission>[];
+  bool _loadingMissions = true;
 
   @override
   void initState() {
@@ -39,7 +45,10 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
     _loadBannerAd();
     _checkPremium();
     _checkTournament16AdUnlock();
+    _refreshTournamentPass();
+    _refreshWeeklyMissions();
     AdMobService.instance.trackUserAction();
+    AnalyticsService.instance.trackEvent('tournament_setup_opened');
   }
 
   void _checkPremium() async {
@@ -60,6 +69,54 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
         if (mounted) setState(() {});
       });
     }
+  }
+
+  Future<void> _refreshTournamentPass() async {
+    final state = await TournamentService.instance.getPassState();
+    if (!mounted) return;
+    setState(() {
+      _passState = state;
+      _loadingPass = false;
+    });
+  }
+
+  Future<void> _refreshWeeklyMissions() async {
+    final missions = await TournamentService.instance.getWeeklyMissions();
+    if (!mounted) return;
+    setState(() {
+      _weeklyMissions = missions;
+      _loadingMissions = false;
+    });
+  }
+
+  Future<void> _unlockEntryWithAd() async {
+    if (_unlockingEntryAd) return;
+    setState(() => _unlockingEntryAd = true);
+
+    final ok = await TournamentService.instance.watchAdForExtraTournamentEntry();
+    if (!mounted) return;
+
+    setState(() => _unlockingEntryAd = false);
+    await _refreshTournamentPass();
+    await _refreshWeeklyMissions();
+    if (!mounted) return;
+
+    await AnalyticsService.instance.trackEvent(
+      'tournament_ticket_ad_attempt',
+      params: {'success': ok},
+    );
+    if (!mounted) return;
+
+    final isEn = Localizations.localeOf(context).languageCode == 'en';
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(ok
+            ? (isEn ? 'Ticket unlocked! You can start a new tournament.' : '¡Ticket desbloqueado! Ya puedes iniciar otro torneo.')
+            : (isEn ? 'No ad available right now. Try again later.' : 'No hay anuncio disponible ahora. Intenta más tarde.')),
+        backgroundColor: ok ? Colors.green : Colors.orange,
+        duration: const Duration(seconds: 3),
+      ),
+    );
   }
 
   void _initParticipantControllers(int count) {
@@ -261,7 +318,7 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
     AudioService.instance.playTransition();
   }
 
-  void _startTournament() {
+  Future<void> _startTournament() async {
     final userName = _userNameController.text.trim();
     if (userName.isEmpty) {
       _showError(AppLocalizations.of(context)!.tournamentEnterYourName);
@@ -282,6 +339,22 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
       return;
     }
 
+    final canStart = await TournamentService.instance.canStartTournament();
+    if (!canStart) {
+      await AnalyticsService.instance.trackEvent('tournament_start_blocked_no_tickets');
+      _showNoEntriesDialog();
+      return;
+    }
+
+    final consumed = await TournamentService.instance.consumeTournamentEntry();
+    if (!consumed) {
+      await AnalyticsService.instance.trackEvent('tournament_start_consume_failed');
+      _showNoEntriesDialog();
+      return;
+    }
+
+    await _refreshTournamentPass();
+
     AudioService.instance.playTransition();
 
     // Create participants
@@ -298,12 +371,221 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
       participants: participants,
       format: _selectedFormat,
     );
+    await AnalyticsService.instance.trackEvent(
+      'tournament_started',
+      params: {
+        'format': _selectedFormat.name,
+        'participants': participants.length,
+      },
+    );
 
     // Navigate to bracket screen
+    if (!mounted) return;
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => TournamentBracketScreen(tournament: tournament),
+      ),
+    ).then((_) {
+      _refreshTournamentPass();
+      _refreshWeeklyMissions();
+    });
+  }
+
+  void _showNoEntriesDialog() {
+    final isEn = Localizations.localeOf(context).languageCode == 'en';
+    final state = _passState;
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: ThemeService.instance.cardColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text(
+          isEn ? 'No tournament tickets left today' : 'Sin tickets de torneo por hoy',
+          style: TextStyle(color: ThemeService.instance.textColor),
+        ),
+        content: Text(
+          isEn
+              ? 'Watch a rewarded ad to unlock +1 ticket, or upgrade to Premium for unlimited tournaments.'
+              : 'Mira un anuncio con recompensa para desbloquear +1 ticket, o hazte Premium para torneos ilimitados.',
+          style: TextStyle(color: ThemeService.instance.subtitleColor),
+        ),
+        actions: [
+          if ((state?.adTicketsRemainingToday ?? 0) > 0)
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(ctx);
+                await _unlockEntryWithAd();
+              },
+              child: Text(isEn ? 'Watch ad (+1)' : 'Ver anuncio (+1)'),
+            ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const PremiumScreen()),
+              );
+            },
+            child: Text(isEn ? 'Go Premium' : 'Hazte Premium'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(isEn ? 'Close' : 'Cerrar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _openCoinShop() async {
+    final isEn = Localizations.localeOf(context).languageCode == 'en';
+    await AnalyticsService.instance.trackEvent('tournament_shop_opened');
+    if (!mounted) return;
+
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: ThemeService.instance.cardColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) {
+        Future<void> buyOne() async {
+          final res = await TournamentService.instance.buyTournamentTicketsWithCoins(quantity: 1);
+          await _refreshTournamentPass();
+          await AnalyticsService.instance.trackEvent(
+            'tournament_shop_buy_1',
+            params: {'success': res == CoinSpendResult.success},
+          );
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                res == CoinSpendResult.success
+                    ? (isEn ? 'Purchased +1 ticket.' : 'Compraste +1 ticket.')
+                    : (isEn ? 'Not enough coins.' : 'No tienes suficientes coins.'),
+              ),
+              backgroundColor: res == CoinSpendResult.success ? Colors.green : Colors.orange,
+            ),
+          );
+        }
+
+        Future<void> buyBundle() async {
+          final res = await TournamentService.instance.buyTournamentTicketBundle3();
+          await _refreshTournamentPass();
+          await AnalyticsService.instance.trackEvent(
+            'tournament_shop_buy_bundle3',
+            params: {'success': res == CoinSpendResult.success},
+          );
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                res == CoinSpendResult.success
+                    ? (isEn ? 'Bundle purchased (+3 tickets).' : 'Bundle comprado (+3 tickets).')
+                    : (isEn ? 'Not enough coins.' : 'No tienes suficientes coins.'),
+              ),
+              backgroundColor: res == CoinSpendResult.success ? Colors.green : Colors.orange,
+            ),
+          );
+        }
+
+        final coins = _passState?.coins ?? 0;
+        final bundleCost = TournamentService.instance.ticketCoinCost * 3 - 8;
+
+        return Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                isEn ? 'Love Coin Shop' : 'Tienda Love Coin',
+                style: GoogleFonts.poppins(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: ThemeService.instance.textColor,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                '🪙 $coins',
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: ThemeService.instance.primaryColor,
+                ),
+              ),
+              const SizedBox(height: 14),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(
+                  isEn ? '+1 Tournament Ticket' : '+1 Ticket de Torneo',
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w600,
+                    color: ThemeService.instance.textColor,
+                  ),
+                ),
+                subtitle: Text(
+                  '${TournamentService.instance.ticketCoinCost} coins',
+                  style: GoogleFonts.poppins(
+                    color: ThemeService.instance.subtitleColor,
+                  ),
+                ),
+                trailing: ElevatedButton(
+                  onPressed: buyOne,
+                  child: Text(isEn ? 'Buy' : 'Comprar'),
+                ),
+              ),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(
+                  isEn ? '+3 Tournament Tickets' : '+3 Tickets de Torneo',
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w600,
+                    color: ThemeService.instance.textColor,
+                  ),
+                ),
+                subtitle: Text(
+                  '$bundleCost coins',
+                  style: GoogleFonts.poppins(
+                    color: ThemeService.instance.subtitleColor,
+                  ),
+                ),
+                trailing: ElevatedButton(
+                  onPressed: buyBundle,
+                  child: Text(isEn ? 'Buy Pack' : 'Comprar Pack'),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    await _refreshWeeklyMissions();
+  }
+
+  Future<void> _claimMission(WeeklyMission mission) async {
+    final reward = await TournamentService.instance.claimWeeklyMission(mission.id);
+    await _refreshTournamentPass();
+    await _refreshWeeklyMissions();
+
+    await AnalyticsService.instance.trackEvent(
+      'weekly_mission_claimed',
+      params: {'id': mission.id, 'reward': reward},
+    );
+
+    if (!mounted) return;
+    final isEn = Localizations.localeOf(context).languageCode == 'en';
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          reward > 0
+              ? (isEn ? 'Mission claimed! +$reward coins.' : '¡Misión reclamada! +$reward coins.')
+              : (isEn ? 'Mission not ready.' : 'La misión no está lista.'),
+        ),
+        backgroundColor: reward > 0 ? Colors.green : Colors.orange,
       ),
     );
   }
@@ -336,26 +618,36 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
             children: [
               // ── App Bar ──────────────────────────────────────────────
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                child: Row(
-                  children: [
-                    IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: Icon(Icons.arrow_back_ios_new, color: _fg),
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: _card.withOpacity(0.74),
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(
+                      color: ThemeService.instance.borderColor.withOpacity(0.9),
                     ),
-                    Expanded(
-                      child: Text(
-                        loc.tournamentTitle,
-                        style: GoogleFonts.poppins(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: _fg,
-                        ),
-                        textAlign: TextAlign.center,
+                  ),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: Icon(Icons.arrow_back_ios_new, color: _fg, size: 20),
                       ),
-                    ),
-                    const SizedBox(width: 48),
-                  ],
+                      Expanded(
+                        child: Text(
+                          loc.tournamentTitle,
+                          style: GoogleFonts.poppins(
+                            fontSize: 19,
+                            fontWeight: FontWeight.w700,
+                            color: _fg,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      const SizedBox(width: 42),
+                    ],
+                  ),
                 ),
               ),
 
@@ -388,6 +680,20 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
                             ).animate().fadeIn(delay: 200.ms),
                           ],
                         ),
+                      ),
+
+                      const SizedBox(height: 14),
+
+                      _sectionCard(
+                        child: _loadingPass
+                            ? const Center(child: CircularProgressIndicator())
+                            : _buildDailyPassCard(isEn),
+                      ),
+                      const SizedBox(height: 14),
+                      _sectionCard(
+                        child: _loadingMissions
+                            ? const Center(child: CircularProgressIndicator())
+                            : _buildWeeklyMissionsCard(isEn),
                       ),
 
                       const SizedBox(height: 20),
@@ -622,14 +928,19 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: _card,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: ThemeService.instance.borderColor),
+        gradient: LinearGradient(
+          colors: [
+            _card.withOpacity(0.95),
+            ThemeService.instance.surfaceColor.withOpacity(0.84),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: ThemeService.instance.borderColor.withOpacity(0.9)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.06),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            blurRadius: 14,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
@@ -798,6 +1109,187 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildDailyPassCard(bool isEn) {
+    final state = _passState;
+    if (state == null) return const SizedBox.shrink();
+
+    final remainingText = state.isPremium
+        ? (isEn ? 'Unlimited' : 'Ilimitado')
+        : '${state.remainingEntriesToday}';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(Icons.local_fire_department, color: ThemeService.instance.primaryColor, size: 20),
+            const SizedBox(width: 8),
+            Text(
+              isEn ? 'Daily Tournament Pass' : 'Pase Diario del Torneo',
+              style: GoogleFonts.poppins(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                color: _fg,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: [
+            _miniStatChip('🎟️', isEn ? 'Tickets left' : 'Tickets hoy', remainingText),
+            _miniStatChip('🪙', isEn ? 'Love Coins' : 'Love Coins', '${state.coins}'),
+            _miniStatChip('🔥', isEn ? 'Streak' : 'Racha', '${state.streakDays}'),
+          ],
+        ),
+        if (!state.isPremium) ...[
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  isEn
+                      ? 'Ad tickets available today: ${state.adTicketsRemainingToday}'
+                      : 'Tickets por anuncio disponibles hoy: ${state.adTicketsRemainingToday}',
+                  style: GoogleFonts.poppins(fontSize: 12, color: _fgSub),
+                ),
+              ),
+              if (state.adTicketsRemainingToday > 0)
+                TextButton.icon(
+                  onPressed: _unlockingEntryAd ? null : _unlockEntryWithAd,
+                  icon: _unlockingEntryAd
+                      ? const SizedBox(
+                          width: 12,
+                          height: 12,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.play_circle_fill, size: 16),
+                  label: Text(isEn ? 'Get +1' : 'Ganar +1'),
+                ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerRight,
+            child: OutlinedButton.icon(
+              onPressed: _openCoinShop,
+              icon: const Icon(Icons.storefront, size: 16),
+              label: Text(isEn ? 'Coin Shop' : 'Tienda'),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildWeeklyMissionsCard(bool isEn) {
+    if (_weeklyMissions.isEmpty) {
+      return Text(
+        isEn ? 'No weekly missions yet.' : 'Aún no hay misiones semanales.',
+        style: GoogleFonts.poppins(fontSize: 12, color: _fgSub),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          isEn ? 'Weekly Missions' : 'Misiones Semanales',
+          style: GoogleFonts.poppins(
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+            color: _fg,
+          ),
+        ),
+        const SizedBox(height: 10),
+        ..._weeklyMissions.map((mission) {
+          final title = isEn ? mission.titleEn : mission.titleEs;
+          final canClaim = mission.completed && !mission.claimed;
+          final progress = (mission.progress / mission.target).clamp(0.0, 1.0);
+          return Container(
+            margin: const EdgeInsets.only(bottom: 10),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: ThemeService.instance.surfaceColor,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: ThemeService.instance.borderColor),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: GoogleFonts.poppins(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: _fg,
+                        ),
+                      ),
+                    ),
+                    Text('🪙 ${mission.rewardCoins}'),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                LinearProgressIndicator(value: progress, minHeight: 6),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    Text(
+                      '${mission.progress}/${mission.target}',
+                      style: GoogleFonts.poppins(fontSize: 12, color: _fgSub),
+                    ),
+                    const Spacer(),
+                    if (mission.claimed)
+                      Text(
+                        isEn ? 'Claimed' : 'Reclamada',
+                        style: GoogleFonts.poppins(fontSize: 12, color: Colors.green),
+                      )
+                    else if (canClaim)
+                      TextButton(
+                        onPressed: () => _claimMission(mission),
+                        child: Text(isEn ? 'Claim' : 'Reclamar'),
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        }),
+      ],
+    );
+  }
+
+  Widget _miniStatChip(String emoji, String label, String value) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: ThemeService.instance.surfaceColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: ThemeService.instance.borderColor),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(emoji),
+          const SizedBox(width: 6),
+          Text(
+            '$label: $value',
+            style: GoogleFonts.poppins(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: _fg,
+            ),
+          ),
+        ],
       ),
     );
   }

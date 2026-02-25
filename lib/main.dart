@@ -19,6 +19,9 @@ import 'services/purchase_service.dart';
 import 'services/premium_theme_service.dart';
 import 'services/analytics_service.dart';
 import 'services/secure_time_service.dart';
+import 'services/receipt_validation_service.dart';
+import 'services/scanner_economy_service.dart';
+import 'services/global_economy_service.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 void main() async {
@@ -58,8 +61,11 @@ void main() async {
     // ── Fase 4: Servicios secundarios ──
     await Future.wait([
       _initSafe('PurchaseService', () => PurchaseService.instance.initialize()),
+      _initSafe('ReceiptValidationService', () => ReceiptValidationService.instance.initialize()),
       _initSafe('PremiumThemeService', () => PremiumThemeService.instance.initialize()),
       _initSafe('AnalyticsService', () => AnalyticsService.instance.initialize()),
+      _initSafe('GlobalEconomyService', () => GlobalEconomyService.instance.initialize()),
+      _initSafe('ScannerEconomyService', () => ScannerEconomyService.instance.initialize()),
     ]);
 
     // ── Fase 5: Tareas de mantenimiento (no bloquean el splash) ──

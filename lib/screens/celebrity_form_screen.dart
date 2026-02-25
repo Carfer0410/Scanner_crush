@@ -7,10 +7,12 @@ import '../widgets/friendly_limit_widgets.dart';
 import '../services/theme_service.dart';
 import '../services/monetization_service.dart';
 import '../services/admob_service.dart';
+import '../services/scanner_economy_service.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'celebrity_screen.dart';
 import 'premium_screen.dart';
+import '../widgets/scanner_economy_panel.dart';
 
 class CelebrityFormScreen extends StatefulWidget {
   const CelebrityFormScreen({super.key});
@@ -58,11 +60,12 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
     
     if (!canScan) {
       HapticFeedback.lightImpact();
-      _showLimitDialog();
+      await _showLimitDialog();
       return;
     }
 
     HapticFeedback.mediumImpact();
+    if (!mounted) return;
 
     Navigator.push(
       context,
@@ -86,11 +89,18 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
     );
   }
 
-  void _showLimitDialog() {
-    final localizations = AppLocalizations.of(context)!;
+  Future<void> _showLimitDialog() async {
+    final screenContext = context;
+    final localizations = AppLocalizations.of(screenContext)!;
+    final isEn = Localizations.localeOf(screenContext).languageCode == 'en';
+    final canWatchAd = await MonetizationService.instance.canWatchAdForScans();
+    final currentPackCost = await ScannerEconomyService.instance.getCurrentScanPackCost();
+    final remainingPacks = await ScannerEconomyService.instance.getRemainingScanPackBuysToday();
+    if (!mounted) return;
+
     showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
+      context: screenContext,
+      builder: (dialogContext) => AlertDialog(
         backgroundColor: ThemeService.instance.cardColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
@@ -137,25 +147,61 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
               ),
             ),
             const SizedBox(height: 8),
-            _buildDialogOption(
-              icon: Icons.play_circle,
-              title: localizations.watchAd,
-              subtitle: localizations.winExtraScans,
-              onTap: () async {
-                Navigator.pop(context);
-                final success = await MonetizationService.instance.watchAdForExtraScans();
-                if (success && mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        localizations.extraScansWon,
-                        style: GoogleFonts.poppins(color: Colors.white),
+            if (canWatchAd) ...[
+              _buildDialogOption(
+                icon: Icons.play_circle,
+                title: localizations.watchAd,
+                subtitle: localizations.winExtraScans,
+                onTap: () async {
+                  Navigator.pop(dialogContext);
+                  final success = await MonetizationService.instance.watchAdForExtraScans();
+                  if (!mounted) return;
+                  if (success) {
+                    ScaffoldMessenger.of(screenContext).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          localizations.extraScansWon,
+                          style: GoogleFonts.poppins(color: Colors.white),
+                        ),
+                        backgroundColor: Colors.green,
+                        duration: const Duration(seconds: 6),
                       ),
-                      backgroundColor: Colors.green,
-                      duration: const Duration(seconds: 6),
-                    ),
-                  );
-                }
+                    );
+                  }
+                },
+              ),
+              const SizedBox(height: 8),
+            ],
+            _buildDialogOption(
+              icon: Icons.toll,
+              title: isEn
+                  ? '+${ScannerEconomyService.instance.scanPackScans} scans'
+                  : '+${ScannerEconomyService.instance.scanPackScans} escaneos',
+              subtitle: isEn
+                  ? '$currentPackCost coins - $remainingPacks left today'
+                  : '$currentPackCost coins - $remainingPacks disponibles hoy',
+              onTap: () async {
+                Navigator.pop(dialogContext);
+                final result = await ScannerEconomyService.instance.buyExtraScansWithCoins();
+                if (!mounted) return;
+                final text = result == ScannerCoinSpendResult.success
+                    ? (isEn
+                        ? 'Scans added successfully for $currentPackCost coins.'
+                        : 'Escaneos agregados con exito por $currentPackCost coins.')
+                    : result == ScannerCoinSpendResult.insufficientCoins
+                        ? (isEn
+                            ? 'Not enough coins. This pack costs $currentPackCost.'
+                            : 'No tienes suficientes coins. Este pack cuesta $currentPackCost.')
+                        : result == ScannerCoinSpendResult.premiumNotNeeded
+                            ? (isEn
+                                ? 'Premium already has unlimited scans.'
+                                : 'Premium ya tiene escaneos ilimitados.')
+                            : (isEn
+                                ? 'Daily pack limit reached. Try again tomorrow.'
+                                : 'Limite diario de packs alcanzado. Intenta manana.');
+                ScaffoldMessenger.of(screenContext).showSnackBar(
+                  SnackBar(content: Text(text), duration: const Duration(seconds: 6)),
+                );
               },
             ),
             const SizedBox(height: 8),
@@ -164,9 +210,10 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
               title: localizations.goPremium,
               subtitle: localizations.unlimitedScans,
               onTap: () {
-                Navigator.pop(context);
+                Navigator.pop(dialogContext);
+                if (!mounted) return;
                 Navigator.push(
-                  context,
+                  screenContext,
                   MaterialPageRoute(builder: (context) => const PremiumScreen()),
                 );
               },
@@ -176,13 +223,13 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
               icon: Icons.schedule,
               title: localizations.wait,
               subtitle: localizations.moreScansTomorrow,
-              onTap: () => Navigator.pop(context),
+              onTap: () => Navigator.pop(dialogContext),
             ),
           ],
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: Text(
               localizations.close,
               style: GoogleFonts.poppins(
@@ -274,42 +321,53 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
               children: [
                 // App bar
                 Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        onPressed: () => Navigator.pop(context),
-                        icon: Icon(
-                          Icons.arrow_back_ios,
-                          color: ThemeService.instance.textColor,
-                          size: 24,
-                        ),
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: ThemeService.instance.cardColor.withOpacity(0.72),
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(
+                        color: ThemeService.instance.borderColor.withOpacity(0.9),
                       ),
-                      const Spacer(),
-                      Text(
-                        localizations?.celebrityCrush ?? '',
-                        style: GoogleFonts.poppins(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: ThemeService.instance.textColor,
+                    ),
+                    child: Row(
+                      children: [
+                        IconButton(
+                          onPressed: () => Navigator.pop(context),
+                          icon: Icon(
+                            Icons.arrow_back_ios_new_rounded,
+                            color: ThemeService.instance.textColor,
+                            size: 20,
+                          ),
                         ),
-                      ),
-                      const Spacer(),
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 120),
-                        child: Builder(
-                          builder: (context) {
-                            final remaining = MonetizationService.instance.getRemainingScansTodayForFreeSync();
-                            final isPremium = MonetizationService.instance.isPremium;
-                            
-                            return ScanCounterWidget(
-                              remainingScans: remaining,
-                              isPremium: isPremium,
-                            );
-                          },
+                        Expanded(
+                          child: Text(
+                            localizations?.celebrityCrush ?? '',
+                            style: GoogleFonts.poppins(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: ThemeService.instance.textColor,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
                         ),
-                      ),
-                    ],
+                        ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 120),
+                          child: FutureBuilder<int>(
+                            future: MonetizationService.instance.getRemainingScansTodayForFree(),
+                            builder: (context, snapshot) {
+                              final remaining = snapshot.data ?? 0;
+                              final isPremium = MonetizationService.instance.isPremium;
+                              return ScanCounterWidget(
+                                remainingScans: remaining,
+                                isPremium: isPremium,
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
 
@@ -321,64 +379,74 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
                     ),
                     child: Column(
                       children: [
-                        const SizedBox(height: 40),
+                        const SizedBox(height: 18),
 
-                        // Celebrity icon
                         Container(
-                          width: 120,
-                          height: 120,
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(18),
                           decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: ThemeService.instance.primaryGradient,
-                            boxShadow: [
-                              BoxShadow(
-                                color: ThemeService.instance.primaryColor.withOpacity(0.4),
-                                blurRadius: 20,
-                                offset: const Offset(0, 10),
+                            gradient: LinearGradient(
+                              colors: [
+                                ThemeService.instance.cardColor.withOpacity(0.94),
+                                ThemeService.instance.surfaceColor.withOpacity(0.82),
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(22),
+                            border: Border.all(
+                              color: ThemeService.instance.primaryColor.withOpacity(0.24),
+                            ),
+                          ),
+                          child: Column(
+                            children: [
+                              Container(
+                                width: 86,
+                                height: 86,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  gradient: ThemeService.instance.primaryGradient,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: ThemeService.instance.primaryColor.withOpacity(0.35),
+                                      blurRadius: 18,
+                                      offset: const Offset(0, 8),
+                                    ),
+                                  ],
+                                ),
+                                child: const Icon(
+                                  Icons.auto_awesome_rounded,
+                                  color: Colors.white,
+                                  size: 42,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                localizations?.celebrityCrushTitle ?? '',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 26,
+                                  fontWeight: FontWeight.w700,
+                                  color: ThemeService.instance.textColor,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                localizations?.celebrityCrushDescription ?? '',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 14,
+                                  color: ThemeService.instance.textColor.withOpacity(0.76),
+                                  height: 1.42,
+                                ),
+                                textAlign: TextAlign.center,
                               ),
                             ],
                           ),
-                          child: const Icon(
-                            Icons.star,
-                            color: Colors.white,
-                            size: 60,
-                          ),
-                        ).animate().scale(
-                          duration: const Duration(milliseconds: 800),
-                          curve: Curves.elasticOut,
-                        ),
+                        ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.12, end: 0),
 
-                        const SizedBox(height: 40),
+                        const SizedBox(height: 18),
 
-                        // Title
-                        Text(
-                              localizations?.celebrityCrushTitle ?? '',
-                              style: GoogleFonts.poppins(
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold,
-                                color: ThemeService.instance.textColor,
-                              ),
-                              textAlign: TextAlign.center,
-                            )
-                            .animate()
-                            .fadeIn(duration: 600.ms)
-                            .scale(delay: 200.ms),
+                        const ScannerEconomyPanel(),
 
-                        const SizedBox(height: 16),
-
-                        Text(
-                          localizations?.celebrityCrushDescription ?? '',
-                          style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            color: ThemeService.instance.textColor.withOpacity(
-                              0.7,
-                            ),
-                            height: 1.4,
-                          ),
-                          textAlign: TextAlign.center,
-                        ).animate().fadeIn(delay: 400.ms),
-
-                        const SizedBox(height: 60),
+                        const SizedBox(height: 36),
 
                         // User name field
                         CustomTextField(
@@ -549,3 +617,10 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
     );
   }
 }
+
+
+
+
+
+
+

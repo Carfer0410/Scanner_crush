@@ -56,16 +56,28 @@ class ThemeService extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Método auxiliar para identificar temas inherentemente oscuros
-  bool isInherentlyDarkTheme() {
-    switch (_currentTheme) {
-      case ThemeType.cosmic:
-        return true; // Cósmico es inherentemente oscuro
-      default:
-        // También podemos evaluar la luminancia del color primario
-        // para identificar automáticamente temas oscuros
-        return currentAppTheme.primaryColor.computeLuminance() < 0.3;
-    }
+  // --- Contraste dinámico global ---
+  static const Color _darkText = Color(0xFF111111);
+  static const Color _lightText = Color(0xFFF7F9FC);
+
+  double _avgLuminance(Iterable<Color> colors) {
+    if (colors.isEmpty) return 0.5;
+    final sum = colors.fold<double>(0.0, (acc, c) => acc + c.computeLuminance());
+    return sum / colors.length;
+  }
+
+  // Detecta si el fondo activo del tema es visualmente oscuro.
+  bool get _isCurrentBackgroundDark {
+    final gradient = _isDarkMode
+        ? currentAppTheme.backgroundGradientDark
+        : currentAppTheme.backgroundGradient;
+    final lum = _avgLuminance(gradient.colors);
+    return lum < 0.44;
+  }
+
+  // Color de texto con contraste fuerte sobre un color de fondo dado.
+  Color onColor(Color background) {
+    return background.computeLuminance() > 0.45 ? _darkText : _lightText;
   }
 
   // Gradientes basados en el tema actual
@@ -76,62 +88,54 @@ class ThemeService extends ChangeNotifier {
   }
 
   // Colores basados en el tema actual
-  Color get primaryColor => currentAppTheme.primaryColor;
-  Color get secondaryColor => currentAppTheme.secondaryColor;
-  Color get accentColor => currentAppTheme.accentColor;
+  Color _normalizeAccent(Color color) {
+    final lum = color.computeLuminance();
+    if (lum <= 0.45) return color;
+    final t = ((lum - 0.45) / 0.55).clamp(0.0, 1.0) * 0.45;
+    return Color.lerp(color, Colors.black, t)!;
+  }
+
+  Color get primaryColor => _normalizeAccent(currentAppTheme.primaryColor);
+  Color get secondaryColor => _normalizeAccent(currentAppTheme.secondaryColor);
+  Color get accentColor => _normalizeAccent(currentAppTheme.accentColor);
 
   // Colores de texto basados en el tema actual
   Color get textColor {
-    // Forzar texto blanco en tema lavanda o temas inherentemente oscuros
-    if (_currentTheme == ThemeType.lavender || isInherentlyDarkTheme() || _isDarkMode) {
-      return Colors.white.withOpacity(0.95);
-    }
-    // Para temas claros, usar texto oscuro
-    return currentAppTheme.primaryColor.computeLuminance() > 0.5 
-      ? const Color(0xFF2C1810) // Texto oscuro para temas claros
-      : const Color(0xFF1A1A1A); // Texto muy oscuro para temas vibrantes
+    return _isCurrentBackgroundDark ? _lightText : _darkText;
   }
     
   Color get subtitleColor {
-    // Forzar subtítulo blanco en tema lavanda o temas inherentemente oscuros
-    if (_currentTheme == ThemeType.lavender || isInherentlyDarkTheme() || _isDarkMode) {
-      return Colors.white.withOpacity(0.7);
-    }
-    // Para temas claros: derivar un gris oscuro cálido que contraste con cualquier fondo
-    final lum = currentAppTheme.primaryColor.computeLuminance();
-    if (lum > 0.5) {
-      // Tema con primary claro → gris oscuro
-      return const Color(0xFF5C4A42);
-    }
-    // Tema con primary oscuro → gris medio
-    return const Color(0xFF6B6B6B);
+    return _isCurrentBackgroundDark
+        ? _lightText.withOpacity(0.82)
+        : _darkText.withOpacity(0.68);
   }
 
   // Colores de tarjetas y superficies basados en el tema actual
   Color get cardColor {
-    if (isInherentlyDarkTheme() || _isDarkMode) {
-      return Color.lerp(const Color(0xFF1A1A1A), currentAppTheme.primaryColor, 0.1)!.withOpacity(0.95);
+    if (_isCurrentBackgroundDark) {
+      return Color.lerp(const Color(0xFF171A22), currentAppTheme.primaryColor, 0.12)!
+          .withOpacity(0.94);
     }
-    return Colors.white.withOpacity(0.9);
+    return Color.lerp(Colors.white, currentAppTheme.primaryColor, 0.04)!.withOpacity(0.94);
   }
     
   Color get surfaceColor {
-    if (isInherentlyDarkTheme() || _isDarkMode) {
-      return Color.lerp(const Color(0xFF2A2A2A), currentAppTheme.primaryColor, 0.05)!;
+    if (_isCurrentBackgroundDark) {
+      return Color.lerp(const Color(0xFF222630), currentAppTheme.primaryColor, 0.08)!;
     }
-    return Color.lerp(Colors.white, currentAppTheme.primaryColor, 0.03)!;
+    return Color.lerp(const Color(0xFFF8FAFC), currentAppTheme.primaryColor, 0.06)!;
   }
 
   // Colores para elementos específicos basados en el tema
   Color get iconColor {
-    if (isInherentlyDarkTheme() || _isDarkMode) {
+    if (_isCurrentBackgroundDark) {
       return Colors.white.withOpacity(0.9);
     }
     return currentAppTheme.primaryColor.withOpacity(0.8);
   }
     
   Color get borderColor {
-    if (isInherentlyDarkTheme() || _isDarkMode) {
+    if (_isCurrentBackgroundDark) {
       return currentAppTheme.primaryColor.withOpacity(0.3);
     }
     return currentAppTheme.primaryColor.withOpacity(0.2);
@@ -152,17 +156,21 @@ class ThemeService extends ChangeNotifier {
 
   // Gradientes especiales para botones y elementos destacados
   LinearGradient get primaryGradient => LinearGradient(
-    colors: [primaryColor, secondaryColor],
+    colors: [
+      primaryColor,
+      Color.lerp(primaryColor, secondaryColor, 0.6)!,
+      secondaryColor,
+    ],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
   
   LinearGradient get cardGradient {
-    if (isInherentlyDarkTheme() || _isDarkMode) {
+    if (_isCurrentBackgroundDark) {
       return LinearGradient(
         colors: [
-          Color.lerp(const Color(0xFF1A1A1A), currentAppTheme.primaryColor, 0.1)!,
-          Color.lerp(const Color(0xFF2A2A2A), currentAppTheme.primaryColor, 0.05)!,
+          Color.lerp(const Color(0xFF181B24), currentAppTheme.primaryColor, 0.12)!,
+          Color.lerp(const Color(0xFF20242E), currentAppTheme.primaryColor, 0.08)!,
         ],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
@@ -171,8 +179,9 @@ class ThemeService extends ChangeNotifier {
     
     return LinearGradient(
       colors: [
-        Colors.white.withOpacity(0.9),
-        Color.lerp(Colors.white, currentAppTheme.primaryColor, 0.05)!.withOpacity(0.7),
+        Colors.white.withOpacity(0.96),
+        Color.lerp(const Color(0xFFFDFEFF), currentAppTheme.primaryColor, 0.08)!
+            .withOpacity(0.88),
       ],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
@@ -181,56 +190,56 @@ class ThemeService extends ChangeNotifier {
 
   // Sombras optimizadas para cada tema
   List<BoxShadow> get cardShadow {
-    if (isInherentlyDarkTheme() || _isDarkMode) {
+    if (_isCurrentBackgroundDark) {
       return [
         BoxShadow(
-          color: Colors.black.withOpacity(0.3),
-          blurRadius: 15,
-          offset: const Offset(0, 8),
+          color: Colors.black.withOpacity(0.34),
+          blurRadius: 24,
+          offset: const Offset(0, 10),
         ),
         BoxShadow(
-          color: primaryColor.withOpacity(0.1),
-          blurRadius: 20,
-          offset: const Offset(0, 4),
+          color: primaryColor.withOpacity(0.14),
+          blurRadius: 18,
+          offset: const Offset(0, 2),
         ),
       ];
     }
     
     return [
       BoxShadow(
-        color: Colors.black.withOpacity(0.1),
-        blurRadius: 15,
-        offset: const Offset(0, 8),
+        color: Colors.black.withOpacity(0.08),
+        blurRadius: 20,
+        offset: const Offset(0, 10),
       ),
       BoxShadow(
-        color: primaryColor.withOpacity(0.2),
-        blurRadius: 10,
-        offset: const Offset(0, 4),
+        color: primaryColor.withOpacity(0.12),
+        blurRadius: 14,
+        offset: const Offset(0, 3),
       ),
     ];
   }
 
   List<BoxShadow> get buttonShadow {
-    if (isInherentlyDarkTheme() || _isDarkMode) {
+    if (_isCurrentBackgroundDark) {
       return [
         BoxShadow(
-          color: primaryColor.withOpacity(0.4),
-          blurRadius: 15,
-          offset: const Offset(0, 6),
+          color: primaryColor.withOpacity(0.42),
+          blurRadius: 18,
+          offset: const Offset(0, 8),
         ),
         BoxShadow(
-          color: Colors.black.withOpacity(0.2),
-          blurRadius: 10,
-          offset: const Offset(0, 4),
+          color: Colors.black.withOpacity(0.26),
+          blurRadius: 12,
+          offset: const Offset(0, 5),
         ),
       ];
     }
     
     return [
       BoxShadow(
-        color: primaryColor.withOpacity(0.3),
-        blurRadius: 10,
-        offset: const Offset(0, 5),
+        color: primaryColor.withOpacity(0.26),
+        blurRadius: 14,
+        offset: const Offset(0, 7),
       ),
     ];
   }
