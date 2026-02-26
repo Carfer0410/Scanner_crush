@@ -70,7 +70,7 @@ class TournamentService {
 
   static const int _dailyFreeEntries = int.fromEnvironment(
     'AB_TOURNAMENT_DAILY_FREE_ENTRIES',
-    defaultValue: 1,
+    defaultValue: 2,
   );
   static const int _maxAdEntriesPerDay = int.fromEnvironment(
     'AB_TOURNAMENT_MAX_AD_ENTRIES_PER_DAY',
