@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -11,7 +11,7 @@ import '../services/admob_service.dart';
 import '../services/monetization_service.dart';
 import '../services/analytics_service.dart';
 import '../widgets/custom_widgets.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:scanner_crush/generated/l10n/app_localizations.dart';
 import 'tournament_bracket_screen.dart';
 import 'premium_screen.dart';
 
@@ -111,8 +111,8 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(ok
-            ? (isEn ? 'Ticket unlocked! You can start a new tournament.' : '¡Ticket desbloqueado! Ya puedes iniciar otro torneo.')
-            : (isEn ? 'No ad available right now. Try again later.' : 'No hay anuncio disponible ahora. Intenta más tarde.')),
+            ? (isEn ? 'Ticket unlocked! You can start a new tournament.' : 'Â¡Ticket desbloqueado! Ya puedes iniciar otro torneo.')
+            : (isEn ? 'No ad available right now. Try again later.' : 'No hay anuncio disponible ahora. Intenta mÃ¡s tarde.')),
         backgroundColor: ok ? Colors.green : Colors.orange,
         duration: const Duration(seconds: 3),
       ),
@@ -173,7 +173,7 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
         backgroundColor: ThemeService.instance.cardColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
-          '🏆 ${isEn ? "16-Player Tournament" : "Torneo de 16"}',
+          'ðŸ† ${isEn ? "16-Player Tournament" : "Torneo de 16"}',
           style: TextStyle(color: ThemeService.instance.textColor),
         ),
         content: Column(
@@ -182,7 +182,7 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
             Text(
               isEn
                   ? 'Unlock today\'s 16-player tournament by watching an ad, or go Premium for unlimited access!'
-                  : '¡Desbloquea el torneo de 16 hoy viendo un anuncio, o hazte Premium para acceso ilimitado!',
+                  : 'Â¡Desbloquea el torneo de 16 hoy viendo un anuncio, o hazte Premium para acceso ilimitado!',
               style: TextStyle(color: ThemeService.instance.textColor),
             ),
             const SizedBox(height: 20),
@@ -209,8 +209,8 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(isEn
-                            ? '🌟 16-player tournament unlocked for today!'
-                            : '🌟 ¡Torneo de 16 desbloqueado por hoy!'),
+                            ? 'ðŸŒŸ 16-player tournament unlocked for today!'
+                            : 'ðŸŒŸ Â¡Torneo de 16 desbloqueado por hoy!'),
                         backgroundColor: Colors.green,
                         duration: const Duration(seconds: 2),
                       ),
@@ -509,7 +509,7 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
               ),
               const SizedBox(height: 10),
               Text(
-                '🪙 $coins',
+                'ðŸª™ $coins',
                 style: GoogleFonts.poppins(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -582,8 +582,8 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
       SnackBar(
         content: Text(
           reward > 0
-              ? (isEn ? 'Mission claimed! +$reward coins.' : '¡Misión reclamada! +$reward coins.')
-              : (isEn ? 'Mission not ready.' : 'La misión no está lista.'),
+              ? (isEn ? 'Mission claimed! +$reward coins.' : 'Â¡MisiÃ³n reclamada! +$reward coins.')
+              : (isEn ? 'Mission not ready.' : 'La misiÃ³n no estÃ¡ lista.'),
         ),
         backgroundColor: reward > 0 ? Colors.green : Colors.orange,
       ),
@@ -601,7 +601,7 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
     );
   }
 
-  // ── Helpers for adaptive contrast ──────────────────────────────────────
+  // â”€â”€ Helpers for adaptive contrast â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Color get _fg => ThemeService.instance.textColor;
   Color get _fgSub => ThemeService.instance.subtitleColor;
   Color get _card => ThemeService.instance.cardColor;
@@ -616,7 +616,7 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
         child: SafeArea(
           child: Column(
             children: [
-              // ── App Bar ──────────────────────────────────────────────
+              // â”€â”€ App Bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
                 child: Container(
@@ -651,7 +651,7 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
                 ),
               ),
 
-              // ── Scrollable content ───────────────────────────────────
+              // â”€â”€ Scrollable content â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
               Expanded(
                 child: SingleChildScrollView(
                   controller: _scrollController,
@@ -660,12 +660,12 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // ── Hero header ─────────────────────────────────
+                      // â”€â”€ Hero header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                       const SizedBox(height: 4),
                       Center(
                         child: Column(
                           children: [
-                            const Text('🏆', style: TextStyle(fontSize: 48))
+                            const Text('ðŸ†', style: TextStyle(fontSize: 48))
                                 .animate()
                                 .scale(duration: 600.ms, curve: Curves.elasticOut),
                             const SizedBox(height: 6),
@@ -698,7 +698,7 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
 
                       const SizedBox(height: 20),
 
-                      // ── SECTION 1: Tu nombre ───────────────────────
+                      // â”€â”€ SECTION 1: Tu nombre â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                       _sectionCard(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -716,7 +716,7 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
 
                       const SizedBox(height: 16),
 
-                      // ── SECTION 2: Formato ─────────────────────────
+                      // â”€â”€ SECTION 2: Formato â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                       _sectionCard(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -725,11 +725,11 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
                             const SizedBox(height: 12),
                             Row(
                               children: [
-                                _buildFormatChip(TournamentFormat.four, '4', '⚡'),
+                                _buildFormatChip(TournamentFormat.four, '4', 'âš¡'),
                                 const SizedBox(width: 10),
-                                _buildFormatChip(TournamentFormat.eight, '8', '🔥'),
+                                _buildFormatChip(TournamentFormat.eight, '8', 'ðŸ”¥'),
                                 const SizedBox(width: 10),
-                                _buildFormatChip(TournamentFormat.sixteen, '16', '👑',
+                                _buildFormatChip(TournamentFormat.sixteen, '16', 'ðŸ‘‘',
                                     isPremium: true),
                               ],
                             ).animate().fadeIn(delay: 300.ms),
@@ -739,7 +739,7 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
 
                       const SizedBox(height: 16),
 
-                      // ── SECTION 3: Participantes ───────────────────
+                      // â”€â”€ SECTION 3: Participantes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                       _sectionCard(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -859,7 +859,7 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
 
                       const SizedBox(height: 20),
 
-                      // ── Start button ────────────────────────────────
+                      // â”€â”€ Start button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                       SizedBox(
                         width: double.infinity,
                         height: 56,
@@ -878,7 +878,7 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Text('🏆', style: TextStyle(fontSize: 22)),
+                              const Text('ðŸ†', style: TextStyle(fontSize: 22)),
                               const SizedBox(width: 10),
                               Text(
                                 loc.tournamentStart,
@@ -922,7 +922,7 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
     );
   }
 
-  // ── Reusable section card wrapper ─────────────────────────────────────
+  // â”€â”€ Reusable section card wrapper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Widget _sectionCard({required Widget child}) {
     return Container(
       width: double.infinity,
@@ -948,7 +948,7 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
     );
   }
 
-  // ── Section label with icon ───────────────────────────────────────────
+  // â”€â”€ Section label with icon â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Widget _sectionLabel(String text, IconData icon) {
     return Row(
       children: [
@@ -1143,9 +1143,9 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
           spacing: 10,
           runSpacing: 10,
           children: [
-            _miniStatChip('🎟️', isEn ? 'Tickets left' : 'Tickets hoy', remainingText),
-            _miniStatChip('🪙', isEn ? 'Love Coins' : 'Love Coins', '${state.coins}'),
-            _miniStatChip('🔥', isEn ? 'Streak' : 'Racha', '${state.streakDays}'),
+            _miniStatChip('ðŸŽŸï¸', isEn ? 'Tickets left' : 'Tickets hoy', remainingText),
+            _miniStatChip('ðŸª™', isEn ? 'Love Coins' : 'Love Coins', '${state.coins}'),
+            _miniStatChip('ðŸ”¥', isEn ? 'Streak' : 'Racha', '${state.streakDays}'),
           ],
         ),
         if (!state.isPremium) ...[
@@ -1191,7 +1191,7 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
   Widget _buildWeeklyMissionsCard(bool isEn) {
     if (_weeklyMissions.isEmpty) {
       return Text(
-        isEn ? 'No weekly missions yet.' : 'Aún no hay misiones semanales.',
+        isEn ? 'No weekly missions yet.' : 'AÃºn no hay misiones semanales.',
         style: GoogleFonts.poppins(fontSize: 12, color: _fgSub),
       );
     }
@@ -1235,7 +1235,7 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
                         ),
                       ),
                     ),
-                    Text('🪙 ${mission.rewardCoins}'),
+                    Text('ðŸª™ ${mission.rewardCoins}'),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -1294,3 +1294,4 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
     );
   }
 }
+

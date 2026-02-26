@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/theme_service.dart';
 import '../services/monetization_service.dart';
 import '../screens/premium_screen.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:scanner_crush/generated/l10n/app_localizations.dart';
 
 /// Widget promocional sutil para Premium
 class SubtlePremiumPromo extends StatelessWidget {
@@ -96,7 +96,7 @@ class SubtlePremiumPromo extends StatelessWidget {
   }
 }
 
-/// Widget para mostrar beneficios específicos
+/// Widget para mostrar beneficios especÃ­ficos
 class PremiumBenefitChip extends StatelessWidget {
   final String text;
   final IconData icon;
@@ -226,3 +226,4 @@ class PremiumOverlay extends StatelessWidget {
     );
   }
 }
+

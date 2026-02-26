@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/crush_result.dart';
 import 'daily_love_service.dart';
 import 'secure_time_service.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:scanner_crush/generated/l10n/app_localizations.dart';
 
 class CrushService {
   static final CrushService _instance = CrushService._internal();
@@ -834,3 +834,4 @@ class CrushService {
     }
   }
 }
+

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:share_plus/share_plus.dart';
@@ -11,7 +11,7 @@ import '../services/audio_service.dart';
 import '../services/monetization_service.dart';
 import '../services/scanner_economy_service.dart';
 import '../models/crush_result.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:scanner_crush/generated/l10n/app_localizations.dart';
 import 'form_screen.dart';
 import 'celebrity_screen.dart';
 import 'premium_screen.dart';
@@ -59,7 +59,7 @@ class _ResultScreenState extends State<ResultScreen>
       _percentageController.forward();
       _heartController.forward();
 
-      // 🎵 Reproducir sonido basado en compatibilidad después de la animación
+      // ðŸŽµ Reproducir sonido basado en compatibilidad despuÃ©s de la animaciÃ³n
       Future.delayed(const Duration(seconds: 2), () {
         AudioService.instance.playCompatibilityResult(widget.result.percentage);
       });
@@ -127,7 +127,7 @@ class _ResultScreenState extends State<ResultScreen>
   }
 
   Future<void> _scanAgain() async {
-    // Verificar límites antes de permitir escanear de nuevo
+    // Verificar lÃ­mites antes de permitir escanear de nuevo
     final canScan = await MonetizationService.instance.canScanToday();
     if (!mounted) return;
     
@@ -136,7 +136,7 @@ class _ResultScreenState extends State<ResultScreen>
       return;
     }
 
-    // Usuario ha alcanzado límite - mostrar opciones
+    // Usuario ha alcanzado lÃ­mite - mostrar opciones
     final canWatchAd = await MonetizationService.instance.canWatchAdForScans();
     if (!mounted) return;
     
@@ -281,7 +281,7 @@ class _ResultScreenState extends State<ResultScreen>
       final shouldShow = await AdMobService.instance.shouldShowInterstitialAd();
       if (shouldShow && AdMobService.instance.isInterstitialAdReady) {
         await AdMobService.instance.showInterstitialAd();
-        // Pequeña pausa para que el anuncio se procese
+        // PequeÃ±a pausa para que el anuncio se procese
         await Future.delayed(const Duration(milliseconds: 500));
       }
     }
@@ -441,7 +441,7 @@ class _ResultScreenState extends State<ResultScreen>
                                 return Transform.scale(
                                   scale: 1.0 + (_heartController.value * 0.2),
                                   child: Text(
-                                    '💕',
+                                    'ðŸ’•',
                                     style: const TextStyle(fontSize: 40),
                                   ),
                                 );
@@ -648,5 +648,6 @@ class _ResultScreenState extends State<ResultScreen>
     );
   }
 }
+
 
 

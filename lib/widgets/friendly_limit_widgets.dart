@@ -1,4 +1,4 @@
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+﻿import 'package:scanner_crush/generated/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/theme_service.dart';
@@ -94,7 +94,7 @@ class FriendlyLimitDialog extends StatelessWidget {
                 const SizedBox(height: 12),
               ],
               
-              // Opción 2: Premium
+              // Opción 2: Coins
               if (onUseCoins != null) ...[
                 _buildOption(
                   icon: Icons.toll,
@@ -284,3 +284,4 @@ class ScanCounterWidget extends StatelessWidget {
     return Colors.red;
   }
 }
+

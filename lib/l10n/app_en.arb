@@ -44,18 +44,19 @@
   "predictionTimeframeAsYouExplore": "As you explore",
   "predictionTimeframeNext3Months": "Next 3 months",
   "predictionTimeframeNext2Months": "Next 2 months",
-  "predictionTimeframeLoveJourney": "On your love journey"
-,
-  "errorGeneratingResult": "Error generating result",
+  "predictionTimeframeLoveJourney": "On your love journey",
+  "errorGeneratingResult": "Error generating result. Please try again.",
   "celebrityCrush": "Celebrity Crush",
   "helloCelebrity": "Hello {userName}!",
   "@helloCelebrity": {
-    "description": "Greeting for celebrity screen",
+    "description": "Greeting with user name",
     "placeholders": {
-      "userName": {}
+      "userName": {
+        "type": "String"
+      }
     }
   },
-  "chooseCelebrityDescription": "Choose your favorite celebrity to see your compatibility!",
+  "chooseCelebrityDescription": "Choose your celebrity crush and discover your compatibility",
   "searchCelebrity": "Search celebrity...",
   "noInsightsYet": "No insights yet",
   "scanMoreForInsights": "Scan more to get personalized insights",
@@ -99,283 +100,229 @@
   "@splashSlogan": {
     "description": "Slogan shown on splash screen"
   },
-  
   "welcomeTitle": "Discover Your Secret Admirer",
   "@welcomeTitle": {
     "description": "Welcome screen main title"
   },
-  
   "welcomeSubtitle": "Find out who has a crush on you with our advanced algorithm 💕",
   "@welcomeSubtitle": {
     "description": "Welcome screen subtitle"
   },
-  
   "startScan": "Start Scan",
   "@startScan": {
     "description": "Button to start scanning"
   },
-  
   "celebrityScan": "Celebrity Scan",
   "@celebrityScan": {
     "description": "Celebrity scan button"
   },
-  
   "dailyLove": "Daily Love",
   "@dailyLove": {
     "description": "Daily love button"
   },
-  
   "settings": "Settings",
   "@settings": {
     "description": "Settings button"
   },
-  
   "history": "History",
   "@history": {
-    "description": "History button"
+    "description": "History title"
   },
-  
   "premium": "Premium",
   "@premium": {
-    "description": "Premium button"
+    "description": "Premium title"
   },
-  
-  "yourName": "Your Name",
+  "yourName": "Your name",
   "@yourName": {
-    "description": "Your name input label"
+    "description": "Your name field placeholder"
   },
-  
   "enterYourName": "Enter your name",
   "@enterYourName": {
     "description": "Your name input hint"
   },
-  
   "crushName": "Crush's Name",
   "@crushName": {
     "description": "Crush name input label"
   },
-  
   "enterCrushName": "Enter your crush's name",
   "@enterCrushName": {
     "description": "Crush name input hint"
   },
-  
   "scanNow": "Scan Now",
   "@scanNow": {
     "description": "Scan now button"
   },
-  
   "scanning": "Scanning...",
   "@scanning": {
     "description": "Scanning status"
   },
-  
   "analyzing": "Analyzing compatibility...",
   "@analyzing": {
     "description": "Analyzing status"
   },
-  
   "calculatingLove": "Calculating love percentage...",
   "@calculatingLove": {
     "description": "Calculating love status"
   },
-  
   "scanComplete": "Scan Complete!",
   "@scanComplete": {
     "description": "Scan complete message"
   },
-  
   "lovePercentage": "Love Percentage",
   "@lovePercentage": {
     "description": "Love percentage label"
   },
-  
   "compatibilityLevel": "Compatibility Level",
   "@compatibilityLevel": {
     "description": "Compatibility level label"
   },
-  
   "shareResult": "Share Result",
   "@shareResult": {
     "description": "Share result button"
   },
-  
   "scanAgain": "Scan Again",
   "@scanAgain": {
     "description": "Scan again button"
   },
-  
   "back": "Back",
   "@back": {
     "description": "Back button"
   },
-  
   "darkMode": "Dark Mode",
   "@darkMode": {
     "description": "Dark mode setting"
   },
-  
   "soundEffects": "Sound Effects",
   "@soundEffects": {
     "description": "Sound effects setting"
   },
-  
   "backgroundMusic": "Background Music",
   "@backgroundMusic": {
     "description": "Background music setting"
   },
-  
   "language": "Language",
   "@language": {
     "description": "Language setting"
   },
-  
   "volume": "Volume",
   "@volume": {
     "description": "Volume setting"
   },
-  
   "about": "About",
   "@about": {
     "description": "About section"
   },
-  
   "version": "Version",
   "@version": {
     "description": "Version label"
   },
-  
   "spanish": "Spanish",
   "@spanish": {
     "description": "Spanish language option"
   },
-  
   "english": "English",
   "@english": {
     "description": "English language option"
   },
-  
   "noHistory": "No scans yet",
   "@noHistory": {
     "description": "No history message"
   },
-  
   "startFirstScan": "Start your first scan to see results here",
   "@startFirstScan": {
     "description": "Start first scan message"
   },
-  
   "scanHistory": "Scan History",
   "@scanHistory": {
     "description": "Scan history title"
   },
-  
   "deleteHistory": "Delete History",
   "@deleteHistory": {
     "description": "Delete history button"
   },
-  
   "confirmDelete": "Confirm Delete",
   "@confirmDelete": {
     "description": "Confirm delete title"
   },
-  
   "deleteHistoryMessage": "Are you sure you want to delete all scan history? This action cannot be undone.",
   "@deleteHistoryMessage": {
     "description": "Delete history confirmation message"
   },
-  
   "cancel": "Cancel",
   "@cancel": {
     "description": "Cancel button"
   },
-  
   "delete": "Delete",
   "@delete": {
     "description": "Delete button"
   },
-  
   "historyDeleted": "History deleted successfully",
   "@historyDeleted": {
     "description": "History deleted message"
   },
-  
   "todaysLove": "Today's Love",
   "@todaysLove": {
     "description": "Today's love title"
   },
-  
   "yourDailyLoveReading": "Your Daily Love Reading",
   "@yourDailyLoveReading": {
     "description": "Daily love reading subtitle"
   },
-  
   "loveAdvice": "Love Advice",
   "@loveAdvice": {
     "description": "Love advice section"
   },
-  
   "luckyNumber": "Lucky Number",
   "@luckyNumber": {
     "description": "Lucky number label"
   },
-  
   "loveCompatibility": "Love Compatibility",
   "@loveCompatibility": {
     "description": "Love compatibility label"
   },
-  
   "perfectMatch": "Perfect Match! 💖",
   "@perfectMatch": {
     "description": "Perfect match message"
   },
-  
   "excellentMatch": "Excellent Match! 💕",
   "@excellentMatch": {
     "description": "Excellent match message"
   },
-  
   "goodMatch": "Good Match! 💓",
   "@goodMatch": {
     "description": "Good match message"
   },
-  
   "fairMatch": "Fair Match 💙",
   "@fairMatch": {
     "description": "Fair match message"
   },
-  
   "lowMatch": "Low Match 💔",
   "@lowMatch": {
     "description": "Low match message"
   },
-  
   "celebrityScanner": "Celebrity Scanner",
   "@celebrityScanner": {
     "description": "Celebrity scanner title"
   },
-  
   "whichCelebrityLikesYou": "Which celebrity likes you?",
   "@whichCelebrityLikesYou": {
     "description": "Celebrity scanner subtitle"
   },
-  
   "selectGender": "Select Gender",
   "@selectGender": {
     "description": "Select gender label"
   },
-  
   "male": "Male",
   "appTitleFull": "Crush Scanner 💘",
   "upgrade": "Upgrade",
   "premiumOnly": "Premium Only",
   "remainingScans": "You have {count} scans left today! 💕",
-  "noScansLeft": "You've explored a lot of love today! 🌟",
+  "noScansLeft": "No scans left! Watch ads for more",
   "useWisely": "Use them wisely or get more below 😉",
   "moreTomorrow": "Tomorrow you'll have 5 fresh scans waiting, or you can get more now:",
   "watchShortAd": "Watch short ad",
   "extraScansFree": "+2 free scans",
-  "unlimitedScans": "Unlimited scans",
+  "unlimitedScans": "Unlimited Scans",
   "premiumPriceText": "Premium for $2.99/month",
   "waitUntilTomorrow": "Wait until tomorrow",
   "freshScans": "5 fresh scans free",
@@ -387,44 +334,36 @@
   "winExtraScans": "Win +2 extra scans",
   "extraScansWon": "+2 extra scans won!",
   "goPremium": "Go Premium",
-  "unlimitedScans": "Unlimited scans",
   "wait": "Wait",
   "moreScansTomorrow": "More scans tomorrow",
   "close": "Close",
   "@male": {
     "description": "Male gender option"
   },
-  
   "female": "Female",
   "@female": {
     "description": "Female gender option"
   },
-  
   "any": "Any",
   "@any": {
     "description": "Any gender option"
   },
-  
   "findCelebrityMatch": "Find Celebrity Match",
   "@findCelebrityMatch": {
     "description": "Find celebrity match button"
   },
-  
   "yourCelebrityMatch": "Your Celebrity Match",
   "@yourCelebrityMatch": {
     "description": "Your celebrity match title"
   },
-  
   "compatibilityScore": "Compatibility Score",
   "@compatibilityScore": {
     "description": "Compatibility score label"
   },
-  
   "whyThisMatch": "Why this match?",
   "@whyThisMatch": {
     "description": "Why this match section"
   },
-  
   "upgradeToPremium": "Upgrade to Premium",
   "errorTitle": "Error",
   "errorLoadingLoveDay": "Could not load your love day: {error}",
@@ -453,9 +392,8 @@
   "currentStreak": "Current Streak",
   "bestStreak": "Best Streak",
   "totalScans": "Total Scans",
-  "streakStatsTitle": "\ud83d\udd25 Streak Stats",
+  "streakStatsTitle": "🔥 Streak Stats",
   "learnAboutStats": "Learn about stats",
-  "close": "Close",
   "streakStatsDialogCurrent": "Current Streak",
   "streakStatsDialogBest": "Best Streak",
   "streakStatsDialogTotal": "Total Scans",
@@ -472,57 +410,45 @@
   "premiumRequiredTitle": "Premium Required",
   "premiumRequiredContent": "This feature is available only for Premium users. Upgrade now and unlock all exclusive features!",
   "viewPremium": "View Premium",
-  
   "unlockAllFeatures": "Unlock all features and enjoy the full experience!",
   "@unlockAllFeatures": {
     "description": "Premium features subtitle"
   },
-  
   "premiumFeatures": "Premium Features",
   "@premiumFeatures": {
     "description": "Premium features title"
   },
-  
-  "unlimitedScans": "Unlimited Scans",
   "@unlimitedScans": {
     "description": "Unlimited scans feature"
   },
-  
   "detailedAnalysis": "Detailed Analysis",
   "@detailedAnalysis": {
     "description": "Detailed analysis feature"
   },
-  
   "noAds": "No Ads",
   "@noAds": {
     "description": "No ads feature"
   },
-  
   "exclusiveContent": "Exclusive Content",
   "@exclusiveContent": {
     "description": "Exclusive content feature"
   },
-  
   "advancedCompatibility": "Advanced Compatibility",
   "@advancedCompatibility": {
     "description": "Advanced compatibility feature"
   },
-  
   "monthlyPlan": "Monthly Plan",
   "@monthlyPlan": {
     "description": "Monthly plan option"
   },
-  
   "yearlyPlan": "Yearly Plan",
   "@yearlyPlan": {
     "description": "Yearly plan option"
   },
-  
   "mostPopular": "Most Popular",
   "@mostPopular": {
     "description": "Most popular plan badge"
   },
-  
   "save": "Save {percentage}%",
   "@save": {
     "description": "Save percentage message",
@@ -532,27 +458,22 @@
       }
     }
   },
-  
   "subscribe": "Subscribe",
   "@subscribe": {
     "description": "Subscribe button"
   },
-  
   "restorePurchases": "Restore Purchases",
   "@restorePurchases": {
     "description": "Restore purchases button"
   },
-  
   "pleaseEnterName": "Please enter your name",
   "@pleaseEnterName": {
     "description": "Please enter name error"
   },
-  
   "pleaseEnterCrushName": "Please enter your crush's name",
   "@pleaseEnterCrushName": {
     "description": "Please enter crush name error"
   },
-  
   "shareMessage": "I got {percentage}% compatibility with {crushName} on Crush Scanner! 💕 Try it yourself: [App Link]",
   "@shareMessage": {
     "description": "Share message template",
@@ -633,9 +554,8 @@
   "@consecutiveDays": {
     "description": "Streak counter label"
   },
-  "totalScans": "Total scans",
   "@totalScans": {
-    "description": "Total scans counter label"
+    "description": "Total scans label"
   },
   "average": "Average",
   "@average": {
@@ -659,22 +579,20 @@
   },
   "perfectCompatibility": "Perfect Compatibility!",
   "@perfectCompatibility": {
-    "description": "Perfect compatibility message"
+    "description": "Compatibility level for 80%+ results"
   },
   "greatCompatibility": "Great Compatibility!",
   "@greatCompatibility": {
-    "description": "Great compatibility message"
+    "description": "Compatibility level for 60-79% results"
   },
   "goodCompatibility": "Good Compatibility",
   "@goodCompatibility": {
-    "description": "Good compatibility message"
+    "description": "Compatibility level for 40-59% results"
   },
   "share": "Share",
   "@share": {
     "description": "Share button text"
   },
-
-  "celebrityCrush": "Celebrity Crush",
   "@celebrityCrush": {
     "description": "Celebrity crush title"
   },
@@ -685,10 +603,6 @@
   "celebrityCrushDescription": "Discover your compatibility with the brightest stars of Hollywood and the entertainment world",
   "@celebrityCrushDescription": {
     "description": "Celebrity crush description"
-  },
-  "yourName": "Your name",
-  "@yourName": {
-    "description": "Your name field placeholder"
   },
   "chooseMyCommit": "Choose My Celebrity Crush ✨",
   "@chooseMyCommit": {
@@ -710,31 +624,14 @@
   "@andManyMore": {
     "description": "And many more text"
   },
-  "helloCelebrity": "Hello {userName}!",
-  "@helloCelebrity": {
-    "description": "Greeting with user name",
-    "placeholders": {
-      "userName": {
-        "type": "String"
-      }
-    }
-  },
-  "chooseCelebrityDescription": "Choose your celebrity crush and discover your compatibility",
   "@chooseCelebrityDescription": {
     "description": "Choose celebrity description"
   },
-  "searchCelebrity": "Search celebrity...",
   "@searchCelebrity": {
     "description": "Search celebrity placeholder"
   },
-  "errorGeneratingResult": "Error generating result. Please try again.",
   "@errorGeneratingResult": {
     "description": "Error generating result message"
-  },
-
-  "history": "History",
-  "@history": {
-    "description": "History title"
   },
   "noHistoryYet": "No history yet",
   "@noHistoryYet": {
@@ -797,12 +694,6 @@
   "@errorSharingResult": {
     "description": "Error sharing result message"
   },
-
-  "premium": "Premium",
-  "@premium": {
-    "description": "Premium title"
-  },
-  "goPremium": "Go Premium",
   "@goPremium": {
     "description": "Go premium button"
   },
@@ -890,7 +781,6 @@
   "@noPreviousPurchases": {
     "description": "No previous purchases message"
   },
-
   "magneticConnection": "💘 Magnetic Connection",
   "@magneticConnection": {
     "description": "Love horoscope title"
@@ -903,7 +793,6 @@
   "@magneticConnectionAdvice": {
     "description": "Love horoscope advice"
   },
-
   "dayOfRevelations": "✨ Day of Revelations",
   "@dayOfRevelations": {
     "description": "Love horoscope title"
@@ -916,7 +805,6 @@
   "@dayOfRevelationsAdvice": {
     "description": "Love horoscope advice"
   },
-
   "romanceInTheAir": "🌹 Romance in the Air",
   "@romanceInTheAir": {
     "description": "Love horoscope title"
@@ -929,7 +817,6 @@
   "@romanceInTheAirAdvice": {
     "description": "Love horoscope advice"
   },
-
   "destinyAligned": "💫 Destiny Aligned",
   "@destinyAligned": {
     "description": "Love horoscope title"
@@ -942,7 +829,6 @@
   "@destinyAlignedAdvice": {
     "description": "Love horoscope advice"
   },
-
   "butterfliesInStomach": "🦋 Butterflies in Your Stomach",
   "@butterfliesInStomach": {
     "description": "Love horoscope title"
@@ -955,7 +841,6 @@
   "@butterfliesInStomachAdvice": {
     "description": "Love horoscope advice"
   },
-
   "burningPassion": "🔥 Burning Passion",
   "@burningPassion": {
     "description": "Love horoscope title"
@@ -968,7 +853,6 @@
   "@burningPassionAdvice": {
     "description": "Love horoscope advice"
   },
-
   "authenticLove": "💎 Authentic Love",
   "@authenticLove": {
     "description": "Love horoscope title"
@@ -981,7 +865,6 @@
   "@authenticLoveAdvice": {
     "description": "Love horoscope advice"
   },
-
   "personalizedTipStreak": "🔥 Incredible {streak}-day streak! Your love energy is at its peak.",
   "@personalizedTipStreak": {
     "description": "Personalized tip for streak",
@@ -1017,7 +900,6 @@
   "@personalizedTipEncouragement": {
     "description": "Encouragement tip"
   },
-
   "fireStreak": "🔥 Fire Streak",
   "@fireStreak": {
     "description": "Achievement title"
@@ -1065,18 +947,12 @@
   "@romanceGuruDescription": {
     "description": "Achievement description"
   },
-
   "personalScannerTitle": "Personal Scanner",
   "personalCompatibilityTitle": "💕 Your Personal Compatibility 💕",
   "resultTitle": "Result",
-  "perfectCompatibility": "Perfect Compatibility!",
-  "greatCompatibility": "Great Compatibility!",
-  "goodCompatibility": "Good Compatibility",
   "thereIsPotential": "There Is Potential",
   "shareButton": "Share",
   "scanAgainButton": "Scan Again",
-  "shareError": "Error sharing. Please try again.",
-
   "@personalScannerTitle": {
     "description": "Title for personal scanner screen in app bar"
   },
@@ -1085,15 +961,6 @@
   },
   "@resultTitle": {
     "description": "Title for result screen in app bar"
-  },
-  "@perfectCompatibility": {
-    "description": "Compatibility level for 80%+ results"
-  },
-  "@greatCompatibility": {
-    "description": "Compatibility level for 60-79% results"
-  },
-  "@goodCompatibility": {
-    "description": "Compatibility level for 40-59% results"
   },
   "@thereIsPotential": {
     "description": "Compatibility level for under 40% results"
@@ -1104,10 +971,6 @@
   "@scanAgainButton": {
     "description": "Button to scan again"
   },
-  "@shareError": {
-    "description": "Error message when sharing fails"
-  },
-
   "celebrityMessage1": "OMG! Your compatibility with a celebrity is incredible 🌟",
   "celebrityMessage2": "Hollywood stars approve this combination ⭐",
   "celebrityMessage3": "Your celebrity crush could be your soulmate! 💫",
@@ -1123,7 +986,6 @@
   "celebrityMessage13": "Your celebrity crush approves this combination 💕",
   "celebrityMessage14": "Lights, camera, love! You have celebrity couple potential 🎥",
   "celebrityMessage15": "The celebrity universe conspires in your favor ✨",
-
   "romanticMessage1": "Your hearts beat in perfect rhythm! 💕",
   "romanticMessage2": "The stars align perfectly for you both ✨",
   "romanticMessage3": "There's a special connection waiting to be discovered 🌙",
@@ -1144,7 +1006,6 @@
   "romanticMessage18": "There's a cosmic connection that binds you 🌌",
   "romanticMessage19": "Love is writing its own story 📖",
   "romanticMessage20": "Your hearts speak a language only you understand 💬",
-
   "mysteriousMessage1": "Heart's secrets are about to be revealed... 🔮",
   "mysteriousMessage2": "Someone thinks of you more than you imagine 👁️",
   "mysteriousMessage3": "Universe's signals are trying to tell you something 🌠",
@@ -1165,7 +1026,6 @@
   "mysteriousMessage18": "A heart message is waiting to be sent 💌",
   "mysteriousMessage19": "Love's magic is creating invisible connections ✨",
   "mysteriousMessage20": "There's a romantic surprise on the horizon 🎁",
-
   "funMessage1": "Houston, we have a connection! 🚀",
   "funMessage2": "Your crush-o-meter is through the roof 📈",
   "funMessage3": "Heart alert! Danger of falling in love 🚨",
@@ -1186,7 +1046,6 @@
   "funMessage18": "Your love app just sent a notification 📲",
   "funMessage19": "Achievement unlocked! You've found your match 🏆",
   "funMessage20": "Heart's bluetooth has connected successfully 📶",
-
   "lowCompatibilityMessage1": "Sometimes differences create the perfect spark ⚡",
   "lowCompatibilityMessage2": "True love overcomes any percentage 💪",
   "lowCompatibilityMessage3": "Opposites attract and create magic 🧲",
@@ -1197,32 +1056,26 @@
   "lowCompatibilityMessage8": "Real love doesn't always follow statistics 📊",
   "lowCompatibilityMessage9": "There's room for something beautiful to grow 🌻",
   "lowCompatibilityMessage10": "The best romances start as friendship 👫",
-
   "changeAppTheme": "Change the app theme",
   "@changeAppTheme": {
     "description": "Theme toggle description in settings"
   },
-  
   "lightTheme": "Light Theme",
   "@lightTheme": {
     "description": "Light theme option"
   },
-  
   "darkTheme": "Dark Theme",
   "@darkTheme": {
     "description": "Dark theme option"
   },
-  
   "youArePremium": "You are Premium!",
   "@youArePremium": {
     "description": "Premium user status message"
   },
-  
   "enjoyAllFeatures": "Enjoy all features without limits",
   "@enjoyAllFeatures": {
     "description": "Premium user benefits description"
   },
-  
   "purchaseError": "Purchase error: {error}",
   "@purchaseError": {
     "description": "Purchase error message",
@@ -1232,52 +1085,42 @@
       }
     }
   },
-
   "storeNotAvailable": "The store is not available right now. Check your internet connection and try again.",
   "@storeNotAvailable": {
     "description": "Error when app store is not available"
   },
-
   "productNotConfigured": "This product is not available right now. Please try again later.",
   "@productNotConfigured": {
     "description": "Error when product ID is not found in store"
   },
-
   "purchaseAlreadyInProgress": "A purchase is already in progress. Please wait a moment.",
   "@purchaseAlreadyInProgress": {
     "description": "Error when user tries to buy while another purchase is pending"
   },
-
   "purchaseCouldNotStart": "Could not start the purchase. Please try again.",
   "@purchaseCouldNotStart": {
     "description": "Error when purchase flow fails to start"
   },
-
   "purchaseUnexpectedError": "An unexpected error occurred. Please try again later.",
   "@purchaseUnexpectedError": {
     "description": "Generic purchase error"
   },
-
   "purchaseStartedCompleteInStore": "Purchase started. Complete the payment in the store window.",
   "@purchaseStartedCompleteInStore": {
     "description": "Info message when purchase flow opens successfully"
   },
-  
   "getFullAccess": "Get full access to all special features",
   "@getFullAccess": {
     "description": "Premium description text"
   },
-  
   "specialOffer": "Special Offer",
   "@specialOffer": {
     "description": "Special offer label"
   },
-  
   "cancelAnytime": "Cancel anytime",
   "@cancelAnytime": {
     "description": "Cancel subscription anytime text"
   },
-  
   "support": "Support",
   "@support": {
     "description": "Support section title"
@@ -1286,67 +1129,47 @@
   "changeThemeSubtitle": "Change the app theme",
   "backgroundAnimationTitle": "Background Animation",
   "backgroundAnimationSubtitle": "Show floating flowers and hearts",
-  
   "helpAndQuestions": "Help & Questions",
   "@helpAndQuestions": {
     "description": "Help and questions menu item"
   },
-  
   "getHelpOnApp": "Get help on how to use the app",
   "@getHelpOnApp": {
     "description": "Help subtitle description"
   },
-  
   "helpDialogTitle": "💕 Help",
   "@helpDialogTitle": {
     "description": "Help dialog title"
   },
-  
   "helpDialogContent": "Crush Scanner is a fun app that estimates compatibility based on names.\\n\\n- Enter your name and your crush's name\\n- Tap \\\"Scan Love\\\"\\n- Check your compatibility result\\n- Share your favorite result\\n\\nThis app is for entertainment purposes.",
   "@helpDialogContent": {
     "description": "Help dialog content text"
   },
-  
   "understood": "Got it",
   "@understood": {
     "description": "Understood button text"
   },
-  
   "aboutDialogTitle": "💘 About",
   "@aboutDialogTitle": {
     "description": "About dialog title"
   },
-  
-  "aboutDialogContent": "Crush Scanner v1.0.0\n\nA fun app to discover love compatibility.\n\nMade with love by Perlaza Studio\n\n© 2025 Crush Scanner",
+  "aboutDialogContent": "Crush Scanner v1.0.0\n\nA fun app to discover love compatibility.\n\nMade with love by Perlaza Studio\n\n© 2026 Crush Scanner",
   "@aboutDialogContent": {
     "description": "About dialog content text"
   },
-  
-  "close": "Close",
   "@close": {
     "description": "Close button text"
   },
-
   "streakTitle": "Daily Streak",
   "@streakTitle": {
     "description": "Daily streak title"
   },
-  
-  "currentStreak": "Current Streak",
   "@currentStreak": {
     "description": "Current streak label"
   },
-  
-  "bestStreak": "Best Streak",
   "@bestStreak": {
     "description": "Best streak label"
   },
-  
-  "totalScans": "Total Scans",
-  "@totalScans": {
-    "description": "Total scans label"
-  },
-  
   "daysStreak": "{count, plural, =0{0 days} =1{1 day} other{{count} days}}",
   "@daysStreak": {
     "description": "Days in streak",
@@ -1356,27 +1179,22 @@
       }
     }
   },
-  
   "streakMaintain": "Don't break your streak!",
   "@streakMaintain": {
     "description": "Streak maintenance message"
   },
-  
   "streakAtRisk": "Streak at risk! Scan now to maintain it 🔥",
   "@streakAtRisk": {
     "description": "Streak at risk warning"
   },
-  
   "firstScanStreak": "🎉 Welcome! Your love journey begins now!",
   "@firstScanStreak": {
     "description": "First scan streak message"
   },
-  
   "streakBroken": "💔 Streak broken, but you're back! New streak started",
   "@streakBroken": {
     "description": "Streak broken message"
   },
-  
   "newStreakRecord": "🏆 NEW RECORD! {days} days streak! You're unstoppable!",
   "@newStreakRecord": {
     "description": "New streak record message",
@@ -1386,7 +1204,6 @@
       }
     }
   },
-  
   "streakContinues": "🔥 Streak continues! {days} days of love scanning!",
   "@streakContinues": {
     "description": "Streak continues message",
@@ -1396,192 +1213,153 @@
       }
     }
   },
-
   "loveAnalytics": "📊 Love Analytics",
   "@loveAnalytics": {
     "description": "Love Analytics screen title"
   },
-
   "premiumRequired": "✨ Premium Required",
   "@premiumRequired": {
     "description": "Premium required dialog title"
   },
-
   "premiumRequiredMessage": "This theme is available only for Premium users. Unlock all themes and more features!",
   "@premiumRequiredMessage": {
     "description": "Premium required dialog message"
   },
-
-  "viewPremium": "View Premium",
   "@viewPremium": {
     "description": "View premium button"
   },
-
   "analyticsPremium": "🔒 Analytics Premium",
   "@analyticsPremium": {
     "description": "Analytics premium title"
   },
-
   "unlockDeepInsights": "Unlock deep insights about your love life with advanced analytics, predictions and compatibility patterns.",
   "@unlockDeepInsights": {
     "description": "Analytics premium description"
   },
-
   "upgradeToPremiumAnalytics": "Upgrade to Premium",
   "@upgradeToPremiumAnalytics": {
     "description": "Upgrade to premium button for analytics"
   },
-
   "analyzingLoveLife": "Analyzing your love life...",
   "@analyzingLoveLife": {
     "description": "Analyzing love life loading message"
   },
-
   "errorLoadingAnalytics": "Error loading analytics",
   "@errorLoadingAnalytics": {
     "description": "Error loading analytics title"
   },
-
   "unknownErrorAnalytics": "Unknown error",
   "@unknownErrorAnalytics": {
     "description": "Unknown error message for analytics"
   },
-
   "retry": "Retry",
   "@retry": {
     "description": "Retry button"
   },
-
   "statisticsTab": "Statistics",
   "@statisticsTab": {
     "description": "Statistics tab label"
   },
-
   "insightsTab": "Insights",
   "@insightsTab": {
     "description": "Insights tab label"
   },
-
   "predictionsTab": "Predictions",
   "@predictionsTab": {
     "description": "Predictions tab label"
   },
-
   "totalScansAnalytics": "Total Scans",
   "@totalScansAnalytics": {
     "description": "Total scans analytics label"
   },
-
   "averageAnalytics": "Average",
   "@averageAnalytics": {
     "description": "Average analytics label"
   },
-
   "bestMatch": "Best Match",
   "@bestMatch": {
     "description": "Best match analytics label"
   },
-
   "celebritiesAnalytics": "Celebrities",
   "@celebritiesAnalytics": {
     "description": "Celebrities analytics label"
   },
-
   "compatibilityTrend": "📈 Compatibility Trend (30 days)",
   "@compatibilityTrend": {
     "description": "Compatibility trend chart title"
   },
-
   "notEnoughDataTrends": "Not enough data to show trends",
   "@notEnoughDataTrends": {
     "description": "Not enough data message for trends"
   },
-
   "last30Days": "Last 30 days",
   "@last30Days": {
     "description": "Last 30 days label"
   },
-
   "yourBestMatches": "🏆 Your Best Matches",
   "@yourBestMatches": {
     "description": "Your best matches section title"
   },
-
   "celebrity": "Celebrity",
   "@celebrity": {
     "description": "Celebrity label"
   },
-
   "personal": "Personal",
   "@personal": {
     "description": "Personal label"
   },
-
   "advancedAnalytics": "Advanced Analytics",
   "@advancedAnalytics": {
     "description": "Advanced analytics feature title"
   },
-
   "analyticsDescription": "Compatibility charts and statistics",
   "@analyticsDescription": {
     "description": "Advanced analytics feature description"
   },
-
   "cloudBackup": "Cloud Backup",
   "@cloudBackup": {
     "description": "Cloud backup feature title"
   },
-
   "cloudBackupDescription": "Your data safe and synchronized",
   "@cloudBackupDescription": {
     "description": "Cloud backup feature description"
   },
-
   "perMonth": "/month",
   "@perMonth": {
     "description": "Per month suffix"
   },
-
   "monthlyPrice": "$2.99",
   "@monthlyPrice": {
     "description": "Monthly price"
   },
-
   "unlockFullPotential": "Unlock the full potential of love!",
   "@unlockFullPotential": {
     "description": "Premium subtitle"
   },
-
   "purchasesRestoredSuccessfully": "Purchases restored successfully",
   "@purchasesRestoredSuccessfully": {
     "description": "Purchases restored success message"
   },
-
   "defaultPrice": "$2.99/month",
   "@defaultPrice": {
     "description": "Default price fallback"
   },
-
   "themesTitle": "🎨 Premium Themes",
   "@themesTitle": {
     "description": "Themes screen title"
   },
-
   "customizeExperience": "Customize your experience",
   "@customizeExperience": {
     "description": "Themes screen subtitle"
   },
-
   "currentTheme": "Current Theme",
   "@currentTheme": {
     "description": "Current theme label"
   },
-
   "active": "ACTIVE",
   "@active": {
     "description": "Active theme status"
   },
-
   "themeApplied": "Theme {themeName} applied",
   "@themeApplied": {
     "description": "Theme applied success message",
@@ -1591,87 +1369,70 @@
       }
     }
   },
-
   "classicThemeName": "💘 Classic",
   "@classicThemeName": {
     "description": "Classic theme name"
   },
-
   "classicThemeDescription": "The original love theme",
   "@classicThemeDescription": {
     "description": "Classic theme description"
   },
-
   "sunsetThemeName": "🌅 Sunset",
   "@sunsetThemeName": {
     "description": "Sunset theme name"
   },
-
   "sunsetThemeDescription": "Warm golden and orange tones",
   "@sunsetThemeDescription": {
     "description": "Sunset theme description"
   },
-
   "oceanThemeName": "🌊 Ocean",
   "@oceanThemeName": {
     "description": "Ocean theme name"
   },
-
   "oceanThemeDescription": "Deep marine blues",
   "@oceanThemeDescription": {
     "description": "Ocean theme description"
   },
-
   "forestThemeName": "🌲 Forest",
   "@forestThemeName": {
     "description": "Forest theme name"
   },
-
   "forestThemeDescription": "Natural and fresh greens",
   "@forestThemeDescription": {
     "description": "Forest theme description"
   },
-
   "lavenderThemeName": "💜 Lavender",
   "@lavenderThemeName": {
     "description": "Lavender theme name"
   },
-
   "lavenderThemeDescription": "Elegant purples and violets",
   "@lavenderThemeDescription": {
     "description": "Lavender theme description"
   },
-
   "cosmicThemeName": "🌌 Cosmic",
   "@cosmicThemeName": {
     "description": "Cosmic theme name"
   },
-
   "cosmicThemeDescription": "Mysterious deep space",
   "@cosmicThemeDescription": {
     "description": "Cosmic theme description"
   },
-
   "cherryThemeName": "🌸 Cherry",
   "@cherryThemeName": {
     "description": "Cherry theme name"
   },
-
   "cherryThemeDescription": "Elegant Japanese sakura pink",
   "@cherryThemeDescription": {
     "description": "Cherry theme description"
   },
-
   "goldenThemeName": "✨ Golden",
   "@goldenThemeName": {
     "description": "Golden theme name"
   },
-
   "goldenThemeDescription": "Luxury and golden elegance",
   "@goldenThemeDescription": {
     "description": "Golden theme description"
   },
-
   "scansToday": "Today's scans: {remaining}/{total}",
   "@scansToday": {
     "description": "Scans counter for today",
@@ -1684,7 +1445,6 @@
       }
     }
   },
-
   "scansRemaining": "{count} free scans remaining",
   "@scansRemaining": {
     "description": "Remaining scans message",
@@ -1694,22 +1454,17 @@
       }
     }
   },
-
-  "noScansLeft": "No scans left! Watch ads for more",
   "@noScansLeft": {
     "description": "No scans left message"
   },
-
   "premiumBenefits": "🚀 Unlimited scans • 🚫 No ads • ⭐ Exclusive content",
   "@premiumBenefits": {
     "description": "Premium benefits text"
   },
-
   "trialPeriod": "🎉 Trial Period!",
   "@trialPeriod": {
     "description": "Trial period banner title"
   },
-
   "unlimitedScansRemaining": "UNLIMITED scans for {days} more days",
   "@unlimitedScansRemaining": {
     "description": "Trial period remaining days message",
@@ -1719,8 +1474,6 @@
       }
     }
   },
-
-  "scansRemainingToday": "{count} scans remaining today",
   "@scansRemainingToday": {
     "description": "Scans remaining today message",
     "placeholders": {
@@ -1729,47 +1482,34 @@
       }
     }
   },
-
-  "limitReached": "Limit reached!",
   "@limitReached": {
     "description": "Daily limit reached message"
   },
-
-  "watchAdForMore": "Watch ad for +2 more",
   "@watchAdForMore": {
     "description": "Watch ad to get more scans"
   },
-
-  "upgradeForUnlimited": "You've used all your scans today. Upgrade to Premium for unlimited scans.",
   "@upgradeForUnlimited": {
     "description": "Upgrade to premium for unlimited scans"
   },
-
-  "watchAdOrUpgrade": "Watch ad or upgrade for more",
   "@watchAdOrUpgrade": {
     "description": "Options when limit is reached"
   },
-
   "premiumAnalytics": "Premium Analytics",
   "@premiumAnalytics": {
     "description": "Premium Analytics title"
   },
-
   "analyzeCompatibilityPatterns": "Analyze your compatibility patterns",
   "@analyzeCompatibilityPatterns": {
     "description": "Analytics subtitle"
   },
-
   "premiumThemes": "Premium Themes",
   "@premiumThemes": {
     "description": "Premium Themes title"
   },
-
   "customizeWithThemes": "Customize with 8 unique themes",
   "@customizeWithThemes": {
     "description": "Themes subtitle"
   },
-
   "sectionGeneral": "General",
   "sectionAudio": "Audio",
   "sectionData": "Data",
@@ -1786,7 +1526,11 @@
   "dataDeletedSuccess": "All data has been successfully deleted",
   "errorDeletingData": "Error deleting data: {error}",
   "@errorDeletingData": {
-    "placeholders": { "error": { "type": "Object" } }
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
   },
   "appVersionFooter": "Crush Scanner v1.0.0\nMade with 💕 for love",
   "welcomeNewUserTitle": "🎉 Welcome New User!",
@@ -1794,10 +1538,13 @@
   "unlimitedScansActive": "Unlimited Scans Active",
   "trialDaysRemaining": "{count, plural, =1{1 day remaining in trial} other{{count} days remaining in trial}}",
   "@trialDaysRemaining": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "trialEndingToday": "Trial ending today",
-  "newBadge": "NEW",
   "upgradeToPremiumPromo": "Upgrade to Premium",
   "watchAdToUnlockInsights": "Watch ad to unlock",
   "watchAdToUnlockPredictions": "Watch ad to unlock",
@@ -1809,33 +1556,57 @@
   "predictionsUnlocked": "✨ Predictions unlocked",
   "coinsClaimedMessage": "+{count} coins claimed.",
   "@coinsClaimedMessage": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "scanPackBoughtMessage": "You got +{scans} scans for {cost} coins.",
   "@scanPackBoughtMessage": {
     "placeholders": {
-      "scans": { "type": "int" },
-      "cost": { "type": "int" }
+      "scans": {
+        "type": "int"
+      },
+      "cost": {
+        "type": "int"
+      }
     }
   },
   "notEnoughCoinsCurrentPackMessage": "Not enough coins. Current pack costs {cost}.",
   "@notEnoughCoinsCurrentPackMessage": {
-    "placeholders": { "cost": { "type": "int" } }
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      }
+    }
   },
   "notEnoughCoinsThisPackMessage": "Not enough coins. This pack costs {cost}.",
   "@notEnoughCoinsThisPackMessage": {
-    "placeholders": { "cost": { "type": "int" } }
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      }
+    }
   },
   "dailyPackLimitReachedMessage": "Daily pack limit reached. Come back tomorrow.",
   "dailyPackLimitReachedTryTomorrowMessage": "Daily pack limit reached. Try again tomorrow.",
   "premiumUnlimitedScansMessage": "Premium already has unlimited scans.",
   "coinsEarnedMessage": "+{count} coins earned.",
   "@coinsEarnedMessage": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "coinsWonMessage": "+{count} coins earned",
   "@coinsWonMessage": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "noAdAvailableNowMessage": "No ad available now.",
   "loadingRetentionRewards": "Loading retention rewards...",
@@ -1843,25 +1614,43 @@
   "dailyRetentionRewardsTitle": "Daily retention rewards",
   "coinsLabel": "Coins: {count}",
   "@coinsLabel": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "streakDaysLabel": "Streak: {days}d",
   "@streakDaysLabel": {
-    "placeholders": { "days": { "type": "int" } }
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
   },
   "premiumScannerEconomyNotice": "Premium active: unlimited scans, no ads, faster coin progression. Use coins for Tournament perks.",
   "scanPackButtonLabel": "+{scans} scans ({cost}c) - {remaining} left",
   "@scanPackButtonLabel": {
     "placeholders": {
-      "scans": { "type": "int" },
-      "cost": { "type": "int" },
-      "remaining": { "type": "int" }
+      "scans": {
+        "type": "int"
+      },
+      "cost": {
+        "type": "int"
+      },
+      "remaining": {
+        "type": "int"
+      }
     }
   },
   "scanPackExhaustedToday": "Scan packs exhausted today",
   "adCoinsButtonLabel": "Ad +{count}c",
   "@adCoinsButtonLabel": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "dailyMissionsTitle": "Daily missions",
   "claimedLabel": "Claimed",
@@ -1882,7 +1671,6 @@
   "loveIntelligenceStudio": "Love Intelligence Studio",
   "tournament16UnlimitedTitle": "Unlimited 16-Player Tournaments",
   "tournament16UnlimitedDescription": "Play epic 16-player tournaments every day with no limits",
-
   "tournamentTitle": "🏆 Love Tournament",
   "tournamentWelcomeSubtitle": "Pit your crushes against each other in an epic tournament!",
   "tournamentDescription": "Enter your crushes' names and discover who is your ultimate match in an elimination tournament",

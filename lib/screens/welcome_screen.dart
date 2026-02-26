@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -11,7 +11,7 @@ import '../services/streak_service.dart';
 import '../services/monetization_service.dart';
 import '../services/admob_service.dart';
 import '../services/global_economy_service.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:scanner_crush/generated/l10n/app_localizations.dart';
 import 'form_screen.dart';
 import 'settings_screen.dart';
 import 'celebrity_form_screen.dart';
@@ -33,6 +33,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   late AnimationController _titleController;
   BannerAd? _bannerAd;
   bool _isBannerAdReady = false;
+  bool _hasPremiumAccess = false;
 
   @override
   void initState() {
@@ -47,13 +48,29 @@ class _WelcomeScreenState extends State<WelcomeScreen>
       vsync: this,
     )..forward();
 
-    // Load banner ad for non-premium users
-    _loadBannerAd();
+    _refreshPremiumState();
   }
 
-  void _loadBannerAd() async {
-    // Solo cargar banner ads para usuarios no premium
-    if (!await MonetizationService.instance.isPremiumAsync()) {
+  Future<void> _refreshPremiumState() async {
+    final isPremium = await MonetizationService.instance.isPremiumAsync();
+    if (!mounted) return;
+
+    setState(() {
+      _hasPremiumAccess = isPremium;
+    });
+
+    if (isPremium) {
+      _bannerAd?.dispose();
+      _bannerAd = null;
+      if (mounted) {
+        setState(() {
+          _isBannerAdReady = false;
+        });
+      }
+      return;
+    }
+
+    if (_bannerAd == null) {
       _bannerAd = AdMobService.instance.createBannerAd();
       _bannerAd?.load().then((_) {
         if (mounted) {
@@ -95,7 +112,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                       // Daily Love button
                       GestureDetector(
                         onTap: () async {
-                          // 🎵 Sonido de transición
+                          // ðŸŽµ Sonido de transiciÃ³n
                           AudioService.instance.playTransition();
 
                           try {
@@ -207,7 +224,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                       // Settings button
                       IconButton(
                         onPressed: () {
-                          // 🎵 Sonido de transición
+                          // ðŸŽµ Sonido de transiciÃ³n
                           AudioService.instance.playTransition();
 
                           Navigator.push(
@@ -237,7 +254,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                 // Streak card
                 _buildStreakCard(),
 
-                // Banner de límites
+                // Banner de lÃ­mites
                 _buildLimitsBanner(),
 
                 Padding(
@@ -405,7 +422,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
                             const SizedBox(height: 20),
 
-                            // Love Tournament 🏆
+                            // Love Tournament ðŸ†
                             _buildScanOption(
                               context: context,
                               title: AppLocalizations.of(context)!.tournamentTitle,
@@ -427,6 +444,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                               colors: [Colors.blue, Colors.blueAccent],
                               onTap: () => _navigateToAnalytics(context),
                               delay: 1800,
+                              isPremium: true,
                             ),
 
                             const SizedBox(height: 20),
@@ -440,6 +458,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                               colors: [Colors.purple, Colors.purpleAccent],
                               onTap: () => _navigateToThemes(context),
                               delay: 2000,
+                              isPremium: true,
                             ),
                           ],
                         ),
@@ -462,22 +481,14 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                 ),
 
                 // Banner Ad for non-premium users
-                FutureBuilder<bool>(
-                  future: MonetizationService.instance.isPremiumAsync(),
-                  builder: (context, snapshot) {
-                    final isPremium = snapshot.data ?? false;
-                    if (_bannerAd != null && _isBannerAdReady && !isPremium) {
-                      return Container(
-                        alignment: Alignment.center,
-                        width: _bannerAd!.size.width.toDouble(),
-                        height: _bannerAd!.size.height.toDouble(),
-                        margin: const EdgeInsets.only(bottom: 20),
-                        child: AdWidget(ad: _bannerAd!),
-                      );
-                    }
-                    return const SizedBox.shrink();
-                  },
-                ),
+                if (_bannerAd != null && _isBannerAdReady && !_hasPremiumAccess)
+                  Container(
+                    alignment: Alignment.center,
+                    width: _bannerAd!.size.width.toDouble(),
+                    height: _bannerAd!.size.height.toDouble(),
+                    margin: const EdgeInsets.only(bottom: 20),
+                    child: AdWidget(ad: _bannerAd!),
+                  ),
               ],
             ),
           ),
@@ -496,12 +507,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     required int delay,
     bool isPremium = false,
   }) {
-    return FutureBuilder<bool>(
-      future: MonetizationService.instance.isPremiumAsync(),
-      builder: (context, snapshot) {
-        final hasPremiumAccess = snapshot.data ?? false;
-        
-        return GestureDetector(
+    return GestureDetector(
           onTap: onTap,
           child: Container(
             width: double.infinity,
@@ -562,7 +568,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                               maxLines: 2,
                             ),
                           ),
-                          if (isPremium && !hasPremiumAccess) ...[
+                          if (isPremium && !_hasPremiumAccess) ...[
                             const SizedBox(width: 8),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -610,12 +616,10 @@ class _WelcomeScreenState extends State<WelcomeScreen>
         .animate()
         .fadeIn(delay: Duration(milliseconds: delay))
         .slideX(begin: 0.3, duration: 600.ms);
-      },
-    );
   }
 
   void _navigateToRegularScanner(BuildContext context) {
-    // 🎵 Sonido de transición
+    // ðŸŽµ Sonido de transiciÃ³n
     AudioService.instance.playTransition();
 
     Navigator.push(
@@ -637,12 +641,12 @@ class _WelcomeScreenState extends State<WelcomeScreen>
         },
       ),
     ).then((_) {
-      if (mounted) setState(() {});
+      _refreshPremiumState();
     });
   }
 
   void _navigateToCelebrityScanner(BuildContext context) {
-    // 🎵 Sonido de transición
+    // ðŸŽµ Sonido de transiciÃ³n
     AudioService.instance.playTransition();
 
     Navigator.push(
@@ -665,12 +669,12 @@ class _WelcomeScreenState extends State<WelcomeScreen>
         },
       ),
     ).then((_) {
-      if (mounted) setState(() {});
+      _refreshPremiumState();
     });
   }
 
   void _navigateToTournament(BuildContext context) {
-    // 🎵 Sonido de transición
+    // ðŸŽµ Sonido de transiciÃ³n
     AudioService.instance.playTransition();
 
     Navigator.push(
@@ -693,13 +697,13 @@ class _WelcomeScreenState extends State<WelcomeScreen>
         },
       ),
     ).then((_) {
-      if (mounted) setState(() {});
+      _refreshPremiumState();
     });
   }
 
   void _navigateToAnalytics(BuildContext context) async {
     // Abrir AnalyticsScreen siempre; el propio screen maneja el desbloqueo
-    // (estadísticas gratis; insights/predictions via premium o anuncio).
+    // (estadÃ­sticas gratis; insights/predictions via premium o anuncio).
     AudioService.instance.playTransition();
 
     Navigator.push(
@@ -719,11 +723,13 @@ class _WelcomeScreenState extends State<WelcomeScreen>
           );
         },
       ),
-    );
+    ).then((_) {
+      _refreshPremiumState();
+    });
   }
 
   void _navigateToThemes(BuildContext context) {
-    // 🎵 Sonido de transición
+    // ðŸŽµ Sonido de transiciÃ³n
     AudioService.instance.playTransition();
 
     Navigator.push(
@@ -743,7 +749,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
           );
         },
       ),
-    );
+    ).then((_) {
+      _refreshPremiumState();
+    });
   }
 
   Widget _buildCoinsChip() {
@@ -899,7 +907,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   }
 
   /// Show streak details dialog
-  /// Mostrar diálogo de detalles de racha
+  /// Mostrar diÃ¡logo de detalles de racha
   void _showStreakDetails() {
     showDialog(
       context: context,
@@ -993,7 +1001,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   }
 
   /// Show streak information dialog explaining what each statistic means
-  /// Mostrar diálogo de información de racha explicando qué significa cada estadística
+  /// Mostrar diÃ¡logo de informaciÃ³n de racha explicando quÃ© significa cada estadÃ­stica
   void _showStreakInfoDialog() {
     showDialog(
       context: context,
@@ -1102,7 +1110,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   }
 
   /// Build an information section for the streak info dialog
-  /// Construir una sección de información para el diálogo de información de racha
+  /// Construir una secciÃ³n de informaciÃ³n para el diÃ¡logo de informaciÃ³n de racha
   Widget _buildInfoSection({
     required IconData icon,
     required Color color,
@@ -1169,7 +1177,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   }
 
   /// Build a stat row for the streak dialog
-  /// Construir una fila de estadísticas para el diálogo de racha
+  /// Construir una fila de estadÃ­sticas para el diÃ¡logo de racha
   Widget _buildStatRow(String label, String value, IconData icon, Color color) {
     return Row(
       children: [
@@ -1209,7 +1217,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     );
   }
 
-  /// Banner de límites para usuarios regulares
+  /// Banner de lÃ­mites para usuarios regulares
   Widget _buildLimitsBanner() {
     return FutureBuilder<Map<String, dynamic>>(
       future: _getLimitsInfo(),
@@ -1307,3 +1315,4 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   }
 
 }
+

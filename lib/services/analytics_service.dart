@@ -4,7 +4,7 @@ import 'logger_service.dart';
 import '../models/crush_result.dart';
 import 'monetization_service.dart';
 import 'secure_time_service.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:scanner_crush/generated/l10n/app_localizations.dart';
 
 class AnalyticsService {
   static final AnalyticsService _instance = AnalyticsService._internal();
@@ -592,3 +592,4 @@ extension ListExtension<T> on List<T> {
     return sublist(length - count);
   }
 }
+

@@ -44,10 +44,9 @@
   "predictionTimeframeAsYouExplore": "A medida que explores",
   "predictionTimeframeNext3Months": "Próximos 3 meses",
   "predictionTimeframeNext2Months": "Próximos 2 meses",
-  "predictionTimeframeLoveJourney": "En tu viaje amoroso"
-,
-  "errorGeneratingResult": "Error generando resultado",
-  "celebrityCrush": "Crush de Celebridad",
+  "predictionTimeframeLoveJourney": "En tu viaje amoroso",
+  "errorGeneratingResult": "Error al generar resultado. Inténtalo de nuevo.",
+  "celebrityCrush": "Celebrity Crush",
   "helloCelebrity": "¡Hola {userName}!",
   "@helloCelebrity": {
     "description": "Saludo para la pantalla de celebridades",
@@ -57,7 +56,7 @@
       }
     }
   },
-  "chooseCelebrityDescription": "Elige tu celebridad favorita para ver tu compatibilidad!",
+  "chooseCelebrityDescription": "Elige tu celebrity crush y descubre tu compatibilidad",
   "searchCelebrity": "Buscar celebridad...",
   "noInsightsYet": "No hay insights todavía",
   "scanMoreForInsights": "Realiza más escaneos para obtener insights personalizados",
@@ -89,7 +88,9 @@
   "@errorLoadingLoveDay": {
     "description": "Mensaje de error al cargar el día del amor",
     "placeholders": {
-      "error": {"type": "Object"}
+      "error": {
+        "type": "Object"
+      }
     }
   },
   "ok": "OK",
@@ -134,7 +135,7 @@
   "settings": "Configuración",
   "history": "Historial",
   "premium": "Premium",
-  "yourName": "Tu Nombre",
+  "yourName": "Tu nombre",
   "enterYourName": "Ingresa tu nombre",
   "crushName": "Nombre de tu Crush",
   "enterCrushName": "Ingresa el nombre de tu crush",
@@ -184,12 +185,12 @@
   "upgrade": "Mejorar",
   "premiumOnly": "Solo Premium",
   "remainingScans": "¡Te quedan {count} escaneos hoy! 💕",
-  "noScansLeft": "¡Has explorado mucho amor hoy! 🌟",
+  "noScansLeft": "¡Sin escaneos gratis!",
   "useWisely": "Úsalos sabiamente o consigue más abajo 😉",
   "moreTomorrow": "Mañana tendrás 5 escaneos frescos esperándote, o puedes conseguir más ahora:",
   "watchShortAd": "Ver anuncio corto",
   "extraScansFree": "+2 escaneos gratis",
-  "unlimitedScans": "Escaneos ilimitados",
+  "unlimitedScans": "Escaneos Ilimitados",
   "premiumPriceText": "Premium por $2.99/mes",
   "waitUntilTomorrow": "Esperar hasta mañana",
   "freshScans": "5 escaneos frescos gratis",
@@ -200,8 +201,7 @@
   "watchAd": "Ver anuncio",
   "winExtraScans": "Gana +2 escaneos más",
   "extraScansWon": "¡+2 escaneos ganados!",
-  "goPremium": "Ir a Premium",
-  "unlimitedScans": "Escaneos ilimitados",
+  "goPremium": "Hazte Premium",
   "wait": "Esperar",
   "moreScansTomorrow": "Más escaneos mañana",
   "close": "Cerrar",
@@ -214,7 +214,6 @@
   "upgradeToPremium": "Actualizar a Premium",
   "unlockAllFeatures": "¡Desbloquea todas las funciones y disfruta la experiencia completa!",
   "premiumFeatures": "Funciones Premium",
-  "unlimitedScans": "Escaneos Ilimitados",
   "detailedAnalysis": "Análisis Detallado",
   "noAds": "Sin Anuncios",
   "exclusiveContent": "Contenido Exclusivo",
@@ -231,7 +230,7 @@
   "madeWithLove": "Hecho con 💕 para descubrir el amor",
   "regularScanSubtitle": "Descubre tu compatibilidad con alguien especial",
   "celebrityScanSubtitle": "Tu compatibilidad con las estrellas",
-  "formInstructions": "Ingresa tu nombre y el de esa persona especial para descubrir qué dice el corazón sobre su conexión",
+  "formInstructions": "Ingresa tu nombre y el de esa persona especial para descubrir qué dice el corazón sobre su conexión.",
   "scanLoveButton": "Escanear Amor ❤️",
   "personalAlgorithm": "✨ Algoritmo Personal ✨",
   "algorithmDescription": "Nuestro algoritmo del amor analiza la compatibilidad entre personas reales, basándose en energías, nombres y conexiones del corazón para revelar secretos románticos.",
@@ -245,7 +244,7 @@
   "goBack": "Volver",
   "yourLoveUniverse": "Tu Universo del Amor",
   "consecutiveDays": "Días seguidos",
-  "totalScans": "Escaneos totales",
+  "totalScans": "Escaneos Totales",
   "average": "Promedio",
   "personalizedTip": "Consejo Personalizado",
   "unlockedAchievements": "🏆 Logros Desbloqueados",
@@ -255,22 +254,13 @@
   "greatCompatibility": "¡Gran Compatibilidad!",
   "goodCompatibility": "Buena Compatibilidad",
   "share": "Compartir",
-
-  "celebrityCrush": "Celebrity Crush",
   "celebrityCrushTitle": "🌟 Celebrity Crush 🌟",
   "celebrityCrushDescription": "Descubre tu compatibilidad con las estrellas más brillantes de Hollywood y el mundo del entretenimiento",
-  "yourName": "Tu nombre",
   "chooseMyCommit": "Elegir Mi Celebrity Crush ✨",
   "celebrityMode": "✨ Celebrity Mode ✨",
   "celebrityModeDescription": "Nuestro algoritmo estelar analiza tu nombre y la energía cósmica de las celebridades para revelarte conexiones únicas del mundo del entretenimiento.",
   "popularCelebrities": "🎬 Celebridades Populares",
   "andManyMore": "Y muchos más...",
-  "helloCelebrity": "¡Hola {userName}!",
-  "chooseCelebrityDescription": "Elige tu celebrity crush y descubre tu compatibilidad",
-  "searchCelebrity": "Buscar celebridad...",
-  "errorGeneratingResult": "Error al generar resultado. Inténtalo de nuevo.",
-
-  "history": "Historial",
   "noHistoryYet": "Aún no hay historial",
   "noHistoryDescription": "Tus escaneos de compatibilidad aparecerán aquí",
   "startScanning": "Comenzar a Escanear",
@@ -285,9 +275,6 @@
   "historyCleared": "Historial limpiado exitosamente",
   "errorClearingHistory": "Error al limpiar historial",
   "errorSharingResult": "Error al compartir resultado",
-
-  "premium": "Premium",
-  "goPremium": "Hazte Premium",
   "premiumTitle": "Scanner Crush Premium",
   "premiumSubtitle": "¡Desbloquea todo el potencial del amor!",
   "noAdsTitle": "Sin Anuncios",
@@ -309,41 +296,32 @@
   "restorePurchasesButton": "Restaurar Compras",
   "processing": "Procesando...",
   "noPreviousPurchases": "No se encontraron compras anteriores",
-
   "magneticConnection": "💘 Conexión Magnética",
   "magneticConnectionMessage": "Hoy las energías del amor están especialmente fuertes. Es el momento perfecto para descubrir nuevas conexiones.",
   "magneticConnectionAdvice": "Mantén tu corazón abierto a las sorpresas del amor.",
-
   "dayOfRevelations": "✨ Día de Revelaciones",
   "dayOfRevelationsMessage": "Los secretos del corazón están listos para ser revelados. Alguien especial podría confesarte algo importante.",
   "dayOfRevelationsAdvice": "Presta atención a las señales sutiles de quien te rodea.",
-
   "romanceInTheAir": "🌹 Romance en el Aire",
   "romanceInTheAirMessage": "El universo conspira para crear momentos románticos. Tu crush podría estar pensando en ti más de lo que imaginas.",
   "romanceInTheAirAdvice": "Sé valiente y da el primer paso.",
-
   "destinyAligned": "💫 Destino Alineado",
   "destinyAlignedMessage": "Las estrellas se alinean para favorecer encuentros casuales que pueden cambiar tu vida amorosa.",
   "destinyAlignedAdvice": "Sal de tu zona de confort y socializa más.",
-
   "butterfliesInStomach": "🦋 Mariposas en el Estómago",
   "butterfliesInStomachMessage": "Hoy sentirás esas mariposas especiales. Tu intuición amorosa está en su punto más alto.",
   "butterfliesInStomachAdvice": "Confía en tus instintos del corazón.",
-
   "burningPassion": "🔥 Pasión Ardiente",
   "burningPassionMessage": "La energía romántica está al máximo. Es un día perfecto para expresar tus sentimientos.",
   "burningPassionAdvice": "No reprimas tus emociones, déjalas fluir.",
-
   "authenticLove": "💎 Amor Auténtico",
   "authenticLoveMessage": "Hoy puedes reconocer el amor verdadero. Las conexiones superficiales se desvanecen.",
   "authenticLoveAdvice": "Busca la profundidad en tus relaciones.",
-
   "personalizedTipStreak": "🔥 ¡Increíble racha de {streak} días! Tu energía amorosa está en su punto máximo.",
   "personalizedTipCompatibility": "⭐ Tu compatibilidad promedio es excelente ({compatibility}%). ¡Tienes buen ojo para el amor!",
   "personalizedTipScans": "💡 Con {scans} escaneos realizados, tu experiencia amorosa está creciendo. ¡Sigue explorando!",
   "personalizedTipGoodCompatibility": "💫 Tu compatibilidad promedio es buena. Confía en tus instintos amorosos.",
   "personalizedTipEncouragement": "🌱 Cada escaneo te acerca más a encontrar tu conexión perfecta. ¡No te rindas!",
-
   "fireStreak": "🔥 Racha de Fuego",
   "fireStreakDescription": "{days} días consecutivos",
   "loveExplorer": "🎯 Explorador del Amor",
@@ -352,22 +330,12 @@
   "compatibilityMasterDescription": "{average}% promedio",
   "romanceGuru": "👑 Gurú del Romance",
   "romanceGuruDescription": "Experto en el amor",
-
   "personalScannerTitle": "Escáner Personal",
   "personalCompatibilityTitle": "💕 Tu Compatibilidad Personal 💕",
-  "formInstructions": "Ingresa tu nombre y el de esa persona especial para descubrir qué dice el corazón sobre su conexión.",
-  "scanLoveButton": "Escanear Amor ❤️",
-  "personalAlgorithm": "✨ Algoritmo Personal ✨",
-  "algorithmDescription": "Nuestro algoritmo del amor analiza la compatibilidad entre personas reales, basándose en energías, nombres y conexiones del corazón para revelar secretos románticos.",
   "resultTitle": "Resultado",
-  "perfectCompatibility": "¡Compatibilidad Perfecta!",
-  "greatCompatibility": "¡Gran Compatibilidad!",
-  "goodCompatibility": "Buena Compatibilidad",
   "thereIsPotential": "Hay Potencial",
   "shareButton": "Compartir",
   "scanAgainButton": "Escanear Otra Vez",
-  "shareError": "Error al compartir. Inténtalo de nuevo.",
-
   "celebrityMessage1": "¡OMG! Tu compatibilidad con una celebridad es increíble 🌟",
   "celebrityMessage2": "Las estrellas de Hollywood aprueban esta combinación ⭐",
   "celebrityMessage3": "¡Tu crush famoso podría ser tu media naranja! 💫",
@@ -383,7 +351,6 @@
   "celebrityMessage13": "Tu crush famoso aprueba esta combinación 💕",
   "celebrityMessage14": "¡Luces, cámara, amor! Tienes potencial de pareja de famosos 🎥",
   "celebrityMessage15": "El universo de las celebridades conspira a tu favor ✨",
-
   "romanticMessage1": "¡Sus corazones laten al ritmo perfecto! 💕",
   "romanticMessage2": "Las estrellas se alinean perfectamente para ambos ✨",
   "romanticMessage3": "Hay una conexión especial esperando ser descubierta 🌙",
@@ -404,7 +371,6 @@
   "romanticMessage18": "Hay una conexión cósmica que los une 🌌",
   "romanticMessage19": "El amor está escribiendo su propia historia 📖",
   "romanticMessage20": "Sus corazones hablan un idioma que solo ustedes entienden 💬",
-
   "mysteriousMessage1": "Los secretos del corazón están a punto de revelarse... 🔮",
   "mysteriousMessage2": "Alguien piensa en ti más de lo que imaginas 👁️",
   "mysteriousMessage3": "Las señales del universo tratan de decirte algo 🌠",
@@ -425,7 +391,6 @@
   "mysteriousMessage18": "Un mensaje del corazón está esperando ser enviado 💌",
   "mysteriousMessage19": "La magia del amor está creando conexiones invisibles ✨",
   "mysteriousMessage20": "Hay una sorpresa romántica en el horizonte 🎁",
-
   "funMessage1": "¡Houston, tenemos una conexión! 🚀",
   "funMessage2": "Tu crush-ómetro está por las nubes 📈",
   "funMessage3": "¡Alerta corazón! Peligro de enamorarse 🚨",
@@ -446,7 +411,6 @@
   "funMessage18": "Tu app del amor acaba de enviarte una notificación 📲",
   "funMessage19": "¡Logro desbloqueado! Has encontrado tu match 🏆",
   "funMessage20": "El bluetooth del corazón se ha conectado con éxito 📶",
-
   "lowCompatibilityMessage1": "A veces las diferencias crean la chispa perfecta ⚡",
   "lowCompatibilityMessage2": "El amor verdadero supera cualquier porcentaje 💪",
   "lowCompatibilityMessage3": "Los opuestos se atraen y crean magia 🧲",
@@ -457,13 +421,10 @@
   "lowCompatibilityMessage8": "El amor real no siempre sigue las estadísticas 📊",
   "lowCompatibilityMessage9": "Hay espacio para que algo hermoso crezca 🌻",
   "lowCompatibilityMessage10": "Los mejores romances empiezan como amistad 👫",
-  
   "lightTheme": "Tema Claro",
   "darkTheme": "Tema Oscuro",
-  
   "youArePremium": "¡Eres Premium!",
   "enjoyAllFeatures": "Disfruta de todas las funciones sin límites",
-  
   "purchaseError": "Error en la compra: {error}",
   "storeNotAvailable": "La tienda no está disponible en este momento. Verifica tu conexión a internet e intenta de nuevo.",
   "productNotConfigured": "El producto no está disponible en este momento. Inténtalo más tarde.",
@@ -474,7 +435,6 @@
   "getFullAccess": "Obtén acceso completo a todas las funciones especiales",
   "specialOffer": "Oferta Especial",
   "cancelAnytime": "Cancela cuando quieras",
-  
   "support": "Soporte",
   "settingsHistorySubtitle": "Ver todos tus escaneos anteriores",
   "changeThemeSubtitle": "Cambiar el tema de la aplicacion",
@@ -485,13 +445,11 @@
   "helpDialogTitle": "💕 Ayuda",
   "helpDialogContent": "Escaner de Crush es una app divertida que estima compatibilidad con base en nombres.\\n\\n- Ingresa tu nombre y el de tu crush\\n- Toca \\\"Escanear Amor\\\"\\n- Revisa tu resultado de compatibilidad\\n- Comparte tu resultado favorito\\n\\nEsta app es solo para entretenimiento.",
   "understood": "Entendido",
-  "aboutDialogTitle": "💘 Acerca de", 
-  "aboutDialogContent": "Escáner de Crush v1.0.0\n\nUna aplicación divertida para descubrir la compatibilidad amorosa.\n\nHecha con amor por Perlaza Studio\n\n© 2025 Escáner de Crush",
-  "close": "Cerrar",
+  "aboutDialogTitle": "💘 Acerca de",
+  "aboutDialogContent": "Escáner de Crush v1.0.0\n\nUna aplicación divertida para descubrir la compatibilidad amorosa.\n\nHecha con amor por Perlaza Studio\n\n© 2026 Escáner de Crush",
   "streakTitle": "Racha Diaria",
   "currentStreak": "Racha Actual",
   "bestStreak": "Mejor Racha",
-  "totalScans": "Escaneos Totales",
   "daysStreak": "{count, plural, =0{0 días} =1{1 día} other{{count} días}}",
   "streakMaintain": "¡No rompas tu racha!",
   "streakAtRisk": "¡Racha en riesgo! Escanea ahora para mantenerla 🔥",
@@ -499,151 +457,77 @@
   "streakBroken": "💔 Racha rota, ¡pero regresaste! Nueva racha iniciada",
   "newStreakRecord": "🏆 ¡NUEVO RÉCORD! ¡{days} días de racha! ¡Eres imparable!",
   "streakContinues": "🔥 ¡La racha continúa! ¡{days} días escaneando amor!",
-
   "loveAnalytics": "📊 Love Analytics",
-
   "premiumRequired": "✨ Premium Requerido",
-
   "premiumRequiredMessage": "Este tema está disponible solo para usuarios Premium. ¡Desbloquea todos los temas y más funciones!",
-
   "viewPremium": "Ver Premium",
-
   "analyticsPremium": "🔒 Analytics Premium",
-
   "unlockDeepInsights": "Desbloquea insights profundos sobre tu vida amorosa con analytics avanzados, predicciones y patrones de compatibilidad.",
-
   "upgradeToPremiumAnalytics": "Upgrade a Premium",
-
   "analyzingLoveLife": "Analizando tu vida amorosa...",
-
   "errorLoadingAnalytics": "Error cargando analytics",
-
   "unknownErrorAnalytics": "Error desconocido",
-
   "retry": "Reintentar",
-
   "statisticsTab": "Estadísticas",
-
   "insightsTab": "Insights",
-
   "predictionsTab": "Predicciones",
-
   "totalScansAnalytics": "Total Escaneos",
-
   "averageAnalytics": "Promedio",
-
   "bestMatch": "Mejor Match",
-
   "celebritiesAnalytics": "Celebridades",
-
   "compatibilityTrend": "📈 Tendencia de Compatibilidad (30 días)",
-
   "notEnoughDataTrends": "No hay suficientes datos para mostrar tendencias",
-
   "last30Days": "Últimos 30 días",
-
   "yourBestMatches": "🏆 Tus Mejores Matches",
-
   "celebrity": "Celebrity",
-
   "personal": "Personal",
-
   "changeAppTheme": "Cambiar el tema de la aplicación",
-
   "advancedAnalytics": "Analytics Avanzados",
-
   "analyticsDescription": "Gráficos y estadísticas de compatibilidad",
-
   "cloudBackup": "Backup en la Nube",
-
   "cloudBackupDescription": "Tus datos seguros y sincronizados",
-
   "perMonth": "/mes",
-
   "monthlyPrice": "$2.99",
-
   "unlockFullPotential": "¡Desbloquea todo el potencial del amor!",
-
   "purchasesRestoredSuccessfully": "Compras restauradas exitosamente",
-
   "defaultPrice": "$2.99/mes",
-
   "themesTitle": "🎨 Temas Premium",
-
   "customizeExperience": "Personaliza tu experiencia",
-
   "currentTheme": "Tema Actual",
-
   "active": "ACTIVO",
-
   "themeApplied": "Tema {themeName} aplicado",
-
   "classicThemeName": "💘 Clásico",
-
   "classicThemeDescription": "El tema original de amor",
-
   "sunsetThemeName": "🌅 Aurora Pastel",
-
   "sunsetThemeDescription": "Tonos pastel con purpura",
-
   "oceanThemeName": "🌊 Océano",
-
   "oceanThemeDescription": "Profundos azules marinos",
-
   "forestThemeName": "🌲 Bosque",
-
   "forestThemeDescription": "Verdes naturales y frescos",
-
   "lavenderThemeName": "💜 Lavanda",
-
   "lavenderThemeDescription": "Elegantes púrpuras y violetas",
-
   "cosmicThemeName": "🌌 Cósmico",
-
   "cosmicThemeDescription": "Misterioso espacio profundo",
-
   "cherryThemeName": "🌸 Cerezo",
-
   "cherryThemeDescription": "Elegante rosa sakura japonés",
-
   "goldenThemeName": "✨ Dorado",
-
   "goldenThemeDescription": "Lujo y elegancia dorada",
-
   "scansToday": "Escaneos de hoy: {remaining}/{total}",
-
   "scansRemaining": "Quedan {count} escaneos gratis",
-
-  "noScansLeft": "¡Sin escaneos gratis!",
-
   "premiumBenefits": "🚀 Escaneos ilimitados • 🚫 Sin anuncios • ⭐ Contenido exclusivo",
-
   "trialPeriod": "🎉 ¡Período de Prueba!",
-
   "unlimitedScansRemaining": "Escaneos ILIMITADOS por {days} días más",
-
   "scansRemainingToday": "{count} escaneos restantes hoy",
-
   "limitReached": "¡Límite alcanzado!",
-
   "watchAdForMore": "Ver anuncio para +2 más",
-
   "upgradeForUnlimited": "Has usado todos tus escaneos de hoy. Hazte Premium para escaneos ilimitados.",
-
   "watchAdForScans": "Ver anuncio (+2 escaneos)",
-
   "noAdsAvailable": "No hay anuncios disponibles. Intenta más tarde.",
-
   "watchAdOrUpgrade": "Ve anuncio o upgradea para más",
-
   "premiumAnalytics": "Analytics Premium",
-
   "analyzeCompatibilityPatterns": "Analiza tus patrones de compatibilidad",
-
   "premiumThemes": "Temas Premium",
-
   "customizeWithThemes": "Personaliza con 8 temas únicos",
-
   "sectionGeneral": "General",
   "sectionAudio": "Audio",
   "sectionData": "Datos",
@@ -660,7 +544,11 @@
   "dataDeletedSuccess": "Todos los datos han sido eliminados exitosamente",
   "errorDeletingData": "Error al eliminar datos: {error}",
   "@errorDeletingData": {
-    "placeholders": { "error": { "type": "Object" } }
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
   },
   "appVersionFooter": "Escáner de Crush v1.0.0\nHecho con 💕 para el amor",
   "welcomeNewUserTitle": "🎉 ¡Bienvenido Usuario Nuevo!",
@@ -668,7 +556,11 @@
   "unlimitedScansActive": "Escaneos Ilimitados Activos",
   "trialDaysRemaining": "{count, plural, =1{Queda 1 día de prueba} other{Quedan {count} días de prueba}}",
   "@trialDaysRemaining": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "trialEndingToday": "Prueba termina hoy",
   "upgradeToPremiumPromo": "Upgrade a Premium",
@@ -682,33 +574,57 @@
   "predictionsUnlocked": "✨ Predicciones desbloqueadas",
   "coinsClaimedMessage": "+{count} coins reclamadas.",
   "@coinsClaimedMessage": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "scanPackBoughtMessage": "Ganaste +{scans} escaneos por {cost} coins.",
   "@scanPackBoughtMessage": {
     "placeholders": {
-      "scans": { "type": "int" },
-      "cost": { "type": "int" }
+      "scans": {
+        "type": "int"
+      },
+      "cost": {
+        "type": "int"
+      }
     }
   },
   "notEnoughCoinsCurrentPackMessage": "No tienes suficientes coins. El pack actual cuesta {cost}.",
   "@notEnoughCoinsCurrentPackMessage": {
-    "placeholders": { "cost": { "type": "int" } }
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      }
+    }
   },
   "notEnoughCoinsThisPackMessage": "No tienes suficientes coins. Este pack cuesta {cost}.",
   "@notEnoughCoinsThisPackMessage": {
-    "placeholders": { "cost": { "type": "int" } }
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      }
+    }
   },
   "dailyPackLimitReachedMessage": "Limite diario de packs alcanzado. Vuelve manana.",
   "dailyPackLimitReachedTryTomorrowMessage": "Limite diario de packs alcanzado. Intenta manana.",
   "premiumUnlimitedScansMessage": "Premium ya tiene escaneos ilimitados.",
   "coinsEarnedMessage": "+{count} coins ganadas.",
   "@coinsEarnedMessage": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "coinsWonMessage": "+{count} coins ganadas",
   "@coinsWonMessage": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "noAdAvailableNowMessage": "No hay anuncio disponible ahora.",
   "loadingRetentionRewards": "Cargando recompensas de retencion...",
@@ -716,25 +632,43 @@
   "dailyRetentionRewardsTitle": "Recompensas de retencion diaria",
   "coinsLabel": "Coins: {count}",
   "@coinsLabel": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "streakDaysLabel": "Racha: {days}d",
   "@streakDaysLabel": {
-    "placeholders": { "days": { "type": "int" } }
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
   },
   "premiumScannerEconomyNotice": "Premium activo: escaneos ilimitados, sin anuncios y progreso de coins acelerado. Usa tus coins en ventajas del Torneo.",
   "scanPackButtonLabel": "+{scans} escaneos ({cost}c) - {remaining} disponibles",
   "@scanPackButtonLabel": {
     "placeholders": {
-      "scans": { "type": "int" },
-      "cost": { "type": "int" },
-      "remaining": { "type": "int" }
+      "scans": {
+        "type": "int"
+      },
+      "cost": {
+        "type": "int"
+      },
+      "remaining": {
+        "type": "int"
+      }
     }
   },
   "scanPackExhaustedToday": "Packs de escaneo agotados hoy",
   "adCoinsButtonLabel": "Anuncio +{count}c",
   "@adCoinsButtonLabel": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "dailyMissionsTitle": "Misiones diarias",
   "claimedLabel": "Reclamada",
@@ -755,7 +689,6 @@
   "loveIntelligenceStudio": "Estudio de Inteligencia del Amor",
   "tournament16UnlimitedTitle": "Torneos de 16 Ilimitados",
   "tournament16UnlimitedDescription": "Juega torneos epicos de 16 jugadores todos los dias sin limites",
-
   "tournamentTitle": "🏆 Torneo del Amor",
   "tournamentWelcomeSubtitle": "¡Enfrenta a tus crushes en un torneo épico!",
   "tournamentDescription": "Ingresa los nombres de tus crushes y descubre quién es tu match definitivo en un torneo de eliminación",

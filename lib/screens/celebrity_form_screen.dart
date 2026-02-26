@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/services.dart';
@@ -9,7 +9,7 @@ import '../services/monetization_service.dart';
 import '../services/admob_service.dart';
 import '../services/scanner_economy_service.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:scanner_crush/generated/l10n/app_localizations.dart';
 import 'celebrity_screen.dart';
 import 'premium_screen.dart';
 import '../widgets/scanner_economy_panel.dart';
@@ -55,7 +55,7 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
       return;
     }
 
-    // 🔒 Validar si puede escanear hoy (monetización)
+    // ðŸ”’ Validar si puede escanear hoy (monetizaciÃ³n)
     final canScan = await MonetizationService.instance.canScanToday();
     
     if (!canScan) {
@@ -617,6 +617,7 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
     );
   }
 }
+
 
 
 

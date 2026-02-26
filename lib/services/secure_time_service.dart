@@ -22,7 +22,7 @@ class SecureTimeService {
   final List<String> _timeServers = [
     'https://worldtimeapi.org/api/timezone/UTC',
     'https://timeapi.io/api/Time/current/coordinate?latitude=0&longitude=0',
-    'http://worldclockapi.com/api/json/utc/now',
+    'https://timeapi.io/api/Time/current/zone?timeZone=UTC',
   ];
 
   Future<void> initialize() async {
@@ -99,8 +99,6 @@ class SecureTimeService {
           timeString = data['utc_datetime'];
         } else if (url.contains('timeapi.io')) {
           timeString = data['dateTime'];
-        } else if (url.contains('worldclockapi.com')) {
-          timeString = data['currentDateTime'];
         }
 
         if (timeString != null) {
@@ -139,12 +137,12 @@ class SecureTimeService {
         final elapsedSinceStart = currentLocalTime.difference(_appStartTime!);
         // Limitar el tiempo transcurrido a máximo 24 horas desde el inicio
         final safeElapsed = Duration(
-          milliseconds: elapsedSinceStart.inMilliseconds.clamp(0, 24 * 60 * 60 * 1000)
+          milliseconds: elapsedSinceStart.inMilliseconds.clamp(0, 24 * 60 * 60 * 1000),
         );
-        return DateTime(2026, 2, 1).add(safeElapsed); // Fecha base actualizada
+        return _appStartTime!.add(safeElapsed);
       }
-      
-      return DateTime(2026, 2, 1); // Fecha base conservadora
+
+      return currentLocalTime;
     }
 
     // DETECCIÓN PRINCIPAL DE MANIPULACIÓN
@@ -178,9 +176,10 @@ class SecureTimeService {
       if (totalElapsedSinceStart.abs() > const Duration(hours: 2)) {
         _manipulationDetections++;
         
-        // Usar tiempo muy conservador
-        final safeTime = DateTime(2025, 9, 7).add(
-          Duration(minutes: totalElapsedSinceStart.inMinutes.clamp(0, 120))
+        // Usar tiempo conservador anclado al último valor válido disponible.
+        final baseline = _lastKnownServerTime ?? _appStartTime ?? currentLocalTime;
+        final safeTime = baseline.add(
+          Duration(minutes: totalElapsedSinceStart.inMinutes.clamp(0, 120)),
         );
         
         _lastLocalTime = currentLocalTime;

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:share_plus/share_plus.dart';
@@ -11,7 +11,7 @@ import '../services/admob_service.dart';
 import '../services/secure_time_service.dart';
 import '../screens/premium_screen.dart';
 import '../models/crush_result.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:scanner_crush/generated/l10n/app_localizations.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -26,7 +26,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   bool _isLoading = true;
   BannerAd? _bannerAd;
   bool _isBannerAdReady = false;
-  static const int _freeHistoryLimit = 10; // Límite para usuarios gratuitos
+  static const int _freeHistoryLimit = 10; // LÃ­mite para usuarios gratuitos
   bool _isPremium = false;
 
   @override
@@ -72,12 +72,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
     try {
       final allResults = await CrushService.instance.getAllSavedResults();
       
-      // Aplicar límite para usuarios no premium
+      // Aplicar lÃ­mite para usuarios no premium
       List<CrushResult> displayResults;
       if (MonetizationService.instance.isPremium) {
-        displayResults = allResults; // Sin límites para premium
+        displayResults = allResults; // Sin lÃ­mites para premium
       } else {
-        // Solo mostrar los últimos 10 resultados para usuarios gratuitos
+        // Solo mostrar los Ãºltimos 10 resultados para usuarios gratuitos
         displayResults = allResults.take(_freeHistoryLimit).toList();
       }
       
@@ -87,7 +87,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         _isLoading = false;
       });
 
-      // Track que el usuario abrió el historial
+      // Track que el usuario abriÃ³ el historial
       AdMobService.instance.trackUserAction();
     } catch (e) {
       if (!mounted) return;
@@ -204,7 +204,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     ),
                   ),
 
-                  // Banner Ad solo si NO está en periodo de prueba ni premium
+                  // Banner Ad solo si NO estÃ¡ en periodo de prueba ni premium
                   if (_bannerAd != null && _isBannerAdReady && !_isPremium) ...[
                     Container(
                       alignment: Alignment.center,
@@ -365,7 +365,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            '🔒 Historial Completo',
+            'ðŸ”’ Historial Completo',
             style: GoogleFonts.poppins(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -375,7 +375,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Upgrade a Premium para ver tu historial completo sin límites',
+            'Upgrade a Premium para ver tu historial completo sin lÃ­mites',
             style: GoogleFonts.poppins(
               fontSize: 14,
               color: ThemeService.instance.subtitleColor,
@@ -538,3 +538,4 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 }
+

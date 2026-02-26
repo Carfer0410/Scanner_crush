@@ -1,4 +1,4 @@
-import 'dart:math';
+﻿import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -10,7 +10,7 @@ import '../services/admob_service.dart';
 import '../services/monetization_service.dart';
 import '../services/analytics_service.dart';
 import '../widgets/custom_widgets.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:scanner_crush/generated/l10n/app_localizations.dart';
 import 'tournament_match_screen.dart';
 import 'tournament_result_screen.dart';
 
@@ -31,25 +31,25 @@ class _TournamentBracketScreenState extends State<TournamentBracketScreen> {
 
   // Battle hype phrases for the "Next Match" area
   static const List<String> _hypePhrasesEs = [
-    '⚔️ ¡El siguiente duelo del amor espera!',
-    '🔥 ¡Prepárate para la batalla!',
-    '💘 ¿Quién conquistará el corazón?',
-    '⚡ ¡Los corazones se aceleran!',
-    '🌟 ¡El destino está por decidirse!',
-    '💫 ¡Que empiece la magia!',
-    '👑 ¡Solo uno puede avanzar!',
-    '🎯 ¡El amor está en juego!',
+    'âš”ï¸ Â¡El siguiente duelo del amor espera!',
+    'ðŸ”¥ Â¡PrepÃ¡rate para la batalla!',
+    'ðŸ’˜ Â¿QuiÃ©n conquistarÃ¡ el corazÃ³n?',
+    'âš¡ Â¡Los corazones se aceleran!',
+    'ðŸŒŸ Â¡El destino estÃ¡ por decidirse!',
+    'ðŸ’« Â¡Que empiece la magia!',
+    'ðŸ‘‘ Â¡Solo uno puede avanzar!',
+    'ðŸŽ¯ Â¡El amor estÃ¡ en juego!',
   ];
 
   static const List<String> _hypePhrasesEn = [
-    '⚔️ The next love duel awaits!',
-    '🔥 Get ready for battle!',
-    '💘 Who will conquer the heart?',
-    '⚡ Hearts are racing!',
-    '🌟 Destiny is about to decide!',
-    '💫 Let the magic begin!',
-    '👑 Only one can advance!',
-    '🎯 Love is on the line!',
+    'âš”ï¸ The next love duel awaits!',
+    'ðŸ”¥ Get ready for battle!',
+    'ðŸ’˜ Who will conquer the heart?',
+    'âš¡ Hearts are racing!',
+    'ðŸŒŸ Destiny is about to decide!',
+    'ðŸ’« Let the magic begin!',
+    'ðŸ‘‘ Only one can advance!',
+    'ðŸŽ¯ Love is on the line!',
   ];
 
   @override
@@ -109,7 +109,7 @@ class _TournamentBracketScreenState extends State<TournamentBracketScreen> {
 
     setState(() => _showingMatch = false);
 
-    // Check if round just completed — show interstitial between rounds
+    // Check if round just completed â€” show interstitial between rounds
     if (widget.tournament.isCurrentRoundComplete &&
         !widget.tournament.isComplete) {
       _tryShowInterstitialBetweenRounds();
@@ -180,7 +180,7 @@ class _TournamentBracketScreenState extends State<TournamentBracketScreen> {
                     leading: CircleAvatar(
                       backgroundColor: ThemeService.instance.primaryColor.withOpacity(0.2),
                       child: Text(
-                        p.isCelebrity ? '⭐' : '💕',
+                        p.isCelebrity ? 'â­' : 'ðŸ’•',
                         style: const TextStyle(fontSize: 20),
                       ),
                     ),
@@ -242,18 +242,18 @@ class _TournamentBracketScreenState extends State<TournamentBracketScreen> {
               const SizedBox(height: 12),
               if (isPremium)
                 ListTile(
-                  leading: const Text('👑'),
-                  title: Text(isEn ? 'Premium Instant Revive' : 'Revive Instantáneo Premium'),
+                  leading: const Text('ðŸ‘‘'),
+                  title: Text(isEn ? 'Premium Instant Revive' : 'Revive InstantÃ¡neo Premium'),
                   onTap: () => Navigator.pop(ctx, 'premium'),
                 ),
               ListTile(
-                leading: const Text('🪙'),
+                leading: const Text('ðŸª™'),
                 title: Text(isEn ? 'Use coins' : 'Usar coins'),
                 subtitle: Text('${TournamentService.instance.reviveCoinCost} coins (balance: ${pass.coins})'),
                 onTap: () => Navigator.pop(ctx, 'coins'),
               ),
               ListTile(
-                leading: const Text('🎬'),
+                leading: const Text('ðŸŽ¬'),
                 title: Text(isEn ? 'Watch rewarded ad' : 'Ver anuncio con recompensa'),
                 onTap: () => Navigator.pop(ctx, 'ad'),
               ),
@@ -282,7 +282,7 @@ class _TournamentBracketScreenState extends State<TournamentBracketScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(success
-              ? '💫 ${selected.name} ${loc.tournamentRevived}'
+              ? 'ðŸ’« ${selected.name} ${loc.tournamentRevived}'
               : (isEn ? 'Revive unavailable.' : 'Revive no disponible.')),
           backgroundColor: success ? Colors.green : Colors.orange,
           behavior: SnackBarBehavior.floating,
@@ -307,7 +307,7 @@ class _TournamentBracketScreenState extends State<TournamentBracketScreen> {
         SnackBar(
           content: Text(
             result == CoinSpendResult.success
-                ? '💫 ${selected.name} ${loc.tournamentRevived}'
+                ? 'ðŸ’« ${selected.name} ${loc.tournamentRevived}'
                 : result == CoinSpendResult.insufficientCoins
                     ? (isEn ? 'Not enough coins.' : 'No tienes suficientes coins.')
                     : (isEn ? 'Revive unavailable right now.' : 'Revive no disponible ahora.'),
@@ -336,7 +336,7 @@ class _TournamentBracketScreenState extends State<TournamentBracketScreen> {
           setState(() {});
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('💫 ${selected.name} ${loc.tournamentRevived}'),
+              content: Text('ðŸ’« ${selected.name} ${loc.tournamentRevived}'),
               backgroundColor: Colors.green,
               behavior: SnackBarBehavior.floating,
               duration: const Duration(seconds: 2),
@@ -368,7 +368,7 @@ class _TournamentBracketScreenState extends State<TournamentBracketScreen> {
     if (!adShown && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(isEn ? 'Ad not available. Try again later.' : 'Anuncio no disponible, inténtalo más tarde.'),
+          content: Text(isEn ? 'Ad not available. Try again later.' : 'Anuncio no disponible, intÃ©ntalo mÃ¡s tarde.'),
           backgroundColor: Colors.grey.shade700,
           behavior: SnackBarBehavior.floating,
           duration: const Duration(seconds: 2),
@@ -446,7 +446,7 @@ class _TournamentBracketScreenState extends State<TournamentBracketScreen> {
                         height: 34,
                         child: ElevatedButton.icon(
                           onPressed: _offerRevive,
-                          icon: const Text('💫', style: TextStyle(fontSize: 16)),
+                          icon: const Text('ðŸ’«', style: TextStyle(fontSize: 16)),
                           label: Text(
                             Localizations.localeOf(context).languageCode == 'en'
                                 ? 'Revive'
@@ -623,7 +623,7 @@ class _TournamentBracketScreenState extends State<TournamentBracketScreen> {
                               const SizedBox(height: 8),
                               // Preview: who's next
                               Text(
-                                '${tournament.currentMatch!.participant1.name}  ⚔️  ${tournament.currentMatch!.participant2.name}',
+                                '${tournament.currentMatch!.participant1.name}  âš”ï¸  ${tournament.currentMatch!.participant2.name}',
                                 style: GoogleFonts.poppins(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w500,
@@ -651,7 +651,7 @@ class _TournamentBracketScreenState extends State<TournamentBracketScreen> {
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      const Text('⚔️',
+                                      const Text('âš”ï¸',
                                           style: TextStyle(fontSize: 22)),
                                       const SizedBox(width: 10),
                                       Text(
@@ -747,7 +747,7 @@ class _TournamentBracketScreenState extends State<TournamentBracketScreen> {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
-                isEn ? '🔥 Close match!' : '🔥 ¡Duelo reñido!',
+                isEn ? 'ðŸ”¥ Close match!' : 'ðŸ”¥ Â¡Duelo reÃ±ido!',
                 style: GoogleFonts.poppins(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
@@ -772,7 +772,7 @@ class _TournamentBracketScreenState extends State<TournamentBracketScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   child: Text(
-                    match.isPlayed ? '✓' : 'VS',
+                    match.isPlayed ? 'âœ“' : 'VS',
                     style: GoogleFonts.poppins(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
@@ -800,7 +800,7 @@ class _TournamentBracketScreenState extends State<TournamentBracketScreen> {
             Padding(
               padding: const EdgeInsets.only(top: 6),
               child: Text(
-                isEn ? '⚡ Dominant victory!' : '⚡ ¡Victoria aplastante!',
+                isEn ? 'âš¡ Dominant victory!' : 'âš¡ Â¡Victoria aplastante!',
                 style: GoogleFonts.poppins(
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
@@ -822,7 +822,7 @@ class _TournamentBracketScreenState extends State<TournamentBracketScreen> {
     return Row(
       children: [
         Text(
-          participant.isCelebrity ? '⭐' : '💕',
+          participant.isCelebrity ? 'â­' : 'ðŸ’•',
           style: const TextStyle(fontSize: 18),
         ),
         const SizedBox(width: 10),
@@ -851,7 +851,7 @@ class _TournamentBracketScreenState extends State<TournamentBracketScreen> {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              '💫',
+              'ðŸ’«',
               style: const TextStyle(fontSize: 12),
             ),
           ),
@@ -875,7 +875,7 @@ class _TournamentBracketScreenState extends State<TournamentBracketScreen> {
           ),
         if (isWinner) ...[
           const SizedBox(width: 6),
-          const Text('👑', style: TextStyle(fontSize: 16)),
+          const Text('ðŸ‘‘', style: TextStyle(fontSize: 16)),
         ],
       ],
     );
@@ -917,3 +917,4 @@ class _TournamentBracketScreenState extends State<TournamentBracketScreen> {
     );
   }
 }
+

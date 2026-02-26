@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -14,7 +14,7 @@ import '../services/streak_service.dart';
 import '../services/monetization_service.dart';
 import '../services/admob_service.dart';
 import '../services/crush_service.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:scanner_crush/generated/l10n/app_localizations.dart';
 import 'premium_screen.dart';
 import 'history_screen.dart';
 
@@ -219,7 +219,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                     const SizedBox(height: 30),
 
-                    // 🎵 NUEVA SECCIÓN DE AUDIO
+                    // ðŸŽµ NUEVA SECCIÃ“N DE AUDIO
                     _buildSettingsSection(
                       title: AppLocalizations.of(context)!.sectionAudio,
                       items: [
@@ -480,7 +480,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  AppLocalizations.of(context)?.upgradeToPremium ?? '✨ Upgrade to Premium',
+                                  AppLocalizations.of(context)?.upgradeToPremium ?? 'âœ¨ Upgrade to Premium',
                                   style: GoogleFonts.poppins(
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,
@@ -691,14 +691,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
     setState(() {});
   }
 
-  // 🎵 NUEVOS MÉTODOS DE AUDIO
+  // ðŸŽµ NUEVOS MÃ‰TODOS DE AUDIO
   void _toggleSoundEffects() async {
     await AudioService.instance.setSoundEnabled(
       !AudioService.instance.soundEnabled,
     );
     setState(() {});
 
-    // Reproducir sonido de prueba si se activó
+    // Reproducir sonido de prueba si se activÃ³
     if (AudioService.instance.soundEnabled) {
       AudioService.instance.playButtonTap();
     }
@@ -740,7 +740,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: const Text('🇪🇸'),
+                leading: const Text('ðŸ‡ªðŸ‡¸'),
                 title: Text(
                   AppLocalizations.of(context)!.spanish,
                   style: TextStyle(color: textColor),
@@ -758,7 +758,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 },
               ),
               ListTile(
-                leading: const Text('🇺🇸'),
+                leading: const Text('ðŸ‡ºðŸ‡¸'),
                 title: Text(
                   AppLocalizations.of(context)!.english,
                   style: TextStyle(color: textColor),
@@ -983,7 +983,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         'best_streak',
 
         // Daily love service keys
-        'total_compatibility', // Agregado para limpiar estadísticas de compatibilidad
+        'total_compatibility', // Agregado para limpiar estadÃ­sticas de compatibilidad
 
         // History keys (assuming they follow a pattern)
         'crush_history',
@@ -1065,5 +1065,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 }
+
 
 

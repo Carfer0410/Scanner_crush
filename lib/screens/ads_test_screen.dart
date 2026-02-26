@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:scanner_crush/generated/l10n/app_localizations.dart';
 import '../services/admob_service.dart';
 import '../services/monetization_service.dart';
 import '../services/theme_service.dart';
@@ -58,11 +58,11 @@ class _AdsTestScreenState extends State<AdsTestScreen> {
   }
 
   Future<void> _testBannerAd() async {
-    _addResult(AppLocalizations.of(context)?.testingBannerAd ?? "🎯 Testing Banner Ad...");
+    _addResult(AppLocalizations.of(context)?.testingBannerAd ?? "ðŸŽ¯ Testing Banner Ad...");
     if (_bannerAd != null && _isBannerLoaded) {
-      _addResult(AppLocalizations.of(context)?.bannerAdWorking ?? "✅ Banner Ad está funcionando");
+      _addResult(AppLocalizations.of(context)?.bannerAdWorking ?? "âœ… Banner Ad estÃ¡ funcionando");
     } else {
-      _addResult(AppLocalizations.of(context)?.bannerAdNotLoaded ?? "❌ Banner Ad no está cargado");
+      _addResult(AppLocalizations.of(context)?.bannerAdNotLoaded ?? "âŒ Banner Ad no estÃ¡ cargado");
     }
   }
 
@@ -152,7 +152,7 @@ class _AdsTestScreenState extends State<AdsTestScreen> {
                   // Banner Ad Display
                   if (_bannerAd != null && _isBannerLoaded) ...[
                     Text(
-                      AppLocalizations.of(context)?.liveBannerAd ?? '📱 Banner Ad en vivo:',
+                      AppLocalizations.of(context)?.liveBannerAd ?? 'ðŸ“± Banner Ad en vivo:',
                       style: GoogleFonts.poppins(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -299,3 +299,4 @@ class _AdsTestScreenState extends State<AdsTestScreen> {
     );
   }
 }
+

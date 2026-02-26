@@ -22,7 +22,7 @@ import 'services/secure_time_service.dart';
 import 'services/receipt_validation_service.dart';
 import 'services/scanner_economy_service.dart';
 import 'services/global_economy_service.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:scanner_crush/generated/l10n/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

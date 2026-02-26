@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -13,7 +13,7 @@ import '../services/monetization_service.dart';
 import '../services/admob_service.dart';
 import '../services/scanner_economy_service.dart';
 import '../services/locale_service.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:scanner_crush/generated/l10n/app_localizations.dart';
 import 'result_screen.dart';
 import '../widgets/scanner_economy_panel.dart';
 import 'premium_screen.dart';
@@ -397,7 +397,7 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
                         child: Column(
                           children: [
                             Text(
-                              '🌟',
+                              'ðŸŒŸ',
                               style: const TextStyle(fontSize: 52),
                             ).animate().scale(
                               duration: const Duration(milliseconds: 800),
@@ -537,4 +537,5 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
     );
   }
 }
+
 
