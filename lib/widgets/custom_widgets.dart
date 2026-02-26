@@ -1,4 +1,4 @@
-﻿import 'package:scanner_crush/generated/l10n/app_localizations.dart';
+import 'package:scanner_crush/generated/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../services/theme_service.dart';
@@ -64,7 +64,7 @@ class _FloatingHeartsState extends State<FloatingHearts>
     with TickerProviderStateMixin {
   late List<AnimationController> _controllers;
   late List<Animation<double>> _animations;
-  final int _heartCount = 12; // MÃ¡s corazones para mayor dinamismo
+  final int _heartCount = 12; // Más corazones para mayor dinamismo
 
   @override
   void initState() {
@@ -121,7 +121,7 @@ class _FloatingHeartsState extends State<FloatingHearts>
                         _animations[index].value *
                         2 *
                         math.pi /
-                        4, // RotaciÃ³n suave
+                        4, // Rotación suave
                     child: Transform.scale(
                       scale: _getScale(index, _animations[index].value),
                       child: _buildEnhancedHeart(index),
@@ -150,20 +150,20 @@ class _FloatingHeartsState extends State<FloatingHearts>
     final endY = -50.0;
     final currentY = startY + (endY - startY) * progress;
 
-    // AÃ±adir movimiento de rebote suave
+    // Añadir movimiento de rebote suave
     final bounce = math.sin(progress * math.pi) * 20;
     return currentY + bounce;
   }
 
   double _getScale(int index, double progress) {
-    // Escala que varÃ­a durante la animaciÃ³n para efecto de "respiraciÃ³n"
-    final baseScale = 0.8 + (index % 3) * 0.1; // TamaÃ±os base variados
+    // Escala que varía durante la animación para efecto de "respiración"
+    final baseScale = 0.8 + (index % 3) * 0.1; // Tamaños base variados
     final breathe = math.sin(progress * 4 * math.pi) * 0.2;
     return baseScale + breathe;
   }
 
   Widget _buildEnhancedHeart(int index) {
-    // MÃ¡s variedad de emojis romÃ¡nticos
+    // Más variedad de emojis románticos
     final hearts = [
       '💕',
       '💖',
@@ -184,7 +184,7 @@ class _FloatingHeartsState extends State<FloatingHearts>
     ];
     final heart = hearts[index % hearts.length];
 
-    // TamaÃ±os variados para mÃ¡s dinamismo
+    // Tamaños variados para más dinamismo
     final sizes = [16.0, 18.0, 20.0, 22.0];
     final size = sizes[index % sizes.length];
 
@@ -249,7 +249,7 @@ class GradientButton extends StatelessWidget {
         onPressed: isLoading
             ? null
             : () {
-                // ðŸŽµ Reproducir sonido al presionar botÃ³n
+                // 🎵 Reproducir sonido al presionar botón
                 AudioService.instance.playButtonTap();
                 onPressed();
               },
@@ -365,7 +365,7 @@ class CustomTextField extends StatelessWidget {
         validator: isRequired
             ? (value) {
                 if (value == null || value.trim().isEmpty) {
-                  // Usar localizaciÃ³n para el mensaje de campo requerido
+                  // Usar localización para el mensaje de campo requerido
                   return AppLocalizations.of(context)?.pleaseEnterName ?? 'Este campo es requerido';
                 }
                 return null;
@@ -435,10 +435,10 @@ class ResultCard extends StatelessWidget {
   }
 }
 
-// ðŸŽŠ NUEVO: Widget de celebraciÃ³n con confetti
+// 🎊 NUEVO: Widget de celebración con confetti
 class CelebrationExplosion extends StatefulWidget {
   final bool isActive;
-  final int intensity; // 1-3 para diferentes niveles de celebraciÃ³n
+  final int intensity; // 1-3 para diferentes niveles de celebración
 
   const CelebrationExplosion({
     super.key,

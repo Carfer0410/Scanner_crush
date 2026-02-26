@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/theme_service.dart';
 import '../services/monetization_service.dart';
@@ -96,7 +96,7 @@ class SubtlePremiumPromo extends StatelessWidget {
   }
 }
 
-/// Widget para mostrar beneficios especÃ­ficos
+/// Widget para mostrar beneficios específicos
 class PremiumBenefitChip extends StatelessWidget {
   final String text;
   final IconData icon;

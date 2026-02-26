@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -26,14 +26,14 @@ class _PremiumScreenState extends State<PremiumScreen> {
   void initState() {
     super.initState();
     _checkPremiumStatus();
-    // Escuchar compras exitosas que llegan asÃ­ncronamente desde el purchase stream
+    // Escuchar compras exitosas que llegan asíncronamente desde el purchase stream
     PurchaseService.instance.purchaseSuccessNotifier.addListener(_onPurchaseSuccess);
   }
 
   void _onPurchaseSuccess() {
     if (!mounted) return;
     setState(() { _isLoading = false; });
-    // Mostrar diÃ¡logo de Ã©xito
+    // Mostrar diálogo de éxito
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -62,8 +62,8 @@ class _PremiumScreenState extends State<PremiumScreen> {
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.pop(context); // Cerrar diÃ¡logo
-              Navigator.pop(context, true); // Volver con Ã©xito
+              Navigator.pop(context); // Cerrar diálogo
+              Navigator.pop(context, true); // Volver con éxito
             },
             child: Text(
               AppLocalizations.of(context)?.great ?? '',
@@ -152,13 +152,13 @@ class _PremiumScreenState extends State<PremiumScreen> {
   Future<void> _purchasePremium() async {
     final l10n = AppLocalizations.of(context)!;
 
-    // Pre-check: verificar si el servicio estÃ¡ disponible
+    // Pre-check: verificar si el servicio está disponible
     if (!PurchaseService.instance.isAvailable) {
       _showErrorSnackBar(l10n.storeNotAvailable);
       return;
     }
 
-    // Pre-check: verificar si los productos estÃ¡n cargados
+    // Pre-check: verificar si los productos están cargados
     if (!PurchaseService.instance.hasProducts) {
       _showErrorSnackBar(l10n.productNotConfigured);
       return;
@@ -177,8 +177,8 @@ class _PremiumScreenState extends State<PremiumScreen> {
 
       switch (result) {
         case PurchaseResult.success:
-          // El flujo de compra se abriÃ³ correctamente.
-          // La compra se completarÃ¡ asÃ­ncronamente via purchaseStream.
+          // El flujo de compra se abrió correctamente.
+          // La compra se completará asíncronamente via purchaseStream.
           // Mostramos un mensaje informativo mientras tanto.
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -187,8 +187,8 @@ class _PremiumScreenState extends State<PremiumScreen> {
               duration: const Duration(seconds: 4),
             ),
           );
-          // NO quitamos el loading aquÃ­ â€” se quita cuando llega
-          // la confirmaciÃ³n via _onPurchaseSuccess o al cancelar.
+          // NO quitamos el loading aquí — se quita cuando llega
+          // la confirmación via _onPurchaseSuccess o al cancelar.
           // Ponemos un timeout de seguridad por si el usuario cancela el dialog de la tienda.
           Future.delayed(const Duration(seconds: 30), () {
             if (mounted && _isLoading) {
@@ -542,7 +542,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
 
                       const SizedBox(height: 40),
 
-                      // SecciÃ³n de precios desde PurchaseService
+                      // Sección de precios desde PurchaseService
                       FutureBuilder<String>(
                         future: _getPremiumPrice(),
                         builder: (context, snapshot) {

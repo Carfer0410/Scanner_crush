@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -105,7 +105,7 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
         setState(() {
           _isLoading = false;
         });
-        // Track que el usuario viÃ³ el contenido diario
+        // Track que el usuario vió el contenido diario
         AdMobService.instance.trackUserAction();
       }
     } catch (e) {
@@ -234,7 +234,7 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
             children: [
               IconButton(
                 onPressed: () async {
-                  // Intersticial estratÃ©gico al salir (si cumple cooldown)
+                  // Intersticial estratégico al salir (si cumple cooldown)
                   if (!await MonetizationService.instance.isPremiumAsync()) {
                     final shouldShow = await AdMobService.instance.shouldShowInterstitialAd();
                     if (shouldShow && AdMobService.instance.isInterstitialAdReady) {
@@ -287,7 +287,7 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
             },
           ),
 
-          // HorÃ³scopo del dÃ­a
+          // Horóscopo del día
           _buildDailyHoroscope(horoscope),
 
           const SizedBox(height: 30),
@@ -574,10 +574,10 @@ class _DailyLoveScreenState extends State<DailyLoveScreen>
 
           Text(
             AppLocalizations.of(context)!.premiumUniverseCard.contains(':')
-                ? 'â€¢ ' +
+                ? '• ' +
                     AppLocalizations.of(context)!.premiumUniverseCard
                         .split(':')[1]
-                        .replaceAll(',', '\nâ€¢')
+                        .replaceAll(',', '\n•')
                         .trim()
                 : AppLocalizations.of(context)!.premiumUniverseCard,
             style: GoogleFonts.poppins(

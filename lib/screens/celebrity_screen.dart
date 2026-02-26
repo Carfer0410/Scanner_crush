@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -397,7 +397,7 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
                         child: Column(
                           children: [
                             Text(
-                              'ðŸŒŸ',
+                              '🌟',
                               style: const TextStyle(fontSize: 52),
                             ).animate().scale(
                               duration: const Duration(milliseconds: 800),

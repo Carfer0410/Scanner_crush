@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:scanner_crush/generated/l10n/app_localizations.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../services/theme_service.dart';
@@ -44,10 +44,10 @@ class _ThemesScreenState extends State<ThemesScreen>
     PremiumThemeService.instance.tempAccessNotifier.addListener(_onTempAccessChanged);
   }
 
-  // MÃ©todo para manejar cambios en accesos temporales
+  // Método para manejar cambios en accesos temporales
   void _onTempAccessChanged() {
-    // Esta funciÃ³n se llama cuando cambian los accesos temporales
-    // PodrÃ­amos mostrar una notificaciÃ³n aquÃ­ si es necesario
+    // Esta función se llama cuando cambian los accesos temporales
+    // Podríamos mostrar una notificación aquí si es necesario
     if (mounted) {
       setState(() {});
     }
@@ -72,22 +72,22 @@ class _ThemesScreenState extends State<ThemesScreen>
   String _getThemeName(BuildContext context, ThemeType themeType) {
     switch (themeType) {
       case ThemeType.classic:
-        return AppLocalizations.of(context)?.classicThemeName ?? 'ðŸ’˜ ClÃ¡sico';
+        return AppLocalizations.of(context)?.classicThemeName ?? '💘 Clásico';
       case ThemeType.sunset:
         return AppLocalizations.of(context)?.sunsetThemeName ??
             'ï¿½ Aurora Pastel';
       case ThemeType.ocean:
-        return AppLocalizations.of(context)?.oceanThemeName ?? 'ðŸŒŠ OcÃ©ano';
+        return AppLocalizations.of(context)?.oceanThemeName ?? '🌊 Océano';
       case ThemeType.forest:
-        return AppLocalizations.of(context)?.forestThemeName ?? 'ðŸŒ² Bosque';
+        return AppLocalizations.of(context)?.forestThemeName ?? '🌲 Bosque';
       case ThemeType.lavender:
-        return AppLocalizations.of(context)?.lavenderThemeName ?? 'ðŸ’œ Lavanda';
+        return AppLocalizations.of(context)?.lavenderThemeName ?? '💜 Lavanda';
       case ThemeType.cosmic:
-        return AppLocalizations.of(context)?.cosmicThemeName ?? 'ðŸŒŒ CÃ³smico';
+        return AppLocalizations.of(context)?.cosmicThemeName ?? '🌌 Cósmico';
       case ThemeType.cherry:
-        return AppLocalizations.of(context)?.cherryThemeName ?? 'ðŸŒ¸ Cerezo';
+        return AppLocalizations.of(context)?.cherryThemeName ?? '🌸 Cerezo';
       case ThemeType.golden:
-        return AppLocalizations.of(context)?.goldenThemeName ?? 'âœ¨ Dorado';
+        return AppLocalizations.of(context)?.goldenThemeName ?? '✨ Dorado';
     }
   }
 
@@ -98,7 +98,7 @@ class _ThemesScreenState extends State<ThemesScreen>
             'El tema original de amor'; // TODO: Add localization key
       case ThemeType.sunset:
         return AppLocalizations.of(context)?.sunsetThemeDescription ??
-            'DegradÃ© moderno de violeta, rosa y azul';
+            'Degradé moderno de violeta, rosa y azul';
       case ThemeType.ocean:
         return AppLocalizations.of(context)?.oceanThemeDescription ??
             'Profundos azules marinos'; // TODO: Add localization key
@@ -107,13 +107,13 @@ class _ThemesScreenState extends State<ThemesScreen>
             'Verdes naturales y frescos'; // TODO: Add localization key
       case ThemeType.lavender:
         return AppLocalizations.of(context)?.lavenderThemeDescription ??
-            'Elegantes pÃºrpuras y violetas'; // TODO: Add localization key
+            'Elegantes púrpuras y violetas'; // TODO: Add localization key
       case ThemeType.cosmic:
         return AppLocalizations.of(context)?.cosmicThemeDescription ??
             'Misterioso espacio profundo'; // TODO: Add localization key
       case ThemeType.cherry:
         return AppLocalizations.of(context)?.cherryThemeDescription ??
-            'Elegante rosa sakura japonÃ©s'; // TODO: Add localization key
+            'Elegante rosa sakura japonés'; // TODO: Add localization key
       case ThemeType.golden:
         return AppLocalizations.of(context)?.goldenThemeDescription ??
             'Lujo y elegancia dorada'; // TODO: Add localization key
@@ -197,7 +197,7 @@ class _ThemesScreenState extends State<ThemesScreen>
                   children: [
                     Text(
                       AppLocalizations.of(context)?.themesTitle ??
-                          'ðŸŽ¨ Temas Premium',
+                          '🎨 Temas Premium',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -297,7 +297,7 @@ class _ThemesScreenState extends State<ThemesScreen>
                   future: MonetizationService.instance.isPremiumAsync(),
                   builder: (context, snapshot) {
                     final isPremium = snapshot.data ?? false;
-                    // Permitir seleccionar el tema premium si tiene acceso temporal vÃ¡lido
+                    // Permitir seleccionar el tema premium si tiene acceso temporal válido
                     final canUse =
                         !theme.isPremium ||
                         isPremium ||
@@ -596,13 +596,13 @@ class _ThemesScreenState extends State<ThemesScreen>
         await MonetizationService.instance.isPremiumAsync();
     if (!mounted) return;
 
-    // Permitir seleccionar el tema premium si tiene acceso temporal vÃ¡lido
+    // Permitir seleccionar el tema premium si tiene acceso temporal válido
     final hasTempAccess = PremiumThemeService.instance
         .hasTemporaryAccessToTheme(theme.type.name);
     final canSelect = !theme.isPremium || isPremium || hasTempAccess;
 
     if (!canSelect) {
-      // Si es un tema premium y no tiene acceso, mostrar opciÃ³n de ver anuncio
+      // Si es un tema premium y no tiene acceso, mostrar opción de ver anuncio
       if (theme.isPremium && !isPremium) {
         await _showPremiumOrAdOptions(theme);
       } else {
@@ -616,7 +616,7 @@ class _ThemesScreenState extends State<ThemesScreen>
       ThemeService.instance.changeTheme(theme.type);
       setState(() {}); // Refresca la pantalla para el check
 
-      // Mostrar confirmaciÃ³n INMEDIATA
+      // Mostrar confirmación INMEDIATA
       String message = 'Tema ${theme.name} aplicado';
       if (hasTempAccess && theme.isPremium) {
         final hoursRemaining = PremiumThemeService.instance
@@ -636,7 +636,7 @@ class _ThemesScreenState extends State<ThemesScreen>
         ),
       );
 
-      // Tracking de acciÃ³n del usuario para anuncios inteligentes (no bloquea la UI)
+      // Tracking de acción del usuario para anuncios inteligentes (no bloquea la UI)
       AdMobService.instance.trackUserAction();
 
       // Mostrar intersticial ocasionalmente para usuarios no premium
@@ -673,7 +673,7 @@ class _ThemesScreenState extends State<ThemesScreen>
                     borderRadius: BorderRadius.circular(20),
                   ),
                   title: Text(
-                    'ðŸŽ¨ Tema Premium',
+                    '🎨 Tema Premium',
                     style: TextStyle(
                       color: ThemeService.instance.textColor,
                       fontWeight: FontWeight.bold,
@@ -689,7 +689,7 @@ class _ThemesScreenState extends State<ThemesScreen>
                         ),
                       ),
                       const SizedBox(height: 16),
-                      // OpciÃ³n 1: Ver anuncio para acceso temporal
+                      // Opción 1: Ver anuncio para acceso temporal
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(12),
@@ -705,7 +705,7 @@ class _ThemesScreenState extends State<ThemesScreen>
                             Icon(Icons.tv, color: Colors.orange, size: 32),
                             const SizedBox(height: 8),
                             Text(
-                              'ðŸ“º Ver Anuncio',
+                              '📺 Ver Anuncio',
                               style: TextStyle(
                                 color: Colors.orange,
                                 fontWeight: FontWeight.bold,
@@ -729,7 +729,7 @@ class _ThemesScreenState extends State<ThemesScreen>
                         ),
                       ),
                       const SizedBox(height: 12),
-                      // OpciÃ³n 2: Comprar premium
+                      // Opción 2: Comprar premium
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(12),
@@ -752,7 +752,7 @@ class _ThemesScreenState extends State<ThemesScreen>
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'â­ Premium',
+                              '⭐ Premium',
                               style: TextStyle(
                                 color: ThemeService.instance.primaryColor,
                                 fontWeight: FontWeight.bold,
@@ -803,7 +803,7 @@ class _ThemesScreenState extends State<ThemesScreen>
                                               .grantTemporaryAccessToTheme(
                                                 theme.type.name,
                                               );
-                                          // Cambiar automÃ¡ticamente al tema despuÃ©s de otorgar acceso temporal
+                                          // Cambiar automáticamente al tema después de otorgar acceso temporal
                                           if (granted) {
                                             await ThemeService.instance.changeTheme(theme.type);
                                           }
@@ -837,7 +837,7 @@ class _ThemesScreenState extends State<ThemesScreen>
                                 }
                               },
                       child: Text(
-                        'ðŸ“º Ver Anuncio',
+                        '📺 Ver Anuncio',
                         style: TextStyle(color: Colors.orange),
                       ),
                     ),
@@ -855,7 +855,7 @@ class _ThemesScreenState extends State<ThemesScreen>
                         backgroundColor: ThemeService.instance.primaryColor,
                         foregroundColor: Colors.white,
                       ),
-                      child: Text('â­ Premium'),
+                      child: Text('⭐ Premium'),
                     ),
                   ],
                 ),
@@ -874,7 +874,7 @@ class _ThemesScreenState extends State<ThemesScreen>
             ),
             title: Text(
               AppLocalizations.of(context)?.premiumRequired ??
-                  'âœ¨ Premium Requerido',
+                  '✨ Premium Requerido',
               style: TextStyle(
                 color: ThemeService.instance.textColor,
                 fontWeight: FontWeight.bold,
@@ -882,7 +882,7 @@ class _ThemesScreenState extends State<ThemesScreen>
             ),
             content: Text(
               AppLocalizations.of(context)?.premiumRequiredMessage ??
-                  'Este tema estÃ¡ disponible solo para usuarios Premium. Â¡Desbloquea todos los temas y mÃ¡s funciones!',
+                  'Este tema está disponible solo para usuarios Premium. ¡Desbloquea todos los temas y más funciones!',
               style: TextStyle(color: ThemeService.instance.subtitleColor),
             ),
             actions: [

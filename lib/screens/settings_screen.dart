@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -219,7 +219,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                     const SizedBox(height: 30),
 
-                    // ðŸŽµ NUEVA SECCIÃ“N DE AUDIO
+                    // 🎵 NUEVA SECCIÓN DE AUDIO
                     _buildSettingsSection(
                       title: AppLocalizations.of(context)!.sectionAudio,
                       items: [
@@ -480,7 +480,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  AppLocalizations.of(context)?.upgradeToPremium ?? 'âœ¨ Upgrade to Premium',
+                                  AppLocalizations.of(context)?.upgradeToPremium ?? '✨ Upgrade to Premium',
                                   style: GoogleFonts.poppins(
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,
@@ -691,14 +691,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
     setState(() {});
   }
 
-  // ðŸŽµ NUEVOS MÃ‰TODOS DE AUDIO
+  // 🎵 NUEVOS MÉTODOS DE AUDIO
   void _toggleSoundEffects() async {
     await AudioService.instance.setSoundEnabled(
       !AudioService.instance.soundEnabled,
     );
     setState(() {});
 
-    // Reproducir sonido de prueba si se activÃ³
+    // Reproducir sonido de prueba si se activó
     if (AudioService.instance.soundEnabled) {
       AudioService.instance.playButtonTap();
     }
@@ -740,7 +740,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: const Text('ðŸ‡ªðŸ‡¸'),
+                leading: const Text('🇪🇸'),
                 title: Text(
                   AppLocalizations.of(context)!.spanish,
                   style: TextStyle(color: textColor),
@@ -758,7 +758,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 },
               ),
               ListTile(
-                leading: const Text('ðŸ‡ºðŸ‡¸'),
+                leading: const Text('🇺🇸'),
                 title: Text(
                   AppLocalizations.of(context)!.english,
                   style: TextStyle(color: textColor),
@@ -983,7 +983,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         'best_streak',
 
         // Daily love service keys
-        'total_compatibility', // Agregado para limpiar estadÃ­sticas de compatibilidad
+        'total_compatibility', // Agregado para limpiar estadísticas de compatibilidad
 
         // History keys (assuming they follow a pattern)
         'crush_history',

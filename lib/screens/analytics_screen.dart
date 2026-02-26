@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:scanner_crush/generated/l10n/app_localizations.dart';
@@ -153,7 +153,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
         setState(() { _isLoadingInsights = false; });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('âœ¨ ${AppLocalizations.of(context)?.insightsTab ?? "Insights"} desbloqueados'),
+            content: Text('✨ ${AppLocalizations.of(context)?.insightsTab ?? "Insights"} desbloqueados'),
             backgroundColor: Colors.green,
             duration: const Duration(seconds: 2),
             behavior: SnackBarBehavior.floating,
@@ -207,7 +207,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
         setState(() { _isLoadingPredictions = false; });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('âœ¨ ${AppLocalizations.of(context)?.predictionsTab ?? "Predicciones"} desbloqueadas'),
+            content: Text('✨ ${AppLocalizations.of(context)?.predictionsTab ?? "Predicciones"} desbloqueadas'),
             backgroundColor: Colors.green,
             duration: const Duration(seconds: 2),
             behavior: SnackBarBehavior.floating,
@@ -381,7 +381,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
 
             const SizedBox(height: 32),
 
-            // BotÃ³n ver anuncio
+            // Botón ver anuncio
             isLoading
                 ? CircularProgressIndicator(
                     valueColor: AlwaysStoppedAnimation<Color>(ThemeService.instance.primaryColor),
@@ -542,7 +542,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
             children: [
               Expanded(
                 child: _buildStatCard(
-                  'ðŸ’•',
+                  '💕',
                       AppLocalizations.of(context)?.totalScansAnalytics ?? '',
                   _stats!.totalScans.toString(),
                   Colors.pink,
@@ -551,7 +551,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
               const SizedBox(width: 12),
               Expanded(
                 child: _buildStatCard(
-                  'ðŸ“Š',
+                  '📊',
                       AppLocalizations.of(context)?.averageAnalytics ?? '',
                   '${_stats!.averageCompatibility.toInt()}%',
                   Colors.purple,
@@ -566,7 +566,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
             children: [
               Expanded(
                 child: _buildStatCard(
-                  'ðŸ”¥',
+                  '🔥',
                       AppLocalizations.of(context)?.bestMatch ?? '',
                   '${_stats!.highestCompatibility}%',
                   Colors.orange,
@@ -575,7 +575,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
               const SizedBox(width: 12),
               Expanded(
                 child: _buildStatCard(
-                  'â­',
+                  '⭐',
                       AppLocalizations.of(context)?.celebritiesAnalytics ?? '',
                   _stats!.celebrityScans.toString(),
                   Colors.amber,
@@ -608,14 +608,14 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
       return _buildAdUnlockPrompt(
         icon: Icons.insights,
         description: AppLocalizations.of(context)?.insightsLockedDescription ??
-            'Descubre patrones Ãºnicos sobre tu vida amorosa. Mira un breve anuncio o hazte Premium.',
+            'Descubre patrones únicos sobre tu vida amorosa. Mira un breve anuncio o hazte Premium.',
         buttonText: AppLocalizations.of(context)?.watchAdToUnlockInsights ?? 'Ver anuncio para desbloquear',
         isLoading: _isLoadingInsights,
         onWatchAd: _unlockInsightsByAd,
       );
     }
 
-    // Loading despuÃ©s de ver anuncio
+    // Loading después de ver anuncio
     if (_isLoadingInsights && (_insights == null || _insights!.isEmpty)) {
       return Center(
         child: Column(
@@ -646,7 +646,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
             ),
             const SizedBox(height: 16),
             Text(
-              AppLocalizations.of(context)?.noInsightsYet ?? 'No hay insights todavÃ­a',
+              AppLocalizations.of(context)?.noInsightsYet ?? 'No hay insights todavía',
               style: GoogleFonts.poppins(
                 fontSize: 18,
                 color: ThemeService.instance.textColor,
@@ -654,7 +654,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
             ),
             const SizedBox(height: 8),
             Text(
-              AppLocalizations.of(context)?.scanMoreForInsights ?? 'Realiza mÃ¡s escaneos para obtener insights personalizados',
+              AppLocalizations.of(context)?.scanMoreForInsights ?? 'Realiza más escaneos para obtener insights personalizados',
               style: GoogleFonts.poppins(
                 fontSize: 14,
                 color: ThemeService.instance.subtitleColor,
@@ -731,14 +731,14 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
       return _buildAdUnlockPrompt(
         icon: Icons.auto_awesome,
         description: AppLocalizations.of(context)?.predictionsLockedDescription ??
-            'ObtÃ©n predicciones personalizadas sobre tu futuro amoroso. Mira un breve anuncio o hazte Premium.',
+            'Obtén predicciones personalizadas sobre tu futuro amoroso. Mira un breve anuncio o hazte Premium.',
         buttonText: AppLocalizations.of(context)?.watchAdToUnlockPredictions ?? 'Ver anuncio para desbloquear',
         isLoading: _isLoadingPredictions,
         onWatchAd: _unlockPredictionsByAd,
       );
     }
 
-    // Loading despuÃ©s de ver anuncio
+    // Loading después de ver anuncio
     if (_isLoadingPredictions && (_predictions == null || _predictions!.isEmpty)) {
       return Center(
         child: Column(
@@ -777,7 +777,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
             ),
             const SizedBox(height: 8),
             Text(
-              AppLocalizations.of(context)?.scanMoreForPredictions ?? 'Realiza mÃ¡s escaneos para generar predicciones sobre tu vida amorosa',
+              AppLocalizations.of(context)?.scanMoreForPredictions ?? 'Realiza más escaneos para generar predicciones sobre tu vida amorosa',
               style: GoogleFonts.poppins(
                 fontSize: 14,
                 color: ThemeService.instance.subtitleColor,
@@ -800,7 +800,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
               Expanded(
                 child: Text(
                   AppLocalizations.of(context)?.predictionInfoExplanation ??
-                  'El porcentaje en la frase es tu compatibilidad promedio real. El nÃºmero en la esquina es la confianza de la predicciÃ³n.',
+                  'El porcentaje en la frase es tu compatibilidad promedio real. El número en la esquina es la confianza de la predicción.',
                   style: GoogleFonts.poppins(
                     fontSize: 12,
                     color: ThemeService.instance.subtitleColor,
@@ -1051,7 +1051,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            AppLocalizations.of(context)?.compatibilityTrend ?? 'ðŸ“ˆ Tendencia de Compatibilidad (30 dÃ­as)',
+            AppLocalizations.of(context)?.compatibilityTrend ?? '📈 Tendencia de Compatibilidad (30 días)',
             style: GoogleFonts.poppins(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -1093,7 +1093,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
           ),
           const SizedBox(height: 8),
           Text(
-            AppLocalizations.of(context)?.last30Days ?? 'Ãšltimos 30 dÃ­as',
+            AppLocalizations.of(context)?.last30Days ?? 'Últimos 30 días',
             style: GoogleFonts.poppins(
               fontSize: 12,
               color: ThemeService.instance.subtitleColor,
@@ -1118,7 +1118,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            AppLocalizations.of(context)?.yourBestMatches ?? 'ðŸ† Tus Mejores Matches',
+            AppLocalizations.of(context)?.yourBestMatches ?? '🏆 Tus Mejores Matches',
             style: GoogleFonts.poppins(
               fontSize: 16,
               fontWeight: FontWeight.bold,

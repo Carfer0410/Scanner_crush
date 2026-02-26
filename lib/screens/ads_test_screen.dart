@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
@@ -58,11 +58,11 @@ class _AdsTestScreenState extends State<AdsTestScreen> {
   }
 
   Future<void> _testBannerAd() async {
-    _addResult(AppLocalizations.of(context)?.testingBannerAd ?? "ðŸŽ¯ Testing Banner Ad...");
+    _addResult(AppLocalizations.of(context)?.testingBannerAd ?? "🎯 Testing Banner Ad...");
     if (_bannerAd != null && _isBannerLoaded) {
-      _addResult(AppLocalizations.of(context)?.bannerAdWorking ?? "âœ… Banner Ad estÃ¡ funcionando");
+      _addResult(AppLocalizations.of(context)?.bannerAdWorking ?? "✅ Banner Ad está funcionando");
     } else {
-      _addResult(AppLocalizations.of(context)?.bannerAdNotLoaded ?? "âŒ Banner Ad no estÃ¡ cargado");
+      _addResult(AppLocalizations.of(context)?.bannerAdNotLoaded ?? "❌ Banner Ad no está cargado");
     }
   }
 
@@ -152,7 +152,7 @@ class _AdsTestScreenState extends State<AdsTestScreen> {
                   // Banner Ad Display
                   if (_bannerAd != null && _isBannerLoaded) ...[
                     Text(
-                      AppLocalizations.of(context)?.liveBannerAd ?? 'ðŸ“± Banner Ad en vivo:',
+                      AppLocalizations.of(context)?.liveBannerAd ?? '📱 Banner Ad en vivo:',
                       style: GoogleFonts.poppins(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,

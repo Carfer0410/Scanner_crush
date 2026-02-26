@@ -1,4 +1,4 @@
-﻿import 'dart:math';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -36,23 +36,23 @@ class _TournamentResultScreenState extends State<TournamentResultScreen>
   bool _unlockingTicket = false;
 
   static const List<String> _coronationPhrasesEs = [
-    'Â¡El amor ha hablado! {name} se lleva la corona del corazÃ³n de {user} ðŸ‘‘',
-    'Â¡DespuÃ©s de una batalla Ã©pica, {name} reina en el corazÃ³n de {user}! ðŸ’˜',
-    'Â¡Todos lucharon, pero el destino eligiÃ³ a {name} para {user}! âœ¨',
-    'Â¡Se escucharon los latidos y {name} conquistÃ³ a {user}! ðŸ’“',
-    'Â¡El universo conspirÃ³ y {name} conquistÃ³ el corazÃ³n de {user}! ðŸŒŸ',
-    'Â¡De entre todos los crushes, {name} es el/la elegido/a de {user}! ðŸ”¥',
-    'Â¡El corazÃ³n de {user} no miente! {name} es el crush definitivo ðŸ’•',
+    '¡El amor ha hablado! {name} se lleva la corona del corazón de {user} 👑',
+    '¡Después de una batalla épica, {name} reina en el corazón de {user}! 💘',
+    '¡Todos lucharon, pero el destino eligió a {name} para {user}! ✨',
+    '¡Se escucharon los latidos y {name} conquistó a {user}! 💓',
+    '¡El universo conspiró y {name} conquistó el corazón de {user}! 🌟',
+    '¡De entre todos los crushes, {name} es el/la elegido/a de {user}! 🔥',
+    '¡El corazón de {user} no miente! {name} es el crush definitivo 💕',
   ];
 
   static const List<String> _coronationPhrasesEn = [
-    'Love has spoken! {name} takes the crown of {user}\'s heart ðŸ‘‘',
-    'After an epic battle, {name} reigns in {user}\'s heart! ðŸ’˜',
-    'Everyone fought, but destiny chose {name} for {user}! âœ¨',
-    'The heartbeats were heard and {name} conquered {user}! ðŸ’“',
-    'The universe conspired and {name} conquered {user}\'s heart! ðŸŒŸ',
-    'Among all crushes, {name} is {user}\'s chosen one! ðŸ”¥',
-    '{user}\'s heart never lies! {name} is the ultimate crush ðŸ’•',
+    'Love has spoken! {name} takes the crown of {user}\'s heart 👑',
+    'After an epic battle, {name} reigns in {user}\'s heart! 💘',
+    'Everyone fought, but destiny chose {name} for {user}! ✨',
+    'The heartbeats were heard and {name} conquered {user}! 💓',
+    'The universe conspired and {name} conquered {user}\'s heart! 🌟',
+    'Among all crushes, {name} is {user}\'s chosen one! 🔥',
+    '{user}\'s heart never lies! {name} is the ultimate crush 💕',
   ];
 
   @override
@@ -109,7 +109,7 @@ class _TournamentResultScreenState extends State<TournamentResultScreen>
     final isEn = Localizations.localeOf(context).languageCode == 'en';
     final message = isEn
         ? '+${reward.coinsEarned} Love Coins earned! Streak: ${reward.streakDays} day(s).'
-        : 'Â¡Ganaste +${reward.coinsEarned} Love Coins! Racha: ${reward.streakDays} dÃ­a(s).';
+        : '¡Ganaste +${reward.coinsEarned} Love Coins! Racha: ${reward.streakDays} día(s).';
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
@@ -141,7 +141,7 @@ class _TournamentResultScreenState extends State<TournamentResultScreen>
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(success
-            ? (isEn ? 'New ticket unlocked! Ready for another tournament.' : 'Â¡Nuevo ticket desbloqueado! Listo para otro torneo.')
+            ? (isEn ? 'New ticket unlocked! Ready for another tournament.' : '¡Nuevo ticket desbloqueado! Listo para otro torneo.')
             : (isEn ? 'No ad available right now.' : 'No hay anuncios disponibles ahora.')),
         backgroundColor: success ? Colors.green : Colors.orange,
       ),
@@ -227,7 +227,7 @@ class _TournamentResultScreenState extends State<TournamentResultScreen>
                       ),
                     IconButton(
                       onPressed: () async {
-                        // Interstitial estratÃ©gico al cerrar resultados
+                        // Interstitial estratégico al cerrar resultados
                         if (!await MonetizationService.instance.isPremiumAsync()) {
                           final shouldShow = await AdMobService.instance.shouldShowInterstitialAd();
                           if (shouldShow && AdMobService.instance.isInterstitialAdReady) {
@@ -256,7 +256,7 @@ class _TournamentResultScreenState extends State<TournamentResultScreen>
                   child: Column(
                     children: [
                       // Trophy animation
-                      const Text('ðŸ†', style: TextStyle(fontSize: 80))
+                      const Text('🏆', style: TextStyle(fontSize: 80))
                           .animate()
                           .scale(
                             duration: 1.seconds,
@@ -433,11 +433,11 @@ class _TournamentResultScreenState extends State<TournamentResultScreen>
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        // ðŸ¥ˆ Second place (left, shorter)
+        // 🥈 Second place (left, shorter)
         Expanded(
           child: _buildPodiumPlace(
             participant: tournament.runnerUp,
-            emoji: 'ðŸ¥ˆ',
+            emoji: '🥈',
             label: '2nd',
             height: 120,
             color: Colors.grey.shade400,
@@ -447,11 +447,11 @@ class _TournamentResultScreenState extends State<TournamentResultScreen>
 
         const SizedBox(width: 8),
 
-        // ðŸ¥‡ First place (center, tallest)
+        // 🥇 First place (center, tallest)
         Expanded(
           child: _buildPodiumPlace(
             participant: tournament.champion,
-            emoji: 'ðŸ¥‡',
+            emoji: '🥇',
             label: '1st',
             height: 160,
             color: Colors.amber,
@@ -462,11 +462,11 @@ class _TournamentResultScreenState extends State<TournamentResultScreen>
 
         const SizedBox(width: 8),
 
-        // ðŸ¥‰ Third place (right, shortest)
+        // 🥉 Third place (right, shortest)
         Expanded(
           child: _buildPodiumPlace(
             participant: tournament.thirdPlace,
-            emoji: 'ðŸ¥‰',
+            emoji: '🥉',
             label: '3rd',
             height: 90,
             color: Colors.brown.shade400,
@@ -508,7 +508,7 @@ class _TournamentResultScreenState extends State<TournamentResultScreen>
           ),
           const SizedBox(height: 8),
           Text(
-            'ðŸª™ +${reward.coinsEarned}   â€¢   ðŸ”¥ ${reward.streakDays}',
+            '🪙 +${reward.coinsEarned}   •   🔥 ${reward.streakDays}',
             style: GoogleFonts.poppins(
               fontSize: 15,
               fontWeight: FontWeight.w600,
@@ -519,7 +519,7 @@ class _TournamentResultScreenState extends State<TournamentResultScreen>
           Text(
             isEn
                 ? 'Come back tomorrow to keep your streak and stack more coins.'
-                : 'Vuelve maÃ±ana para mantener tu racha y acumular mÃ¡s coins.',
+                : 'Vuelve mañana para mantener tu racha y acumular más coins.',
             style: GoogleFonts.poppins(
               fontSize: 12,
               color: ThemeService.instance.subtitleColor,
@@ -587,7 +587,7 @@ class _TournamentResultScreenState extends State<TournamentResultScreen>
 
         if (participant.isCelebrity)
           Text(
-            'â­',
+            '⭐',
             style: const TextStyle(fontSize: 14),
           ),
 
@@ -669,17 +669,17 @@ class _TournamentResultScreenState extends State<TournamentResultScreen>
 
           // Stats
           _buildStatRow(
-            'âš”ï¸',
+            '⚔️',
             loc.tournamentTotalMatches,
             '${tournament.totalMatchesPlayed}',
           ),
           _buildStatRow(
-            'ðŸ‘¥',
+            '👥',
             loc.tournamentParticipantsCount,
             '${tournament.participantCount}',
           ),
           _buildStatRow(
-            'ðŸ”„',
+            '🔄',
             loc.tournamentRoundsPlayed,
             '${tournament.rounds.length}',
           ),

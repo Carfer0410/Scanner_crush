@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/services.dart';
@@ -55,7 +55,7 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
       return;
     }
 
-    // ðŸ”’ Validar si puede escanear hoy (monetizaciÃ³n)
+    // 🔒 Validar si puede escanear hoy (monetización)
     final canScan = await MonetizationService.instance.canScanToday();
     
     if (!canScan) {

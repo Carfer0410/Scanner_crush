@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -55,7 +55,7 @@ class _FormScreenState extends State<FormScreen> {
   }
 
   void _startDailyResetTimer() {
-    // Verificar cada minuto si cambiÃ³ el dÃ­a
+    // Verificar cada minuto si cambió el día
     _dailyResetTimer = Timer.periodic(const Duration(minutes: 1), (timer) {
       if (!mounted) return;
       final currentDate = SecureTimeService.instance.getSecureDate().toIso8601String().split('T')[0];
@@ -84,7 +84,7 @@ class _FormScreenState extends State<FormScreen> {
       return;
     }
 
-    // Verificar lÃ­mites de escaneo ANTES de proceder
+    // Verificar límites de escaneo ANTES de proceder
     final canScan = await MonetizationService.instance.canScanToday();
     if (!mounted) return;
     if (!canScan) {
@@ -96,7 +96,7 @@ class _FormScreenState extends State<FormScreen> {
       _isLoading = true;
     });
 
-    // ðŸŽµ Reproducir sonido de inicio de escaneo
+    // 🎵 Reproducir sonido de inicio de escaneo
     AudioService.instance.playMagicWhoosh();
 
     // Add haptic feedback
@@ -107,11 +107,11 @@ class _FormScreenState extends State<FormScreen> {
       await Future.delayed(const Duration(seconds: 2));
       if (!mounted) return;
 
-      // ðŸ”’ VERIFICACIÃ“N DE SEGURIDAD PRIMERO (sin registrar racha aÃºn)
+      // 🔒 VERIFICACIÓN DE SEGURIDAD PRIMERO (sin registrar racha aún)
       final streakUpdate = await StreakService.instance.checkManipulation();
       if (!mounted) return;
       
-      // ðŸš¨ BLOQUEAR ESCANEO SI HAY MANIPULACIÃ“N DETECTADA
+      // 🚨 BLOQUEAR ESCANEO SI HAY MANIPULACIÓN DETECTADA
       if (streakUpdate.manipulationDetected) {
         final message = streakUpdate.getFeedbackMessage(
           LocaleService.instance.currentLocale.languageCode,
@@ -144,7 +144,7 @@ class _FormScreenState extends State<FormScreen> {
             ),
           );
         }
-        return; // ðŸ›‘ DETENER ESCANEO AQUÃ
+        return; // 🛑 DETENER ESCANEO AQUÍ
       }
 
       // Get localizations safely
@@ -167,7 +167,7 @@ class _FormScreenState extends State<FormScreen> {
       // Track user action para sistema de frecuencia de anuncios
       AdMobService.instance.trackUserAction();
 
-      // Show streak feedback message solo si no fue manipulaciÃ³n
+      // Show streak feedback message solo si no fue manipulación
       if (mounted && !streakResult.alreadyScannedToday && !streakResult.manipulationDetected) {
         final message = streakResult.getFeedbackMessage(
           LocaleService.instance.currentLocale.languageCode,
@@ -295,7 +295,7 @@ class _FormScreenState extends State<FormScreen> {
   Future<void> _watchAdForScans() async {
     final screenContext = context;
     final localizations = AppLocalizations.of(screenContext)!;
-    Navigator.pop(context); // Cerrar diÃ¡logo
+    Navigator.pop(context); // Cerrar diálogo
     
     // Mostrar loading
     showDialog(

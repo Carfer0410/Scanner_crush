@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -112,7 +112,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                       // Daily Love button
                       GestureDetector(
                         onTap: () async {
-                          // ðŸŽµ Sonido de transiciÃ³n
+                          // 🎵 Sonido de transición
                           AudioService.instance.playTransition();
 
                           try {
@@ -224,7 +224,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                       // Settings button
                       IconButton(
                         onPressed: () {
-                          // ðŸŽµ Sonido de transiciÃ³n
+                          // 🎵 Sonido de transición
                           AudioService.instance.playTransition();
 
                           Navigator.push(
@@ -254,7 +254,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                 // Streak card
                 _buildStreakCard(),
 
-                // Banner de lÃ­mites
+                // Banner de límites
                 _buildLimitsBanner(),
 
                 Padding(
@@ -422,7 +422,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
                             const SizedBox(height: 20),
 
-                            // Love Tournament ðŸ†
+                            // Love Tournament 🏆
                             _buildScanOption(
                               context: context,
                               title: AppLocalizations.of(context)!.tournamentTitle,
@@ -619,7 +619,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   }
 
   void _navigateToRegularScanner(BuildContext context) {
-    // ðŸŽµ Sonido de transiciÃ³n
+    // 🎵 Sonido de transición
     AudioService.instance.playTransition();
 
     Navigator.push(
@@ -646,7 +646,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   }
 
   void _navigateToCelebrityScanner(BuildContext context) {
-    // ðŸŽµ Sonido de transiciÃ³n
+    // 🎵 Sonido de transición
     AudioService.instance.playTransition();
 
     Navigator.push(
@@ -674,7 +674,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   }
 
   void _navigateToTournament(BuildContext context) {
-    // ðŸŽµ Sonido de transiciÃ³n
+    // 🎵 Sonido de transición
     AudioService.instance.playTransition();
 
     Navigator.push(
@@ -703,7 +703,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
   void _navigateToAnalytics(BuildContext context) async {
     // Abrir AnalyticsScreen siempre; el propio screen maneja el desbloqueo
-    // (estadÃ­sticas gratis; insights/predictions via premium o anuncio).
+    // (estadísticas gratis; insights/predictions via premium o anuncio).
     AudioService.instance.playTransition();
 
     Navigator.push(
@@ -729,7 +729,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   }
 
   void _navigateToThemes(BuildContext context) {
-    // ðŸŽµ Sonido de transiciÃ³n
+    // 🎵 Sonido de transición
     AudioService.instance.playTransition();
 
     Navigator.push(
@@ -907,7 +907,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   }
 
   /// Show streak details dialog
-  /// Mostrar diÃ¡logo de detalles de racha
+  /// Mostrar diálogo de detalles de racha
   void _showStreakDetails() {
     showDialog(
       context: context,
@@ -1001,7 +1001,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   }
 
   /// Show streak information dialog explaining what each statistic means
-  /// Mostrar diÃ¡logo de informaciÃ³n de racha explicando quÃ© significa cada estadÃ­stica
+  /// Mostrar diálogo de información de racha explicando qué significa cada estadística
   void _showStreakInfoDialog() {
     showDialog(
       context: context,
@@ -1110,7 +1110,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   }
 
   /// Build an information section for the streak info dialog
-  /// Construir una secciÃ³n de informaciÃ³n para el diÃ¡logo de informaciÃ³n de racha
+  /// Construir una sección de información para el diálogo de información de racha
   Widget _buildInfoSection({
     required IconData icon,
     required Color color,
@@ -1177,7 +1177,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   }
 
   /// Build a stat row for the streak dialog
-  /// Construir una fila de estadÃ­sticas para el diÃ¡logo de racha
+  /// Construir una fila de estadísticas para el diálogo de racha
   Widget _buildStatRow(String label, String value, IconData icon, Color color) {
     return Row(
       children: [
@@ -1217,7 +1217,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     );
   }
 
-  /// Banner de lÃ­mites para usuarios regulares
+  /// Banner de límites para usuarios regulares
   Widget _buildLimitsBanner() {
     return FutureBuilder<Map<String, dynamic>>(
       future: _getLimitsInfo(),
