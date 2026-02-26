@@ -90,16 +90,15 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
   }
 
   Future<void> _showLimitDialog() async {
-    final screenContext = context;
-    final localizations = AppLocalizations.of(screenContext)!;
-    final isEn = Localizations.localeOf(screenContext).languageCode == 'en';
     final canWatchAd = await MonetizationService.instance.canWatchAdForScans();
     final currentPackCost = await ScannerEconomyService.instance.getCurrentScanPackCost();
     final remainingPacks = await ScannerEconomyService.instance.getRemainingScanPackBuysToday();
     if (!mounted) return;
+    final localizations = AppLocalizations.of(context)!;
+    final isEn = Localizations.localeOf(context).languageCode == 'en';
 
     showDialog(
-      context: screenContext,
+      context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: ThemeService.instance.cardColor,
         shape: RoundedRectangleBorder(
@@ -157,7 +156,7 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
                   final success = await MonetizationService.instance.watchAdForExtraScans();
                   if (!mounted) return;
                   if (success) {
-                    ScaffoldMessenger.of(screenContext).showSnackBar(
+                    ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(
                           localizations.extraScansWon,
@@ -203,7 +202,7 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
                             : (isEn
                                 ? 'Daily pack limit reached. Try again tomorrow.'
                                 : 'Limite diario de packs alcanzado. Intenta manana.');
-                ScaffoldMessenger.of(screenContext).showSnackBar(
+                ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(text),
                     behavior: SnackBarBehavior.floating,
@@ -224,7 +223,7 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
                 Navigator.pop(dialogContext);
                 if (!mounted) return;
                 Navigator.push(
-                  screenContext,
+                  context,
                   MaterialPageRoute(builder: (context) => const PremiumScreen()),
                 );
               },

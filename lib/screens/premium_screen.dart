@@ -257,6 +257,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
   void _restorePurchases() async {
     // Restaurar compras reales con PurchaseService
     final success = await PurchaseService.instance.restorePurchases();
+    if (!mounted) return;
 
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(

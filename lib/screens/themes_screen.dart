@@ -75,7 +75,7 @@ class _ThemesScreenState extends State<ThemesScreen>
         return AppLocalizations.of(context)?.classicThemeName ?? '💘 Clásico';
       case ThemeType.sunset:
         return AppLocalizations.of(context)?.sunsetThemeName ??
-            'ï¿½ Aurora Pastel';
+            '🌅 Aurora Pastel';
       case ThemeType.ocean:
         return AppLocalizations.of(context)?.oceanThemeName ?? '🌊 Océano';
       case ThemeType.forest:
@@ -95,28 +95,28 @@ class _ThemesScreenState extends State<ThemesScreen>
     switch (themeType) {
       case ThemeType.classic:
         return AppLocalizations.of(context)?.classicThemeDescription ??
-            'El tema original de amor'; // TODO: Add localization key
+            'El tema original de amor';
       case ThemeType.sunset:
         return AppLocalizations.of(context)?.sunsetThemeDescription ??
             'Degradé moderno de violeta, rosa y azul';
       case ThemeType.ocean:
         return AppLocalizations.of(context)?.oceanThemeDescription ??
-            'Profundos azules marinos'; // TODO: Add localization key
+            'Profundos azules marinos';
       case ThemeType.forest:
         return AppLocalizations.of(context)?.forestThemeDescription ??
-            'Verdes naturales y frescos'; // TODO: Add localization key
+            'Verdes naturales y frescos';
       case ThemeType.lavender:
         return AppLocalizations.of(context)?.lavenderThemeDescription ??
-            'Elegantes púrpuras y violetas'; // TODO: Add localization key
+            'Elegantes púrpuras y violetas';
       case ThemeType.cosmic:
         return AppLocalizations.of(context)?.cosmicThemeDescription ??
-            'Misterioso espacio profundo'; // TODO: Add localization key
+            'Misterioso espacio profundo';
       case ThemeType.cherry:
         return AppLocalizations.of(context)?.cherryThemeDescription ??
-            'Elegante rosa sakura japonés'; // TODO: Add localization key
+            'Elegante rosa sakura japonés';
       case ThemeType.golden:
         return AppLocalizations.of(context)?.goldenThemeDescription ??
-            'Lujo y elegancia dorada'; // TODO: Add localization key
+            'Lujo y elegancia dorada';
     }
   }
 
@@ -382,7 +382,7 @@ class _ThemesScreenState extends State<ThemesScreen>
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              'Preview', // TODO: Add localization key 'themePreview'
+                              'Preview',
                               style: TextStyle(
                                 color: theme.primaryColor,
                                 fontSize: 12,
@@ -432,7 +432,7 @@ class _ThemesScreenState extends State<ThemesScreen>
                               Icon(Icons.star, color: Colors.white, size: 12),
                               SizedBox(width: 2),
                               Text(
-                                'PREMIUM', // TODO: Add localization key 'premiumBadge'
+                                'PREMIUM',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 10,
@@ -517,7 +517,7 @@ class _ThemesScreenState extends State<ThemesScreen>
                               borderRadius: BorderRadius.circular(15),
                             ),
                             child: const Text(
-                              'PREMIUM', // TODO: Add localization key 'premiumBadge'
+                              'PREMIUM',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 12,
@@ -759,7 +759,7 @@ class _ThemesScreenState extends State<ThemesScreen>
                               ),
                             ),
                             Text(
-                              'Acceso permanente', // TODO: Add localization key 'permanentAccess'
+                              'Acceso permanente',
                               style: TextStyle(
                                 color: ThemeService.instance.subtitleColor,
                                 fontSize: 12,

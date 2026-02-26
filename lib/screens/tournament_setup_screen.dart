@@ -464,6 +464,7 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
             params: {'success': res == CoinSpendResult.success},
           );
           if (!mounted) return;
+          if (!ctx.mounted) return;
           Navigator.pop(ctx);
           if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
@@ -488,6 +489,7 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
             params: {'success': res == CoinSpendResult.success},
           );
           if (!mounted) return;
+          if (!ctx.mounted) return;
           Navigator.pop(ctx);
           if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(

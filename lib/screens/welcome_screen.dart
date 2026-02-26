@@ -577,7 +577,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
-                                'PRO', // TODO: Add localization key 'proBadge'
+                                'PRO',
                                 style: GoogleFonts.poppins(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w700,
