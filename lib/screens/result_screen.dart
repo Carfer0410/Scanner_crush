@@ -71,9 +71,17 @@ class _ResultScreenState extends State<ResultScreen>
     });
 
     _loadBannerAd();
+    _showPostResultInterstitial();
 
     // Track user action para sistema de frecuencia de anuncios
     AdMobService.instance.trackUserAction();
+  }
+
+  void _showPostResultInterstitial() {
+    Future.delayed(const Duration(seconds: 2), () async {
+      if (!mounted) return;
+      await MonetizationService.instance.showInterstitialAd();
+    });
   }
 
   void _loadBannerAd() async {

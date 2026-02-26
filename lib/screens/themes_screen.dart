@@ -719,7 +719,7 @@ class _ThemesScreenState extends State<ThemesScreen>
                                   ? 'Ya tienes acceso temporal activo a este tema.'
                                   : remainingUnlocks > 0
                                       ? 'Acceso por $unlockLabel SOLO a este tema. Te quedan $remainingUnlocks desbloqueos hoy.'
-                                      : 'Limite diario alcanzado. Vuelve manana o hazte Premium.',
+                                      : 'Límite diario alcanzado. Vuelve mañana o hazte Premium.',
                               style: TextStyle(
                                 color: ThemeService.instance.subtitleColor,
                                 fontSize: 12,
@@ -821,17 +821,26 @@ class _ThemesScreenState extends State<ThemesScreen>
                                         'Acceso temporal otorgado por $unlockLabel.',
                                       ),
                                       backgroundColor: Colors.green,
+                                      behavior: SnackBarBehavior.floating,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
                                       duration: const Duration(seconds: 6),
                                     ),
                                   );
                                 } else if (adShown && !granted) {
+                                  Navigator.pop(screenContext);
                                   ScaffoldMessenger.of(screenContext).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                        'Limite diario alcanzado para desbloqueos por anuncio.',
+                                    SnackBar(
+                                      content: const Text(
+                                        'Límite diario alcanzado para desbloqueos por anuncio.',
                                       ),
                                       backgroundColor: Colors.orange,
-                                      duration: Duration(seconds: 6),
+                                      behavior: SnackBarBehavior.floating,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      duration: const Duration(seconds: 6),
                                     ),
                                   );
                                 }

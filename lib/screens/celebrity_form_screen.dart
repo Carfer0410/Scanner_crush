@@ -164,6 +164,10 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
                           style: GoogleFonts.poppins(color: Colors.white),
                         ),
                         backgroundColor: Colors.green,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                         duration: const Duration(seconds: 6),
                       ),
                     );
@@ -200,7 +204,14 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
                                 ? 'Daily pack limit reached. Try again tomorrow.'
                                 : 'Limite diario de packs alcanzado. Intenta manana.');
                 ScaffoldMessenger.of(screenContext).showSnackBar(
-                  SnackBar(content: Text(text), duration: const Duration(seconds: 6)),
+                  SnackBar(
+                    content: Text(text),
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    duration: const Duration(seconds: 6),
+                  ),
                 );
               },
             ),

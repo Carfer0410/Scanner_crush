@@ -201,12 +201,14 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
           SnackBar(
             content: Text(localizations.coinsWonMessage(coinsEarned)),
             backgroundColor: Colors.teal,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
             duration: const Duration(seconds: 6),
           ),
         );
       }
-
-      await MonetizationService.instance.showInterstitialAd();
 
       if (!mounted) return;
       Navigator.pushReplacement(
@@ -225,6 +227,8 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
         SnackBar(
           content: Text(AppLocalizations.of(context)!.errorGeneratingResult),
           backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           duration: const Duration(seconds: 6),
         ),
       );
@@ -261,6 +265,8 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
           success ? localizations.youGotPlusTwoScansMessage : localizations.noAdAvailableNowMessage,
         ),
         backgroundColor: success ? Colors.green : Colors.orange,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         duration: const Duration(seconds: 6),
       ),
     );
@@ -284,6 +290,8 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
       SnackBar(
         content: Text(text),
         backgroundColor: spend == ScannerCoinSpendResult.success ? Colors.green : Colors.orange,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         duration: const Duration(seconds: 6),
       ),
     );

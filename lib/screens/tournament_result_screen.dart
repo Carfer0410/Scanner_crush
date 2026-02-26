@@ -84,8 +84,16 @@ class _TournamentResultScreenState extends State<TournamentResultScreen>
 
     _loadBannerAd();
     _grantCompletionReward();
+    _showPostResultInterstitial();
     AdMobService.instance.trackUserAction();
     AnalyticsService.instance.trackEvent('tournament_result_opened');
+  }
+
+  void _showPostResultInterstitial() {
+    Future.delayed(const Duration(seconds: 2), () async {
+      if (!mounted) return;
+      await MonetizationService.instance.showInterstitialAd();
+    });
   }
 
   Future<void> _grantCompletionReward() async {

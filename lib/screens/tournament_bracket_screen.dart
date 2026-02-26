@@ -124,10 +124,8 @@ class _TournamentBracketScreenState extends State<TournamentBracketScreen> {
   }
 
   void _tryShowInterstitialBetweenRounds() async {
-    if (await MonetizationService.instance.isPremiumAsync()) return;
-    if (await AdMobService.instance.shouldShowInterstitialAd()) {
-      await AdMobService.instance.showInterstitialAd();
-    }
+    // UX priority: keep tournament flow uninterrupted until results screen.
+    return;
   }
 
   void _offerRevive() async {

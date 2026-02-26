@@ -114,6 +114,8 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
             ? (isEn ? 'Ticket unlocked! You can start a new tournament.' : '¡Ticket desbloqueado! Ya puedes iniciar otro torneo.')
             : (isEn ? 'No ad available right now. Try again later.' : 'No hay anuncio disponible ahora. Intenta más tarde.')),
         backgroundColor: ok ? Colors.green : Colors.orange,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         duration: const Duration(seconds: 3),
       ),
     );
@@ -212,6 +214,8 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
                             ? '🌟 16-player tournament unlocked for today!'
                             : '🌟 ¡Torneo de 16 desbloqueado por hoy!'),
                         backgroundColor: Colors.green,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                         duration: const Duration(seconds: 2),
                       ),
                     );
@@ -220,6 +224,8 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
                       SnackBar(
                         content: Text(loc.adNotAvailable),
                         backgroundColor: Colors.orange,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                         duration: const Duration(seconds: 2),
                       ),
                     );
@@ -458,6 +464,8 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
             params: {'success': res == CoinSpendResult.success},
           );
           if (!mounted) return;
+          Navigator.pop(ctx);
+          if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
@@ -466,6 +474,8 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
                     : (isEn ? 'Not enough coins.' : 'No tienes suficientes coins.'),
               ),
               backgroundColor: res == CoinSpendResult.success ? Colors.green : Colors.orange,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
           );
         }
@@ -478,6 +488,8 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
             params: {'success': res == CoinSpendResult.success},
           );
           if (!mounted) return;
+          Navigator.pop(ctx);
+          if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
@@ -486,6 +498,8 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
                     : (isEn ? 'Not enough coins.' : 'No tienes suficientes coins.'),
               ),
               backgroundColor: res == CoinSpendResult.success ? Colors.green : Colors.orange,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
           );
         }
@@ -586,6 +600,8 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
               : (isEn ? 'Mission not ready.' : 'La misión no está lista.'),
         ),
         backgroundColor: reward > 0 ? Colors.green : Colors.orange,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
   }

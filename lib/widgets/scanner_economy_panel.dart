@@ -56,6 +56,8 @@ class _ScannerEconomyPanelState extends State<ScannerEconomyPanel> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(loc.coinsClaimedMessage(reward)),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           duration: const Duration(seconds: 6),
         ),
       );
@@ -97,6 +99,8 @@ class _ScannerEconomyPanelState extends State<ScannerEconomyPanel> {
       SnackBar(
         content: Text(message),
         backgroundColor: color,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         duration: const Duration(seconds: 6),
       ),
     );
@@ -116,6 +120,8 @@ class _ScannerEconomyPanelState extends State<ScannerEconomyPanel> {
               : loc.noAdAvailableNowMessage,
         ),
         backgroundColor: ok ? Colors.green : Colors.orange,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         duration: const Duration(seconds: 6),
       ),
     );
@@ -234,40 +240,64 @@ class _ScannerEconomyPanelState extends State<ScannerEconomyPanel> {
               ),
             )
           else
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: snapshot.remainingScanPackBuys > 0 ? _buyScanPack : null,
-                    icon: const Icon(Icons.bolt, size: 16),
-                    label: Text(
-                      snapshot.remainingScanPackBuys > 0
-                          ? loc.scanPackButtonLabel(
-                              ScannerEconomyService.instance.scanPackScans,
-                              snapshot.nextScanPackCost,
-                              snapshot.remainingScanPackBuys,
-                            )
-                          : loc.scanPackExhaustedToday,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final useColumn = constraints.maxWidth < 420;
+                final packButton = OutlinedButton.icon(
+                  onPressed:
+                      snapshot.remainingScanPackBuys > 0 ? _buyScanPack : null,
+                  icon: const Icon(Icons.bolt, size: 15),
+                  label: Text(
+                    snapshot.remainingScanPackBuys > 0
+                        ? loc.scanPackButtonLabel(
+                            ScannerEconomyService.instance.scanPackScans,
+                            snapshot.nextScanPackCost,
+                            snapshot.remainingScanPackBuys,
+                          )
+                        : loc.scanPackExhaustedToday,
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.poppins(fontSize: 11.5),
                   ),
-                ),
-                if (canShowAd) ...[
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: _watchCoinsAd,
-                      icon: const Icon(Icons.play_circle, size: 16),
-                      label: Text(
-                        loc.adCoinsButtonLabel(ScannerEconomyService.instance.coinAdReward),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                );
+
+                final adButton = OutlinedButton.icon(
+                  onPressed: _watchCoinsAd,
+                  icon: const Icon(Icons.play_circle, size: 15),
+                  label: Text(
+                    loc.adCoinsButtonLabel(
+                      ScannerEconomyService.instance.coinAdReward,
                     ),
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.poppins(fontSize: 11.5),
                   ),
-                ],
-              ],
+                );
+
+                if (useColumn) {
+                  return Column(
+                    children: [
+                      SizedBox(width: double.infinity, child: packButton),
+                      if (canShowAd) ...[
+                        const SizedBox(height: 8),
+                        SizedBox(width: double.infinity, child: adButton),
+                      ],
+                    ],
+                  );
+                }
+
+                return Row(
+                  children: [
+                    Expanded(child: packButton),
+                    if (canShowAd) ...[
+                      const SizedBox(width: 8),
+                      Expanded(child: adButton),
+                    ],
+                  ],
+                );
+              },
             ),
           if (_missions.isNotEmpty) ...[
             const SizedBox(height: 10),

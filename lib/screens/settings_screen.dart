@@ -281,24 +281,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         )?.unlockAllFeaturesSettings ??
                                         AppLocalizations.of(context)?.unlockAllFeaturesSettings ?? 'Desbloquea todas las funciones',
                                     onTap: () => _navigateToPremium(),
-                                    trailing: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 4,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: ThemeService.instance.primaryColor,
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: Text(
-                                        AppLocalizations.of(context)!.newBadge,
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
+                                    trailing: null,
                                   ),
                               ],
                             );
@@ -722,6 +705,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
+  String _normalizeDialogText(String value) {
+    return value.replaceAll(r'\n', '\n').replaceAll('/n', '\n');
+  }
+
   void _showLanguageSelector() {
     showDialog(
       context: context,
@@ -811,7 +798,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             content: Text(
-              AppLocalizations.of(context)!.helpDialogContent,
+              _normalizeDialogText(AppLocalizations.of(context)!.helpDialogContent),
               style: GoogleFonts.poppins(
                 fontSize: 14,
                 color: ThemeService.instance.textColor,
@@ -850,7 +837,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             content: Text(
-              AppLocalizations.of(context)!.aboutDialogContent,
+              _normalizeDialogText(AppLocalizations.of(context)!.aboutDialogContent),
               style: GoogleFonts.poppins(
                 fontSize: 14,
                 color: ThemeService.instance.textColor,
@@ -889,7 +876,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             content: Text(
-              AppLocalizations.of(context)!.privacyDialogContent,
+              _normalizeDialogText(AppLocalizations.of(context)!.privacyDialogContent),
               style: GoogleFonts.poppins(
                 fontSize: 14,
                 color: ThemeService.instance.textColor,

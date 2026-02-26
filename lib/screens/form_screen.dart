@@ -217,6 +217,10 @@ class _FormScreenState extends State<FormScreen> {
           SnackBar(
             content: Text(localizations.coinsWonMessage(coinsEarned)),
             backgroundColor: Colors.teal,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
             duration: const Duration(seconds: 6),
           ),
         );
@@ -260,6 +264,10 @@ class _FormScreenState extends State<FormScreen> {
           SnackBar(
             content: Text(localizations.unknownError),
             backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
             duration: const Duration(seconds: 6),
           ),
         );
@@ -350,6 +358,8 @@ class _FormScreenState extends State<FormScreen> {
         SnackBar(
           content: Text(localizations.noAdsAvailable),
           backgroundColor: Colors.orange,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           duration: const Duration(seconds: 6),
         ),
       );
@@ -375,6 +385,8 @@ class _FormScreenState extends State<FormScreen> {
       SnackBar(
         content: Text(text),
         backgroundColor: spend == ScannerCoinSpendResult.success ? Colors.green : Colors.orange,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         duration: const Duration(seconds: 6),
       ),
     );
