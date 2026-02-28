@@ -1,3 +1,4 @@
+﻿import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -26,11 +27,15 @@ import 'package:scanner_crush/generated/l10n/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  runApp(const ScannerCrushApp());
+  unawaited(_bootstrapServices());
+}
 
+Future<void> _bootstrapServices() async {
   try {
     LoggerService.info('Iniciando Scanner Crush...', origin: 'main');
 
-    // ── System chrome (no bloquea) ──
+    // System chrome (no bloquea)
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -39,11 +44,11 @@ void main() async {
       ),
     );
 
-    // ── Fase 1: Servicios críticos (deben ir primero y en orden) ──
+    // Fase 1: Servicios criticos (deben ir primero y en orden)
     await _initSafe('AdMob SDK', () => MobileAds.instance.initialize());
     await _initSafe('SecureTimeService', () => SecureTimeService.instance.initialize());
 
-    // ── Fase 2: Servicios de UI/UX (pueden correr en paralelo) ──
+    // Fase 2: Servicios de UI/UX (pueden correr en paralelo)
     await Future.wait([
       _initSafe('ThemeService', () => ThemeService.instance.initialize()),
       _initSafe('LocaleService', () => LocaleService.instance.initialize()),
@@ -52,13 +57,13 @@ void main() async {
       _initSafe('StreakService', () => StreakService.instance.initialize()),
     ]);
 
-    // ── Fase 3: Monetización (depende de SecureTimeService) ──
+    // Fase 3: Monetizacion (depende de SecureTimeService)
     await Future.wait([
       _initSafe('AdMobService', () => AdMobService.instance.initialize()),
       _initSafe('MonetizationService', () => MonetizationService.instance.initialize()),
     ]);
 
-    // ── Fase 4: Servicios secundarios ──
+    // Fase 4: Servicios secundarios
     await Future.wait([
       _initSafe('PurchaseService', () => PurchaseService.instance.initialize()),
       _initSafe('ReceiptValidationService', () => ReceiptValidationService.instance.initialize()),
@@ -68,7 +73,7 @@ void main() async {
       _initSafe('ScannerEconomyService', () => ScannerEconomyService.instance.initialize()),
     ]);
 
-    // ── Fase 5: Tareas de mantenimiento (no bloquean el splash) ──
+    // Fase 5: Tareas de mantenimiento (no bloquean UI)
     unawaited(
       Future.wait([
         _initSafe('PremiumCleanup', () => PremiumThemeService.instance.checkAndHandleExpiredPremium()),
@@ -78,20 +83,18 @@ void main() async {
 
     LoggerService.info('Todos los servicios inicializados correctamente', origin: 'main');
   } catch (e, st) {
-    LoggerService.error('Error crítico en inicialización', origin: 'main', error: e, stackTrace: st);
+    LoggerService.error('Error critico en inicializacion', origin: 'main', error: e, stackTrace: st);
   }
-
-  runApp(const ScannerCrushApp());
 }
 
-/// Helper que envuelve cada inicialización en un try/catch individual
-/// para que un fallo no cancele las demás.
+/// Helper que envuelve cada inicializaciÃ³n en un try/catch individual
+/// para que un fallo no cancele las demÃ¡s.
 Future<void> _initSafe(String name, Future<void> Function() init) async {
   try {
     await init();
     LoggerService.info('$name inicializado', origin: 'init');
   } catch (e, st) {
-    LoggerService.warning('$name falló: $e', origin: 'init', error: e);
+    LoggerService.warning('$name fallÃ³: $e', origin: 'init', error: e);
     // stack trace en debug
     LoggerService.debug(st.toString(), origin: 'init');
   }
@@ -151,7 +154,7 @@ class _ScannerCrushAppState extends State<ScannerCrushApp> {
     );
   }
 
-  /// Genera [ThemeData] unificado para evitar duplicación light/dark.
+  /// Genera [ThemeData] unificado para evitar duplicaciÃ³n light/dark.
   ThemeData _buildTheme(Brightness brightness) {
     final ts = ThemeService.instance;
     final isDark = brightness == Brightness.dark;
@@ -250,3 +253,4 @@ class _ScannerCrushAppState extends State<ScannerCrushApp> {
     );
   }
 }
+

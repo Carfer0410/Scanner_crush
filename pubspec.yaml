@@ -1,7 +1,7 @@
 name: scanner_crush
 description: "Escáner de Crush - ¿Quién te ama en secreto?"
 publish_to: 'none'
-version: 1.0.0
+version: 1.0.1+3
 
 environment:
   sdk: ^3.7.2
@@ -40,12 +40,12 @@ flutter:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/images/logoapp.png"
+  image_path: "assets/images/logoapp.jpeg"
   min_sdk_android: 21 # Requerido para iconos adaptativos
   
   # Configuración para Android
   adaptive_icon_background: "#FF6F91" # Color primario de la app
-  adaptive_icon_foreground: "assets/images/logoapp.png"
+  adaptive_icon_foreground: "assets/images/logoapp.jpeg"
   
   # Configuración específica para diferentes tamaños
   android_icon_background: "#FF6F91"

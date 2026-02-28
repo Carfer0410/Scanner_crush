@@ -18,7 +18,7 @@ class AdMobService {
   /// En debug/profile usamos test IDs por seguridad (evita riesgo de baneo).
   static const bool _forceProductionAds = bool.fromEnvironment(
     'USE_PROD_ADS',
-    defaultValue: false,
+    defaultValue: true,
   );
 
   // IDs de producción Android
@@ -48,7 +48,7 @@ class AdMobService {
   bool _isRewardedAdLoaded = false;
   bool _isInitialized = false;
 
-  bool get _useProductionAds => kReleaseMode || _forceProductionAds;
+  bool get _useProductionAds => _forceProductionAds;
 
   // Getters para IDs de anuncios
   String get bannerAdUnitId {
