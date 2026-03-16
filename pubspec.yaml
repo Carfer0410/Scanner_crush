@@ -1,7 +1,7 @@
 name: scanner_crush
 description: "Escáner de Crush - ¿Quién te ama en secreto?"
 publish_to: 'none'
-version: 1.0.4+9
+version: 1.0.4+10
 
 environment:
   sdk: ^3.7.2
