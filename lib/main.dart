@@ -82,6 +82,10 @@ Future<void> _bootstrapServices() async {
     );
 
     LoggerService.info('Todos los servicios inicializados correctamente', origin: 'main');
+
+    // Record the daily visit AFTER all services are ready so that
+    // SecureTimeService has already synced and _todayKey() is stable.
+    unawaited(StreakService.instance.recordAppVisit());
   } catch (e, st) {
     LoggerService.error('Error critico en inicializacion', origin: 'main', error: e, stackTrace: st);
   }
@@ -110,7 +114,44 @@ class ScannerCrushApp extends StatefulWidget {
   State<ScannerCrushApp> createState() => _ScannerCrushAppState();
 }
 
-class _ScannerCrushAppState extends State<ScannerCrushApp> {
+class _ScannerCrushAppState extends State<ScannerCrushApp>
+    with WidgetsBindingObserver {
+  AppLifecycleState? _lastLifecycleState;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    // recordAppVisit is now called from _bootstrapServices after all
+    // services (including SecureTimeService) are fully initialized.
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    AudioService.instance.handleAppLifecycleState(state);
+    final shouldRecordVisit =
+        state == AppLifecycleState.resumed &&
+        (_lastLifecycleState == AppLifecycleState.paused ||
+            _lastLifecycleState == AppLifecycleState.inactive ||
+            _lastLifecycleState == AppLifecycleState.hidden);
+    _lastLifecycleState = state;
+
+    if (shouldRecordVisit) {
+      unawaited(StreakService.instance.recordAppVisit());
+      // Re-verificar suscripciones activas en Google Play al volver a la app
+      // Esto garantiza restauración tras reinstalar / actualizar
+      if (PurchaseService.instance.isInitialized && PurchaseService.instance.isAvailable) {
+        unawaited(PurchaseService.instance.restorePurchases());
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(

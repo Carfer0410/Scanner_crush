@@ -302,11 +302,11 @@ class _TournamentMatchScreenState extends State<TournamentMatchScreen>
         : _battleCryEs[_random.nextInt(_battleCryEs.length)];
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: const Color(0xFF0D0D1A),
       bottomNavigationBar: (_bannerAd != null && _isBannerAdReady)
           ? Container(
               alignment: Alignment.center,
-              color: Colors.black,
+              color: const Color(0xFF0D0D1A),
               width: _bannerAd!.size.width.toDouble(),
               height: _bannerAd!.size.height.toDouble(),
               child: AdWidget(ad: _bannerAd!),
@@ -319,17 +319,19 @@ class _TournamentMatchScreenState extends State<TournamentMatchScreen>
             duration: const Duration(seconds: 1),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
                 colors: _showWinner
                     ? [
-                        ThemeService.instance.primaryColor.withOpacity(0.8),
-                        ThemeService.instance.secondaryColor.withOpacity(0.8),
+                        const Color(0xFF1A0A2E),
+                        ThemeService.instance.primaryColor.withOpacity(0.5),
+                        const Color(0xFF1A0A2E),
                       ]
                     : [
-                        Colors.black87,
-                        ThemeService.instance.primaryColor.withOpacity(0.3),
-                        Colors.black87,
+                        const Color(0xFF0D0D1A),
+                        const Color(0xFF1A0A2E),
+                        ThemeService.instance.primaryColor.withOpacity(0.15),
+                        const Color(0xFF0D0D1A),
                       ],
               ),
             ),
@@ -349,9 +351,14 @@ class _TournamentMatchScreenState extends State<TournamentMatchScreen>
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.08),
+                      gradient: LinearGradient(
+                        colors: [
+                          ThemeService.instance.primaryColor.withOpacity(0.15),
+                          ThemeService.instance.secondaryColor.withOpacity(0.10),
+                        ],
+                      ),
                       borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: Colors.white.withOpacity(0.18)),
+                      border: Border.all(color: ThemeService.instance.primaryColor.withOpacity(0.3)),
                     ),
                     child: Column(
                       children: [
@@ -502,15 +509,15 @@ class _TournamentMatchScreenState extends State<TournamentMatchScreen>
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              Colors.amber.shade700,
-                              Colors.orange.shade600,
-                              Colors.deepOrange.shade500,
+                              ThemeService.instance.primaryColor,
+                              ThemeService.instance.secondaryColor,
+                              ThemeService.instance.accentColor,
                             ],
                           ),
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.amber.withOpacity(0.5),
+                              color: ThemeService.instance.primaryColor.withOpacity(0.5),
                               blurRadius: 20,
                               offset: const Offset(0, 6),
                               spreadRadius: 2,
@@ -583,21 +590,25 @@ class _TournamentMatchScreenState extends State<TournamentMatchScreen>
           margin: const EdgeInsets.symmetric(horizontal: 30),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
           decoration: BoxDecoration(
-            color: isWinner
-                ? Colors.amber.shade900.withOpacity(0.4)
-                : Colors.white.withOpacity(0.1),
+            gradient: isWinner
+                ? LinearGradient(colors: [
+                    ThemeService.instance.primaryColor.withOpacity(0.35),
+                    ThemeService.instance.secondaryColor.withOpacity(0.25),
+                  ])
+                : null,
+            color: isWinner ? null : Colors.white.withOpacity(0.08),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: isWinner
                   ? Colors.amber.withOpacity(0.6)
-                  : Colors.white.withOpacity(0.2),
+                  : Colors.white.withOpacity(0.15),
               width: isWinner ? 2 : 1,
             ),
             boxShadow: isWinner
                 ? [
                     BoxShadow(
-                      color: Colors.amber.withOpacity(0.3),
-                      blurRadius: 15,
+                      color: ThemeService.instance.primaryColor.withOpacity(0.4),
+                      blurRadius: 18,
                       spreadRadius: 2,
                     ),
                   ]

@@ -9,6 +9,8 @@ enum ThemeType {
   cosmic,
   cherry,
   golden,
+  aurora,
+  moonlight,
 }
 
 class AppTheme {
@@ -207,30 +209,30 @@ class AppTheme {
     ),
     AppTheme(
       type: ThemeType.cherry,
-      name: 'Cherry Silk',
-      description: 'Sakura pink with elegant plum.',
+      name: 'Cherry Pop',
+      description: 'Coral cherry tones with vibrant berry depth.',
       icon: Icons.local_florist,
       backgroundGradient: LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
-          Color(0xFFFFF1F7),
-          Color(0xFFF9DDEB),
-          Color(0xFFEFCBE0),
+          Color(0xFFFFF4EE),
+          Color(0xFFFFC7B8),
+          Color(0xFFFF8A7A),
         ],
       ),
       backgroundGradientDark: LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
-          Color(0xFF2B1624),
-          Color(0xFF3B1E31),
-          Color(0xFF4A2740),
+          Color(0xFF2C1418),
+          Color(0xFF4A1E27),
+          Color(0xFF6B2432),
         ],
       ),
-      primaryColor: Color(0xFFA94472),
-      secondaryColor: Color(0xFFC45C89),
-      accentColor: Color(0xFF6E2B4F),
+      primaryColor: Color(0xFFE25555),
+      secondaryColor: Color(0xFFFF7A59),
+      accentColor: Color(0xFF8C233A),
       isPremium: true,
     ),
     AppTheme(
@@ -259,6 +261,62 @@ class AppTheme {
       primaryColor: Color(0xFFB7791F),
       secondaryColor: Color(0xFFD59A2D),
       accentColor: Color(0xFF7A4F13),
+      isPremium: true,
+    ),
+    AppTheme(
+      type: ThemeType.aurora,
+      name: 'Aurora Dream',
+      description: 'Iridescent sky glow with dreamy neon romance.',
+      icon: Icons.auto_awesome,
+      backgroundGradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          Color(0xFFF4FFF9),
+          Color(0xFFDDF8FF),
+          Color(0xFFE8DBFF),
+        ],
+      ),
+      backgroundGradientDark: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          Color(0xFF0D1A26),
+          Color(0xFF182A3D),
+          Color(0xFF2A2450),
+        ],
+      ),
+      primaryColor: Color(0xFF3BA7C9),
+      secondaryColor: Color(0xFF8B6BE8),
+      accentColor: Color(0xFF2CD4B7),
+      isPremium: true,
+    ),
+    AppTheme(
+      type: ThemeType.moonlight,
+      name: 'Moonlight Velvet',
+      description: 'Midnight indigo, silver mist and rose shimmer.',
+      icon: Icons.brightness_2,
+      backgroundGradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          Color(0xFFF9F6FF),
+          Color(0xFFE8E0FF),
+          Color(0xFFFFEAF2),
+        ],
+      ),
+      backgroundGradientDark: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          Color(0xFF111427),
+          Color(0xFF1B1E39),
+          Color(0xFF2B1F38),
+        ],
+      ),
+      primaryColor: Color(0xFF6E63D9),
+      secondaryColor: Color(0xFFB883E6),
+      accentColor: Color(0xFFE36FA3),
       isPremium: true,
     ),
   ];

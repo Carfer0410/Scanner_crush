@@ -197,10 +197,78 @@ class CrushService {
     "Gordon Ramsay", "Jamie Oliver", "Massimo Bottura", "Ferran Adrià", "Yotam Ottolenghi", "Alice Waters",
   ];
 
+  final List<String> _additionalPersonalities = [
+    // Políticos y líderes globales
+    'Joe Biden', 'Donald Trump', 'Barack Obama', 'Kamala Harris', 'Hillary Clinton',
+    'Vladimir Putin', 'Volodymyr Zelensky', 'Emmanuel Macron', 'Justin Trudeau',
+    'Pedro Sánchez', 'Nayib Bukele', 'Gustavo Petro', 'Andrés Manuel López Obrador',
+    'Javier Milei', 'Dilma Rousseff', 'Lula da Silva', 'Margaret Thatcher',
+    'John F. Kennedy', 'Ronald Reagan', 'Xi Jinping', 'Narendra Modi', 'Pope Francis',
+
+    // Cantantes y bandas extra
+    'Shakira', 'Rihanna', 'Beyoncé', 'Adele', 'Kanye West', 'Coldplay',
+    'Imagine Dragons', 'Linkin Park', 'Metallica', 'Nirvana', 'The Beatles',
+    'Queen', 'Luis Miguel', 'Juan Gabriel', 'Carlos Vives', 'Romeo Santos',
+    'Marc Anthony', 'Mon Laferte', 'Morat',
+
+    // Actores/actrices extra
+    'Robert De Niro', 'Morgan Freeman', 'Anne Hathaway', 'Natalie Portman',
+    'Gal Gadot', 'Keira Knightley', 'Penélope Cruz', 'Javier Bardem',
+    'Antonio Banderas', 'Ricardo Darín', 'Gael García Bernal',
+
+    // Futbolistas y atletas extra
+    'Lamine Yamal', 'Jamal Musiala', 'Florian Wirtz', 'Rodri', 'Kevin De Bruyne',
+    'Luka Modrić', 'Sergio Ramos', 'Karim Benzema', 'Mohamed Salah', 'Sadio Mané',
+    'Robert Lewandowski', 'Harry Kane', 'Son Heung-min', 'Alexia Putellas',
+    'Aitana Bonmatí', 'Marta Vieira da Silva', 'James Rodríguez', 'Radamel Falcao',
+
+    // Pintores/escultores extra
+    'Michelangelo', 'Raphael', 'Diego Velázquez', 'Francisco Goya', 'Joan Miró',
+    'René Magritte', 'Camille Pissarro', 'Egon Schiele', 'Amedeo Modigliani',
+    'Andy Warhol', 'Banksy', 'Fernando Botero',
+  ];
+
+  final Map<String, String> _celebrityAliases = {
+    'barak obama': 'barack obama',
+    'barac obama': 'barack obama',
+    'obama': 'barack obama',
+    'donald trunp': 'donald trump',
+    'donal trump': 'donald trump',
+    'trump': 'donald trump',
+    'vladmir putin': 'vladimir putin',
+    'vladimir putim': 'vladimir putin',
+    'putin': 'vladimir putin',
+    'zelinky': 'volodymyr zelensky',
+    'zelenski': 'volodymyr zelensky',
+    'zelensky': 'volodymyr zelensky',
+    'volodimir zelensky': 'volodymyr zelensky',
+    'messi': 'lionel messi',
+    'cr7': 'cristiano ronaldo',
+    'ronaldo': 'cristiano ronaldo',
+    'neymar': 'neymar jr',
+    'mbappe': 'kylian mbappe',
+    'kylian mbappe': 'kylian mbappe',
+    'shakira isabel': 'shakira',
+    'the weekend': 'the weeknd',
+    'weekend': 'the weeknd',
+    'badbunny': 'bad bunny',
+    'karolg': 'karol g',
+    'dua lipae': 'dua lipa',
+    'timothe chalamet': 'timothee chalamet',
+    'timothee chalamet': 'timothee chalamet',
+    'pedro pascalle': 'pedro pascal',
+    'michael jordan': 'michael b. jordan',
+    'vincent van gogh': 'vincent van gogh',
+    'pablo picazo': 'pablo picasso',
+    'leonardo davinci': 'leonardo da vinci',
+  };
+
   /// Returns deduplicated celebrity list preserving first occurrence order.
   List<String> get celebrities {
     final seen = <String>{};
-    return _celebrities.where((c) => seen.add(c)).toList();
+    return [..._celebrities, ..._additionalPersonalities]
+        .where((c) => seen.add(c))
+        .toList();
   }
 
   final List<String> _emojis = [
@@ -250,31 +318,134 @@ class CrushService {
     return 'unknown';
   }
 
+  String inferCelebrityGender(String fullName) => _inferGenderFromName(fullName);
+
   /// Public access to celebrity names (for Tournament feature)
   /// If `gender` is provided ('male' or 'female') the list will be filtered by
   /// a lightweight inference heuristic; otherwise returns all celebrities.
   List<String> getCelebrityNames({String? gender}) {
-    if (gender == null) return List<String>.from(_celebrities);
+    if (gender == null) return List<String>.from(celebrities);
     final g = gender.toLowerCase();
-    return _celebrities.where((c) => _inferGenderFromName(c) == g).toList();
+    return celebrities.where((c) => _inferGenderFromName(c) == g).toList();
   }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // EMOTIONAL RESONANCE ALGORITHM v2 — Multi-layer compatibility engine
+  // ═══════════════════════════════════════════════════════════════════
+
+  /// Deterministic hash for a given string seed.
+  int _hash(String seed) {
+    var h = 0;
+    for (int i = 0; i < seed.length; i++) {
+      h = ((h << 5) - h + seed.codeUnitAt(i)) & 0xffffffff;
+    }
+    return h.abs();
+  }
+
+  /// Shared letters ratio between two names (0.0 – 1.0).
+  double _sharedLettersRatio(String a, String b) {
+    final setA = a.toLowerCase().replaceAll(RegExp(r'[^a-záéíóúñü]'), '').split('').toSet();
+    final setB = b.toLowerCase().replaceAll(RegExp(r'[^a-záéíóúñü]'), '').split('').toSet();
+    if (setA.isEmpty || setB.isEmpty) return 0;
+    final shared = setA.intersection(setB).length;
+    final total = setA.union(setB).length;
+    return shared / total;
+  }
+
+  /// Vowel harmony score (0.0 – 1.0). Similar vowel profiles = higher.
+  double _vowelHarmony(String a, String b) {
+    List<int> profile(String s) {
+      final chars = s.toLowerCase().split('');
+      final counts = List.filled(5, 0); // a e i o u
+      final map = {'a': 0, 'á': 0, 'e': 1, 'é': 1, 'i': 2, 'í': 2, 'o': 3, 'ó': 3, 'u': 4, 'ú': 4};
+      for (final c in chars) {
+        if (map.containsKey(c)) counts[map[c]!]++;
+      }
+      final total = counts.fold<int>(0, (s, v) => s + v);
+      if (total == 0) return counts;
+      return counts;
+    }
+    final pa = profile(a);
+    final pb = profile(b);
+    // Cosine-like similarity
+    var dot = 0, magA = 0, magB = 0;
+    for (int i = 0; i < 5; i++) {
+      dot += pa[i] * pb[i];
+      magA += pa[i] * pa[i];
+      magB += pb[i] * pb[i];
+    }
+    if (magA == 0 || magB == 0) return 0.3;
+    return dot / (sqrt(magA.toDouble()) * sqrt(magB.toDouble()));
+  }
+
+  /// Name length compatibility (0.0 – 1.0). Similar lengths score higher.
+  double _lengthHarmony(String a, String b) {
+    final la = a.replaceAll(' ', '').length;
+    final lb = b.replaceAll(' ', '').length;
+    if (la == 0 || lb == 0) return 0.3;
+    final ratio = la < lb ? la / lb : lb / la;
+    return ratio;
+  }
+
+  /// Apply a skewed distribution: maps a uniform 0-1 value to a
+  /// distribution that favors higher scores.
+  /// ~60% chance of 75-95, ~25% chance of 55-74, ~15% chance of 35-54.
+  int _skewedScore(double uniform01) {
+    // Use a power curve: raising to a fractional power pulls values upward.
+    final skewed = 1.0 - pow(1.0 - uniform01, 1.8);
+    // Map to 35-98 range
+    return (35 + (skewed * 63)).round().clamp(35, 98);
+  }
+
+  /// Generate 4 sub-dimension scores deterministically from the two names.
+  Map<String, int> generateDimensions(String name1, String name2) {
+    final sorted = [name1.toLowerCase(), name2.toLowerCase()]..sort();
+
+    final emotionalSeed = _hash('emotional_${sorted.join("+")}');
+    final passionSeed = _hash('passion_${sorted.join("+")}');
+    final intellectualSeed = _hash('intellectual_${sorted.join("+")}');
+    final destinySeed = _hash('destiny_${sorted.join("+")}');
+
+    // Each dimension gets its own uniform [0,1] value, then skewed
+    double toUniform(int seed) => (seed % 10000) / 10000.0;
+
+    return {
+      'emotional': _skewedScore(toUniform(emotionalSeed)),
+      'passion': _skewedScore(toUniform(passionSeed)),
+      'intellectual': _skewedScore(toUniform(intellectualSeed)),
+      'destiny': _skewedScore(toUniform(destinySeed)),
+    };
+  }
+
+  /// Public accessor for the compatibility score (used by TournamentService).
+  int generateCompatibilityScore(String name1, String name2) =>
+      _generateCompatibilityPercentage(name1, name2);
 
   int _generateCompatibilityPercentage(String name1, String name2) {
     // Sort names alphabetically so order doesn't matter (A+B == B+A)
     final sorted = [name1.toLowerCase(), name2.toLowerCase()]..sort();
     final combined = sorted.join();
-    var hash = 0;
-    for (int i = 0; i < combined.length; i++) {
-      hash = ((hash << 5) - hash + combined.codeUnitAt(i)) & 0xffffffff;
-    }
 
-    // Ensure percentage is between 30-100 for more optimistic results
-    // Use absolute value and proper modulo to prevent overflow
-    final positiveHash = hash.abs();
-    final percentage = 30 + (positiveHash % 71); // 71 = 100 - 30 + 1
+    // ── Layer 1: Base hash (deterministic seed) ──
+    final baseHash = _hash(combined);
+    final baseUniform = (baseHash % 10000) / 10000.0;
 
-    // Additional safety check to ensure we're in valid range
-    return percentage.clamp(30, 100);
+    // ── Layer 2: Name resonance signals ──
+    final sharedLetters = _sharedLettersRatio(name1, name2); // 0-1
+    final vowelScore = _vowelHarmony(name1, name2);           // 0-1
+    final lengthScore = _lengthHarmony(name1, name2);         // 0-1
+
+    // Weighted resonance: how "harmonious" the names feel
+    final resonance = (sharedLetters * 0.40) + (vowelScore * 0.35) + (lengthScore * 0.25);
+
+    // ── Layer 3: Blend base + resonance ──
+    // Base hash drives 55% of the score, resonance drives 45%
+    final blended = (baseUniform * 0.55) + (resonance * 0.45);
+
+    // ── Layer 4: Skewed distribution (favors higher results) ──
+    final percentage = _skewedScore(blended);
+
+    return percentage.clamp(35, 98);
   }
 
   String _getRandomMessage(
@@ -532,42 +703,316 @@ class CrushService {
         .replaceAll('ñ', 'n');
   }
 
-  /// Public wrapper for celebrity detection (for Tournament feature)
-  bool checkIsCelebrity(String name) => _isCelebrity(name);
+  String _normalizeForCompare(String text) {
+    return _normalizeText(text)
+        .replaceAll(RegExp(r'[^a-z0-9 ]'), ' ')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
+  }
 
-  bool _isCelebrity(String name) {
-    final inputName = _normalizeText(name);
-    
-    return _celebrities.any((celebrity) {
-      final celebName = _normalizeText(celebrity);
-      
-      // 1. Coincidencia exacta completa
-      if (celebName == inputName) return true;
-      
-      // 2. Para evitar falsos positivos, usar coincidencia MUY estricta
-      final celebWords = celebName.split(' ');
-      final inputWords = inputName.split(' ');
-      
-      // REGLA CRÍTICA: Solo considerar coincidencia si el número de palabras es EXACTAMENTE igual
-      if (celebWords.length != inputWords.length) {
-        return false;
+  int _levenshteinDistance(String a, String b) {
+    if (a == b) return 0;
+    if (a.isEmpty) return b.length;
+    if (b.isEmpty) return a.length;
+
+    final previous = List<int>.generate(b.length + 1, (i) => i);
+    final current = List<int>.filled(b.length + 1, 0);
+
+    for (int i = 1; i <= a.length; i++) {
+      current[0] = i;
+      for (int j = 1; j <= b.length; j++) {
+        final cost = a[i - 1] == b[j - 1] ? 0 : 1;
+        current[j] = [
+          current[j - 1] + 1,
+          previous[j] + 1,
+          previous[j - 1] + cost,
+        ].reduce((x, y) => x < y ? x : y);
       }
-      
-      // Si ambos tienen exactamente las mismas palabras (sin importar orden)
-      final allCelebWordsFound = celebWords.every((celebWord) => 
-        inputWords.any((inputWord) => inputWord == celebWord)
-      );
-      final allInputWordsMatched = inputWords.every((inputWord) =>
-        celebWords.any((celebWord) => celebWord == inputWord)
-      );
-      
-      return allCelebWordsFound && allInputWordsMatched;
-    });
+      for (int j = 0; j <= b.length; j++) {
+        previous[j] = current[j];
+      }
+    }
+
+    return previous[b.length];
+  }
+
+  double _similarityScore(String a, String b) {
+    if (a.isEmpty || b.isEmpty) return 0;
+    final maxLen = a.length > b.length ? a.length : b.length;
+    final dist = _levenshteinDistance(a, b);
+    return 1 - (dist / maxLen);
+  }
+
+  String _resolveAlias(String text) {
+    final normalized = _normalizeForCompare(text);
+    if (_celebrityAliases.containsKey(normalized)) {
+      return _celebrityAliases[normalized]!;
+    }
+    return normalized;
+  }
+
+  String _canonicalizeFigureIntent(String value) {
+    final normalized = _resolveAlias(value);
+
+    const known = <String>[
+      'barack obama',
+      'donald trump',
+      'joe biden',
+      'vladimir putin',
+      'volodymyr zelensky',
+      'lionel messi',
+      'cristiano ronaldo',
+    ];
+
+    String best = normalized;
+    double bestScore = 0;
+    for (final candidate in known) {
+      final score = _similarityScore(normalized, candidate);
+      if (score > bestScore) {
+        best = candidate;
+        bestScore = score;
+      }
+    }
+    return bestScore >= 0.76 ? best : normalized;
+  }
+
+  /// Public wrapper for celebrity detection.
+  ///
+  /// - `flexible: true`  -> tournament/duel flows (more permissive)
+  /// - `flexible: false` -> normal scanner classification (stricter)
+  bool checkIsCelebrity(String name, {bool flexible = true}) =>
+      _isCelebrity(name, flexible: flexible);
+
+  bool _isCelebrity(String name, {required bool flexible}) {
+    final inputName = _resolveAlias(name);
+    if (inputName.isEmpty) return false;
+
+    final inputTokens = inputName.split(' ').where((e) => e.isNotEmpty).toList();
+    if (inputTokens.isEmpty) return false;
+
+    final isSingleTokenInput = inputTokens.length == 1;
+    final inputToken = isSingleTokenInput ? inputTokens.first : '';
+
+    // En modo estricto, nombres de una sola palabra MUY comunes
+    // no deben activar modo celebridad.
+    if (!flexible && isSingleTokenInput && inputToken.length <= 5) {
+      return false;
+    }
+
+    final exactScoreThreshold = flexible ? 0.86 : 0.93;
+    final singleTokenMinLength = flexible ? 5 : 6;
+    final singleTokenSimilarityThreshold = flexible ? 0.86 : 0.95;
+    final multiTokenAvgThreshold = flexible ? 0.80 : 0.88;
+    final multiTokenCoverageThreshold = flexible ? 0.75 : 0.90;
+
+    for (final celebrity in celebrities) {
+      final celebName = _resolveAlias(celebrity);
+
+      if (celebName == inputName) return true;
+
+      final exactScore = _similarityScore(inputName, celebName);
+      if (exactScore >= exactScoreThreshold) return true;
+
+      final celebTokens = celebName.split(' ').where((e) => e.isNotEmpty).toList();
+      if (celebTokens.isEmpty) continue;
+
+      int strongMatches = 0;
+      double tokenScoreSum = 0;
+
+      for (final inputToken in inputTokens) {
+        double bestTokenScore = 0;
+        for (final celebToken in celebTokens) {
+          final score = _similarityScore(inputToken, celebToken);
+          if (score > bestTokenScore) bestTokenScore = score;
+        }
+        tokenScoreSum += bestTokenScore;
+        if (bestTokenScore >= 0.82) strongMatches++;
+      }
+
+      final tokenAvg = tokenScoreSum / inputTokens.length;
+      final inputCoverage = strongMatches / inputTokens.length;
+
+      if (inputTokens.length == 1) {
+        final token = inputTokens.first;
+        if (token.length >= singleTokenMinLength) {
+          final hasClose = celebTokens.any(
+            (ct) =>
+                _similarityScore(token, ct) >=
+                singleTokenSimilarityThreshold,
+          );
+          if (hasClose) return true;
+        }
+      } else {
+        if (tokenAvg >= multiTokenAvgThreshold &&
+            inputCoverage >= multiTokenCoverageThreshold) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 
   String _getRandomEmoji() {
     final random = Random();
     return _emojis[random.nextInt(_emojis.length)];
+  }
+
+  bool _isLikelyGibberish(String value) {
+    final normalized = _normalizeText(value)
+        .replaceAll(RegExp(r'[^a-z]'), '')
+        .trim();
+    if (normalized.length < 3) return true;
+
+    final hasVowel = RegExp(r'[aeiou]').hasMatch(normalized);
+    if (!hasVowel) return true;
+
+    if (RegExp(r'(.)\1{3,}').hasMatch(normalized)) return true;
+    if (RegExp(r'[bcdfghjklmnpqrstvwxyz]{6,}').hasMatch(normalized)) return true;
+    if (RegExp(r'(ja|je|ji|jo|ju|ha|he|hi|ho|hu){2,}', caseSensitive: false)
+        .hasMatch(normalized)) {
+      return true;
+    }
+
+    final vowelsCount = RegExp(r'[aeiou]').allMatches(normalized).length;
+    final vowelRatio = vowelsCount / normalized.length;
+    if (normalized.length >= 8 && vowelRatio < 0.2) return true;
+
+    final weirdConsonantChunks = RegExp(r'[bcdfghjklmnpqrstvwxyz]{4,}')
+        .allMatches(normalized)
+        .length;
+    if (normalized.length >= 8 && weirdConsonantChunks >= 2) return true;
+
+    final uniqueChars = normalized.split('').toSet().length;
+    if (normalized.length >= 6 && uniqueChars <= 2) return true;
+
+    return false;
+  }
+
+  String _randomInvalidNamesMessage(AppLocalizations localizations) {
+    final isEn = localizations.localeName.toLowerCase().startsWith('en');
+    final random = Random();
+
+    final esMessages = <String>[
+      'El algoritmo del amor acaba de decir: “eso no parece nombre, parece contraseña del Wi‑Fi”. Probemos con nombres reales 😄💘',
+      'Uy, esos nombres vienen con modo meme activado. Dame nombres auténticos y te doy química de verdad 💞',
+      'Nuestro radar romántico detectó puro ruido bonito. Intentemos de nuevo con nombres reales ✨',
+      'Esa combinación está muy troll para el Cupido digital. Pon nombres válidos y lo volvemos magia 💖',
+      'Jajaja te caché en modo broma 😜. Ahora sí, pon nombres reales para un resultado épico 💫',
+    ];
+
+    final enMessages = <String>[
+      'Love algorithm detected out-of-range names. Use real names for a reliable scan ✨',
+      'Hmm... those look more like secret codes than real crush names. Try valid names 💘',
+      'Our romantic radar detected noisy names. Please use authentic names 💞',
+      'Those inputs are too chaotic for the scanner. Use real names and we\'ll analyze again 💖',
+    ];
+
+    final list = isEn ? enMessages : esMessages;
+    return list[random.nextInt(list.length)];
+  }
+
+  String? _validateNamesForScanner(
+    String userName,
+    String crushName,
+    AppLocalizations localizations,
+  ) {
+    final cleanUser = userName.trim();
+    final cleanCrush = crushName.trim();
+
+    final onlyLettersUser = _normalizeText(cleanUser)
+        .replaceAll(RegExp(r'[^a-z ]'), '')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
+    final onlyLettersCrush = _normalizeText(cleanCrush)
+        .replaceAll(RegExp(r'[^a-z ]'), '')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
+
+    final weirdTokensRegex = RegExp(r'\b(ja|je|ji|jo|ju|ha|he|hi|ho|hu){2,}\b', caseSensitive: false);
+
+    final hasTooManySymbols =
+        RegExp(r'[^A-Za-zÀ-ÿ\s]').hasMatch(cleanUser) ||
+        RegExp(r'[^A-Za-zÀ-ÿ\s]').hasMatch(cleanCrush);
+
+    if (onlyLettersUser.length < 2 || onlyLettersCrush.length < 2) {
+      return _randomInvalidNamesMessage(localizations);
+    }
+
+    if (hasTooManySymbols) {
+      return _randomInvalidNamesMessage(localizations);
+    }
+
+    if (weirdTokensRegex.hasMatch(cleanUser) || weirdTokensRegex.hasMatch(cleanCrush)) {
+      return _randomInvalidNamesMessage(localizations);
+    }
+
+    if (_isLikelyGibberish(onlyLettersUser) || _isLikelyGibberish(onlyLettersCrush)) {
+      return _randomInvalidNamesMessage(localizations);
+    }
+
+    return null;
+  }
+
+  String? _sameNamePlayfulMessage(
+    String userName,
+    String crushName,
+    AppLocalizations localizations,
+  ) {
+    final isEn = localizations.localeName.toLowerCase().startsWith('en');
+    final a = _normalizeText(userName).replaceAll(RegExp(r'[^a-z ]'), '').trim();
+    final b = _normalizeText(crushName).replaceAll(RegExp(r'[^a-z ]'), '').trim();
+    if (a.isEmpty || b.isEmpty || a != b) return null;
+
+    return isEn
+        ? 'Double-name mode unlocked: two people, one legendary name. This could be destiny with matching labels 💫😄'
+        : 'Modo nombre gemelo activado: dos personas, un mismo nombre legendario. Aquí puede haber destino con etiqueta repetida 💫😄';
+  }
+
+  String? _getSpecialPairMessage(
+    String userName,
+    String crushName,
+    AppLocalizations localizations,
+  ) {
+    final sameNameMessage = _sameNamePlayfulMessage(
+      userName,
+      crushName,
+      localizations,
+    );
+    if (sameNameMessage != null) {
+      return sameNameMessage;
+    }
+
+    final isEn = localizations.localeName.toLowerCase().startsWith('en');
+    final a = _canonicalizeFigureIntent(userName);
+    final b = _canonicalizeFigureIntent(crushName);
+    final pair = {a, b};
+
+    bool containsBoth(List<String> names) => names.every((name) => pair.contains(name));
+
+    if (containsBoth(['vladimir putin', 'volodymyr zelensky']) ||
+        containsBoth(['vladimir putin', 'zelensky']) ||
+        containsBoth(['putin', 'zelensky'])) {
+      return isEn
+          ? 'Diplomatic chemistry alert: this duo has the world talking. Intense vibes in every dimension 🌍🔥'
+          : 'Alerta diplomática: esta dupla tiene al mundo hablando. Energía intensa en todas las dimensiones 🌍🔥';
+    }
+
+    if (containsBoth(['donald trump', 'joe biden']) ||
+        containsBoth(['trump', 'biden'])) {
+      return isEn
+          ? 'This political match is pure debate energy: sparks, tension and unexpected twists ⚡🗳️'
+          : 'Este match político viene cargado de debate: chispas, tensión y giros inesperados ⚡🗳️';
+    }
+
+    if (containsBoth(['lionel messi', 'cristiano ronaldo']) ||
+        containsBoth(['messi', 'ronaldo'])) {
+      return isEn
+          ? 'Legendary rivalry detected: this match plays in Champions League mode only 🏆💥'
+          : 'Rivalidad legendaria detectada: este match se juega en modo Champions League 🏆💥';
+    }
+
+    return null;
   }
 
   Future<CrushResult> generateResult(
@@ -581,16 +1026,27 @@ class CrushService {
       return existingResult;
     }
 
+    final validationMessage = _validateNamesForScanner(
+      userName,
+      crushName,
+      localizations,
+    );
+    if (validationMessage != null) {
+      throw FormatException(validationMessage);
+    }
+
     // Check if crush is a celebrity
-    final isCelebrity = _isCelebrity(crushName);
+    final isCelebrity = _isCelebrity(crushName, flexible: false);
 
     // Generate new result
     final percentage = _generateCompatibilityPercentage(userName, crushName);
-    final message = _getRandomMessage(
-      percentage,
-      localizations,
-      isCelebrity: isCelebrity,
-    );
+    final dimensions = generateDimensions(userName, crushName);
+    final message = _getSpecialPairMessage(userName, crushName, localizations) ??
+        _getRandomMessage(
+          percentage,
+          localizations,
+          isCelebrity: isCelebrity,
+        );
     final emoji = _getRandomEmoji();
 
     final result = CrushResult(
@@ -601,6 +1057,10 @@ class CrushService {
       emoji: emoji,
       timestamp: SecureTimeService.instance.getSecureTime(),
       isCelebrity: isCelebrity,
+      emotionalScore: dimensions['emotional']!,
+      passionScore: dimensions['passion']!,
+      intellectualScore: dimensions['intellectual']!,
+      destinyScore: dimensions['destiny']!,
     );
 
     // Update statistics
@@ -626,11 +1086,21 @@ class CrushService {
       return existingResult;
     }
 
+    final simpleLettersA = _normalizeText(userName).replaceAll(RegExp(r'[^a-z ]'), '').trim();
+    final simpleLettersB = _normalizeText(crushName).replaceAll(RegExp(r'[^a-z ]'), '').trim();
+    if (simpleLettersA.length < 2 ||
+        simpleLettersB.length < 2 ||
+        _isLikelyGibberish(simpleLettersA) ||
+        _isLikelyGibberish(simpleLettersB)) {
+      throw const FormatException('Invalid names detected. Please use real names.');
+    }
+
     // Check if crush is a celebrity
-    final isCelebrity = _isCelebrity(crushName);
+    final isCelebrity = _isCelebrity(crushName, flexible: false);
 
     // Generate new result with default English messages
     final percentage = _generateCompatibilityPercentage(userName, crushName);
+    final dimensions = generateDimensions(userName, crushName);
     final message = _getSimpleMessage(percentage, isCelebrity: isCelebrity);
     final emoji = _getRandomEmoji();
 
@@ -642,6 +1112,10 @@ class CrushService {
       emoji: emoji,
       timestamp: SecureTimeService.instance.getSecureTime(),
       isCelebrity: isCelebrity,
+      emotionalScore: dimensions['emotional']!,
+      passionScore: dimensions['passion']!,
+      intellectualScore: dimensions['intellectual']!,
+      destinyScore: dimensions['destiny']!,
     );
 
     // Update statistics
@@ -744,8 +1218,8 @@ class CrushService {
           final json = jsonDecode(jsonString);
           var result = CrushResult.fromJson(json);
 
-          // Fix any invalid percentages (outside 30-100 range)
-          if (result.percentage < 30 || result.percentage > 100) {
+          // Fix any invalid percentages (outside 35-98 range)
+          if (result.percentage < 35 || result.percentage > 98) {
             // Recalculate with fixed algorithm
             final correctedPercentage = _generateCompatibilityPercentage(
               result.userName,
@@ -795,7 +1269,7 @@ class CrushService {
           final result = CrushResult.fromJson(json);
 
           // Check if percentage is invalid
-          if (result.percentage < 30 || result.percentage > 100) {
+          if (result.percentage < 35 || result.percentage > 98) {
             // Recalculate with fixed algorithm
             final correctedPercentage = _generateCompatibilityPercentage(
               result.userName,

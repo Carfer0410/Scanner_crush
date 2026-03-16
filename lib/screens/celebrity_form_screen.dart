@@ -90,232 +90,93 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
   }
 
   Future<void> _showLimitDialog() async {
+    final remainingScans = await MonetizationService.instance.getRemainingScansTodayForFree();
     final canWatchAd = await MonetizationService.instance.canWatchAdForScans();
-    final currentPackCost = await ScannerEconomyService.instance.getCurrentScanPackCost();
-    final remainingPacks = await ScannerEconomyService.instance.getRemainingScanPackBuysToday();
     if (!mounted) return;
-    final localizations = AppLocalizations.of(context)!;
-    final isEn = Localizations.localeOf(context).languageCode == 'en';
 
     showDialog(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        backgroundColor: ThemeService.instance.cardColor,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        title: Row(
-          children: [
-            Icon(
-              Icons.star,
-              color: ThemeService.instance.primaryColor,
-              size: 28,
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                localizations.limitReachedTitle,
-                style: GoogleFonts.poppins(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: ThemeService.instance.textColor,
-                ),
-              ),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              localizations.limitReachedBody,
-              style: GoogleFonts.poppins(
-                fontSize: 16,
-                color: ThemeService.instance.textColor,
-                height: 1.4,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              localizations.limitReachedWhatToDo,
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: ThemeService.instance.primaryColor,
-              ),
-            ),
-            const SizedBox(height: 8),
-            if (canWatchAd) ...[
-              _buildDialogOption(
-                icon: Icons.play_circle,
-                title: localizations.watchAd,
-                subtitle: localizations.winExtraScans,
-                onTap: () async {
-                  Navigator.pop(dialogContext);
-                  final success = await MonetizationService.instance.watchAdForExtraScans();
-                  if (!mounted) return;
-                  if (success) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          localizations.extraScansWon,
-                          style: GoogleFonts.poppins(color: Colors.white),
-                        ),
-                        backgroundColor: Colors.green,
-                        behavior: SnackBarBehavior.floating,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        duration: const Duration(seconds: 6),
-                      ),
-                    );
-                  }
-                },
-              ),
-              const SizedBox(height: 8),
-            ],
-            _buildDialogOption(
-              icon: Icons.toll,
-              title: isEn
-                  ? '+${ScannerEconomyService.instance.scanPackScans} scans'
-                  : '+${ScannerEconomyService.instance.scanPackScans} escaneos',
-              subtitle: isEn
-                  ? '$currentPackCost coins - $remainingPacks left today'
-                  : '$currentPackCost coins - $remainingPacks disponibles hoy',
-              onTap: () async {
-                Navigator.pop(dialogContext);
-                final result = await ScannerEconomyService.instance.buyExtraScansWithCoins();
-                if (!mounted) return;
-                final text = result == ScannerCoinSpendResult.success
-                    ? (isEn
-                        ? 'Scans added successfully for $currentPackCost coins.'
-                        : 'Escaneos agregados con exito por $currentPackCost coins.')
-                    : result == ScannerCoinSpendResult.insufficientCoins
-                        ? (isEn
-                            ? 'Not enough coins. This pack costs $currentPackCost.'
-                            : 'No tienes suficientes coins. Este pack cuesta $currentPackCost.')
-                        : result == ScannerCoinSpendResult.premiumNotNeeded
-                            ? (isEn
-                                ? 'Premium already has unlimited scans.'
-                                : 'Premium ya tiene escaneos ilimitados.')
-                            : (isEn
-                                ? 'Daily pack limit reached. Try again tomorrow.'
-                                : 'Limite diario de packs alcanzado. Intenta manana.');
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(text),
-                    behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    duration: const Duration(seconds: 6),
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: 8),
-            _buildDialogOption(
-              icon: Icons.diamond,
-              title: localizations.goPremium,
-              subtitle: localizations.unlimitedScans,
-              onTap: () {
-                Navigator.pop(dialogContext);
-                if (!mounted) return;
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const PremiumScreen()),
-                );
-              },
-            ),
-            const SizedBox(height: 8),
-            _buildDialogOption(
-              icon: Icons.schedule,
-              title: localizations.wait,
-              subtitle: localizations.moreScansTomorrow,
-              onTap: () => Navigator.pop(dialogContext),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: Text(
-              localizations.close,
-              style: GoogleFonts.poppins(
-                color: ThemeService.instance.subtitleColor,
-              ),
-            ),
-          ),
-        ],
+      builder: (context) => FriendlyLimitDialog(
+        remainingScans: remainingScans,
+        onWatchAd: canWatchAd ? _watchAdForScans : null,
+        onUseCoins: _useCoinsForScans,
+        onWatchAdForCoins: _watchAdForCoins,
+        onUpgrade: () {
+          Navigator.pop(context);
+          _navigateToPremium();
+        },
       ),
     );
   }
 
-  Widget _buildDialogOption({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: ThemeService.instance.borderColor,
-            width: 1,
-          ),
+  Future<void> _watchAdForScans() async {
+    final localizations = AppLocalizations.of(context)!;
+    Navigator.pop(context);
+    final success = await MonetizationService.instance.watchAdForExtraScans();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          success ? localizations.extraScansWon : localizations.noAdsAvailable,
         ),
-        child: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: ThemeService.instance.primaryColor.withOpacity(0.1),
-              ),
-              child: Icon(
-                icon,
-                color: ThemeService.instance.primaryColor,
-                size: 20,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: ThemeService.instance.textColor,
-                    ),
-                  ),
-                  Text(
-                    subtitle,
-                    style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      color: ThemeService.instance.subtitleColor,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Icon(
-              Icons.arrow_forward_ios,
-              color: ThemeService.instance.subtitleColor,
-              size: 16,
-            ),
-          ],
-        ),
+        backgroundColor: success ? Colors.green : Colors.orange,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        duration: const Duration(seconds: 6),
       ),
+    );
+  }
+
+  Future<void> _useCoinsForScans() async {
+    final localizations = AppLocalizations.of(context)!;
+    Navigator.pop(context);
+    final currentCost = await ScannerEconomyService.instance.getCurrentScanPackCost();
+    final spend = await ScannerEconomyService.instance.buyExtraScansWithCoins();
+    if (!mounted) return;
+
+    final text = spend == ScannerCoinSpendResult.success
+        ? localizations.scanPackBoughtMessage(ScannerEconomyService.instance.scanPackScans, currentCost)
+        : spend == ScannerCoinSpendResult.insufficientCoins
+            ? localizations.notEnoughCoinsThisPackMessage(currentCost)
+            : spend == ScannerCoinSpendResult.premiumNotNeeded
+                ? localizations.premiumUnlimitedScansMessage
+                : localizations.dailyPackLimitReachedTryTomorrowMessage;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(text),
+        backgroundColor: spend == ScannerCoinSpendResult.success ? Colors.green : Colors.orange,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        duration: const Duration(seconds: 6),
+      ),
+    );
+  }
+
+  Future<void> _watchAdForCoins() async {
+    final localizations = AppLocalizations.of(context)!;
+    Navigator.pop(context);
+    final ok = await ScannerEconomyService.instance.watchAdForCoins();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          ok
+              ? localizations.coinsEarnedMessage(ScannerEconomyService.instance.coinAdReward)
+              : localizations.noAdsAvailable,
+        ),
+        backgroundColor: ok ? Colors.green : Colors.orange,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        duration: const Duration(seconds: 6),
+      ),
+    );
+  }
+
+  void _navigateToPremium() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const PremiumScreen()),
     );
   }
 
@@ -452,10 +313,6 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
                           ),
                         ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.12, end: 0),
 
-                        const SizedBox(height: 18),
-
-                        const ScannerEconomyPanel(),
-
                         const SizedBox(height: 36),
 
                         // User name field
@@ -475,7 +332,11 @@ class _CelebrityFormScreenState extends State<CelebrityFormScreen> {
                           icon: Icons.stars,
                         ).animate().fadeIn(delay: 800.ms),
 
-                        const SizedBox(height: 40),
+                        const SizedBox(height: 24),
+
+                        const ScannerEconomyPanel(),
+
+                        const SizedBox(height: 24),
 
                         // Info card
                         Container(

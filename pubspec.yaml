@@ -1,7 +1,7 @@
 name: scanner_crush
 description: "Escáner de Crush - ¿Quién te ama en secreto?"
 publish_to: 'none'
-version: 1.0.1+3
+version: 1.0.4+9
 
 environment:
   sdk: ^3.7.2
@@ -21,6 +21,7 @@ dependencies:
   google_mobile_ads: ^5.1.0  # AdMob integration
   in_app_purchase: ^3.1.0   # In-App Purchases
   http: ^1.1.0              # Para SecureTimeService
+  url_launcher: ^6.2.5      # Para abrir URLs externas
 
 dev_dependencies:
   flutter_test:

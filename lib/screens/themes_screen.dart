@@ -61,6 +61,22 @@ class _ThemesScreenState extends State<ThemesScreen>
     }
   }
 
+  void _showThemeUnlockMessage(String message, Color color) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: color,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        duration: const Duration(seconds: 5),
+      ),
+    );
+  }
+
   @override
   void dispose() {
     PremiumThemeService.instance.tempAccessNotifier.removeListener(_onTempAccessChanged);
@@ -88,6 +104,10 @@ class _ThemesScreenState extends State<ThemesScreen>
         return AppLocalizations.of(context)?.cherryThemeName ?? '🌸 Cerezo';
       case ThemeType.golden:
         return AppLocalizations.of(context)?.goldenThemeName ?? '✨ Dorado';
+      case ThemeType.aurora:
+        return '🌈 Aurora Dream';
+      case ThemeType.moonlight:
+        return '🌙 Moonlight Velvet';
     }
   }
 
@@ -117,6 +137,10 @@ class _ThemesScreenState extends State<ThemesScreen>
       case ThemeType.golden:
         return AppLocalizations.of(context)?.goldenThemeDescription ??
             'Lujo y elegancia dorada';
+      case ThemeType.aurora:
+        return 'Brillo iridiscente y romántico con efecto wow';
+      case ThemeType.moonlight:
+        return 'Noche elegante con tonos seda y destellos rosados';
     }
   }
 
@@ -792,8 +816,8 @@ class _ThemesScreenState extends State<ThemesScreen>
                               : () async {
                                 setStateDialog(() => isProcessing = true);
                                 bool granted = false;
-                                final adShown = await AdMobService.instance
-                                    .showRewardedAd(
+                                final result = await AdMobService.instance
+                                    .showRewardedAdDetailed(
                                       onUserEarnedReward: (ad, reward) async {
                                         if (!PremiumThemeService.instance
                                             .hasTemporaryAccessToTheme(
@@ -812,7 +836,7 @@ class _ThemesScreenState extends State<ThemesScreen>
                                     );
                                 if (!screenContext.mounted) return;
                                 setStateDialog(() => isProcessing = false);
-                                if (adShown && granted) {
+                                if (result.rewardEarned && granted) {
                                   Navigator.pop(screenContext);
                                   refreshParent(); // Refresca la lista de temas inmediatamente
                                   ScaffoldMessenger.of(screenContext).showSnackBar(
@@ -828,7 +852,7 @@ class _ThemesScreenState extends State<ThemesScreen>
                                       duration: const Duration(seconds: 6),
                                     ),
                                   );
-                                } else if (adShown && !granted) {
+                                } else if (result.rewardEarned && !granted) {
                                   Navigator.pop(screenContext);
                                   ScaffoldMessenger.of(screenContext).showSnackBar(
                                     SnackBar(
@@ -843,6 +867,35 @@ class _ThemesScreenState extends State<ThemesScreen>
                                       duration: const Duration(seconds: 6),
                                     ),
                                   );
+                                } else {
+                                  String message;
+                                  Color color;
+
+                                  switch (result.status) {
+                                    case RewardedAdStatus.dismissed:
+                                      message = 'Debes ver el anuncio completo para desbloquear el tema.';
+                                      color = Colors.orange;
+                                      break;
+                                    case RewardedAdStatus.failedToShow:
+                                      message = 'El anuncio falló al abrirse. Inténtalo de nuevo en unos segundos.';
+                                      color = Colors.red;
+                                      break;
+                                    case RewardedAdStatus.alreadyShowing:
+                                      message = 'Ya hay un anuncio en proceso. Espera un momento.';
+                                      color = Colors.orange;
+                                      break;
+                                    case RewardedAdStatus.notReady:
+                                    case RewardedAdStatus.failedToLoad:
+                                      message = 'Anuncio no disponible por ahora. Inténtalo de nuevo en unos segundos.';
+                                      color = Colors.orange;
+                                      break;
+                                    case RewardedAdStatus.rewarded:
+                                      message = 'No se pudo otorgar el desbloqueo del tema. Inténtalo nuevamente.';
+                                      color = Colors.red;
+                                      break;
+                                  }
+
+                                  _showThemeUnlockMessage(message, color);
                                 }
                               },
                       child: Text(

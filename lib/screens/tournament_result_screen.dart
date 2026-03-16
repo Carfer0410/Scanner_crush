@@ -12,6 +12,7 @@ import '../services/admob_service.dart';
 import '../services/monetization_service.dart';
 import '../services/tournament_service.dart';
 import '../services/analytics_service.dart';
+import '../services/scanner_economy_service.dart';
 import '../widgets/custom_widgets.dart';
 import 'package:scanner_crush/generated/l10n/app_localizations.dart';
 
@@ -84,20 +85,15 @@ class _TournamentResultScreenState extends State<TournamentResultScreen>
 
     _loadBannerAd();
     _grantCompletionReward();
-    _showPostResultInterstitial();
+    // El interstitial se muestra al SALIR de la pantalla (botón cerrar),
+    // no al entrar, para que el usuario disfrute su resultado sin interrupciones.
     AdMobService.instance.trackUserAction();
     AnalyticsService.instance.trackEvent('tournament_result_opened');
   }
 
-  void _showPostResultInterstitial() {
-    Future.delayed(const Duration(seconds: 2), () async {
-      if (!mounted) return;
-      await MonetizationService.instance.showInterstitialAd();
-    });
-  }
-
   Future<void> _grantCompletionReward() async {
     final reward = await TournamentService.instance.recordTournamentCompletion(widget.tournament);
+    await ScannerEconomyService.instance.recordTournamentForMission();
     final passState = await TournamentService.instance.getPassState();
     if (!mounted) return;
     setState(() {

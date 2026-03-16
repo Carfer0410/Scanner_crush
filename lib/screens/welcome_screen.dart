@@ -19,6 +19,7 @@ import 'daily_love_screen.dart';
 import 'analytics_screen.dart';
 import 'themes_screen.dart';
 import 'tournament_setup_screen.dart';
+import 'duel_form_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -28,7 +29,7 @@ class WelcomeScreen extends StatefulWidget {
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   late AnimationController _heartController;
   late AnimationController _titleController;
   BannerAd? _bannerAd;
@@ -38,6 +39,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _heartController = AnimationController(
       duration: const Duration(seconds: 2),
       vsync: this,
@@ -49,6 +51,8 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     )..forward();
 
     _refreshPremiumState();
+    // Recovery banner is now embedded in the streak card UI,
+    // no need for a transient SnackBar.
   }
 
   Future<void> _refreshPremiumState() async {
@@ -84,10 +88,57 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _heartController.dispose();
     _titleController.dispose();
     _bannerAd?.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _refreshOnResume();
+    }
+  }
+
+  Future<void> _refreshOnResume() async {
+    // Refresh all state that can change while app is backgrounded.
+    await _refreshPremiumState();
+    await StreakService.instance.recordAppVisit();
+    if (!mounted) return;
+    // Force FutureBuilder in limits banner to re-evaluate.
+    setState(() {
+      _limitsKey = UniqueKey();
+    });
+  }
+
+  // Key to force FutureBuilder rebuild on resume
+  Key _limitsKey = UniqueKey();
+
+  Future<void> _recoverStreak() async {
+    final result = await StreakService.instance.recoverStreak();
+    if (!mounted) return;
+
+    final isEn = LocaleService.instance.currentLocale.languageCode == 'en';
+    final message = result.success
+        ? (isEn
+            ? 'Streak recovered. You are back to ${result.streak} days.'
+            : 'Racha recuperada. Volviste a ${result.streak} días.')
+        : (isEn
+            ? 'This streak can no longer be recovered today.'
+            : 'Esta racha ya no se puede recuperar hoy.');
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: result.success ? Colors.green : Colors.orange,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    );
   }
 
   @override
@@ -252,7 +303,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                 ),
 
                 // Streak card
-                _buildStreakCard(),
+                _buildStreakCard().animate().fadeIn(delay: 300.ms).slideX(begin: 0.3),
 
                 // Banner de límites
                 _buildLimitsBanner(),
@@ -431,6 +482,19 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                               colors: [Colors.orange, Colors.deepOrange],
                               onTap: () => _navigateToTournament(context),
                               delay: 1600,
+                            ),
+
+                            const SizedBox(height: 20),
+
+                            // Love Duel ⚔️
+                            _buildScanOption(
+                              context: context,
+                              title: AppLocalizations.of(context)!.duelTitle,
+                              subtitle: AppLocalizations.of(context)!.duelWelcomeSubtitle,
+                              icon: Icons.whatshot,
+                              colors: [Colors.red, Colors.redAccent],
+                              onTap: () => _navigateToDuel(context),
+                              delay: 1800,
                             ),
 
                             const SizedBox(height: 20),
@@ -701,6 +765,33 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     });
   }
 
+  void _navigateToDuel(BuildContext context) {
+    AudioService.instance.playTransition();
+
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder:
+            (context, animation, secondaryAnimation) =>
+                const DuelFormScreen(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(
+            opacity: animation,
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(1.0, 0.0),
+                end: Offset.zero,
+              ).animate(animation),
+              child: child,
+            ),
+          );
+        },
+      ),
+    ).then((_) {
+      _refreshPremiumState();
+    });
+  }
+
   void _navigateToAnalytics(BuildContext context) async {
     // Abrir AnalyticsScreen siempre; el propio screen maneja el desbloqueo
     // (estadísticas gratis; insights/predictions via premium o anuncio).
@@ -791,119 +882,230 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   /// Build streak card widget
   /// Construir widget de tarjeta de racha
   Widget _buildStreakCard() {
-    return GestureDetector(
-      onTap: () {
-        _showStreakDetails();
-      },
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              ThemeService.instance.primaryColor.withOpacity(0.1),
-              ThemeService.instance.secondaryColor.withOpacity(0.1),
-            ],
-          ),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: ThemeService.instance.primaryColor.withOpacity(0.3),
-            width: 1,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: ThemeService.instance.primaryColor.withOpacity(0.1),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
+    return ListenableBuilder(
+      listenable: StreakService.instance,
+      builder: (context, _) {
+        final streakService = StreakService.instance;
+        final currentStreak = streakService.currentStreak;
+        final showRecovery = streakService.canRecoverStreak;
+
+        return Column(
+          children: [
+            // ── Main streak card ──
+            GestureDetector(
+              onTap: () {
+                _showStreakDetails();
+              },
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      ThemeService.instance.primaryColor.withOpacity(0.1),
+                      ThemeService.instance.secondaryColor.withOpacity(0.1),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: ThemeService.instance.primaryColor.withOpacity(0.3),
+                    width: 1,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: ThemeService.instance.primaryColor.withOpacity(0.1),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    // Streak icon
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color:
+                            currentStreak > 0
+                                ? Colors.orange
+                                : ThemeService.instance.subtitleColor.withOpacity(
+                                  0.3,
+                                ),
+                      ),
+                      child: Icon(
+                        currentStreak > 0
+                            ? Icons.local_fire_department
+                            : Icons.favorite_outline,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
+
+                    const SizedBox(width: 12),
+
+                    // Streak info
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            AppLocalizations.of(context)!.dailyStreak,
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: ThemeService.instance.textColor,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            currentStreak > 0
+                                ? '🔥 ${AppLocalizations.of(context)!.daysStreak(currentStreak)}'
+                                : AppLocalizations.of(context)!.startLoveStreak,
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                              color: ThemeService.instance.textColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Best streak
+                    if (streakService.bestStreak > 0)
+                      Column(
+                        children: [
+                          Text(
+                            '${streakService.bestStreak}',
+                            style: GoogleFonts.poppins(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: ThemeService.instance.textColor,
+                            ),
+                          ),
+                          Text(
+                            AppLocalizations.of(context)!.best,
+                            style: GoogleFonts.poppins(
+                              fontSize: 10,
+                              color: ThemeService.instance.textColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                  ],
+                ),
+              ),
+            ),
+
+            // ── Recovery banner (persistent, visible until user acts) ──
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 350),
+              switchInCurve: Curves.easeOut,
+              switchOutCurve: Curves.easeIn,
+              transitionBuilder: (child, animation) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: SizeTransition(
+                    sizeFactor: animation,
+                    axisAlignment: -1.0,
+                    child: child,
+                  ),
+                );
+              },
+              child: showRecovery
+                  ? GestureDetector(
+                      key: const ValueKey('recovery_banner'),
+                      onTap: _recoverStreak,
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 20),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.orange.shade600,
+                              Colors.deepOrange.shade400,
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(14),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.orange.withOpacity(0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.restore,
+                              color: Colors.white,
+                              size: 24,
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    Localizations.localeOf(context)
+                                                .languageCode ==
+                                            'en'
+                                        ? 'Recover your streak!'
+                                        : '¡Recupera tu racha!',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  Text(
+                                    Localizations.localeOf(context)
+                                                .languageCode ==
+                                            'en'
+                                        ? 'Tap to return to ${streakService.pendingRecoveryTarget} days · ${streakService.recoveriesRemaining} left'
+                                        : 'Toca para volver a ${streakService.pendingRecoveryTarget} días · ${streakService.recoveriesRemaining} restantes',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 11,
+                                      color: Colors.white.withOpacity(0.9),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.25),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                Localizations.localeOf(context).languageCode ==
+                                        'en'
+                                    ? 'Recover'
+                                    : 'Recuperar',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  : const SizedBox.shrink(
+                      key: ValueKey('no_recovery'),
+                    ),
             ),
           ],
-        ),
-        child: ListenableBuilder(
-          listenable: StreakService.instance,
-          builder: (context, _) {
-            final streakService = StreakService.instance;
-            final currentStreak = streakService.currentStreak;
-
-            return Row(
-              children: [
-                // Streak icon
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color:
-                        currentStreak > 0
-                            ? Colors.orange
-                            : ThemeService.instance.subtitleColor.withOpacity(
-                              0.3,
-                            ),
-                  ),
-                  child: Icon(
-                    currentStreak > 0
-                        ? Icons.local_fire_department
-                        : Icons.favorite_outline,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                ),
-
-                const SizedBox(width: 12),
-
-                // Streak info
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        AppLocalizations.of(context)!.dailyStreak,
-                        style: GoogleFonts.poppins(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: ThemeService.instance.textColor,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                    Text(
-                        currentStreak > 0
-                            ? '🔥 ${AppLocalizations.of(context)!.daysStreak(currentStreak)}'
-                            : AppLocalizations.of(context)!.startLoveStreak,
-                        style: GoogleFonts.poppins(
-                          fontSize: 12,
-                          color: ThemeService.instance.textColor,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Best streak
-                if (streakService.bestStreak > 0)
-                  Column(
-                    children: [
-                      Text(
-                        '${streakService.bestStreak}',
-                        style: GoogleFonts.poppins(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: ThemeService.instance.textColor,
-                        ),
-                      ),
-                      Text(
-                        AppLocalizations.of(context)!.best,
-                        style: GoogleFonts.poppins(
-                          fontSize: 10,
-                          color: ThemeService.instance.textColor,
-                        ),
-                      ),
-                    ],
-                  ),
-              ],
-            );
-          },
-        ),
-      ),
-    ).animate().fadeIn(delay: 300.ms).slideX(begin: 0.3);
+        );
+      },
+    );
   }
 
   /// Show streak details dialog
@@ -968,6 +1170,29 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                       Icons.favorite,
                       Colors.pink,
                     ),
+                    if (streakService.canRecoverStreak) ...[
+                      const SizedBox(height: 16),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.orange.withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: Colors.orange.withOpacity(0.35),
+                          ),
+                        ),
+                        child: Text(
+                          Localizations.localeOf(context).languageCode == 'en'
+                              ? 'Recover your streak and return to ${streakService.pendingRecoveryTarget} days. Recoveries left: ${streakService.recoveriesRemaining}.'
+                              : 'Recupera tu racha y vuelve a ${streakService.pendingRecoveryTarget} días. Recuperaciones restantes: ${streakService.recoveriesRemaining}.',
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            color: ThemeService.instance.textColor,
+                          ),
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 16),
                     Text(
                       streakService.getMotivationalMessage(
@@ -983,6 +1208,22 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                   ],
                 ),
                 actions: [
+                  if (streakService.canRecoverStreak)
+                    TextButton(
+                      onPressed: () async {
+                        Navigator.pop(context);
+                        await _recoverStreak();
+                      },
+                      child: Text(
+                        Localizations.localeOf(context).languageCode == 'en'
+                            ? 'Recover streak'
+                            : 'Recuperar racha',
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.orange,
+                        ),
+                      ),
+                    ),
                   TextButton(
                     onPressed: () => Navigator.pop(context),
                     child: Text(
@@ -1220,6 +1461,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   /// Banner de límites para usuarios regulares
   Widget _buildLimitsBanner() {
     return FutureBuilder<Map<String, dynamic>>(
+      key: _limitsKey,
       future: _getLimitsInfo(),
       builder: (context, snapshot) {
         final data = snapshot.data;

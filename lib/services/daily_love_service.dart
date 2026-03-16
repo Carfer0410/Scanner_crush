@@ -2,6 +2,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:scanner_crush/generated/l10n/app_localizations.dart';
 import 'secure_time_service.dart';
+import 'streak_service.dart';
 
 import 'logger_service.dart';
 class DailyLoveService {
@@ -121,77 +122,28 @@ class DailyLoveService {
     }
   }
 
-  // Racha de días consecutivos
+  // Racha de días consecutivos – delegates to StreakService (single source of truth)
   int getCurrentStreak() {
-    if (_prefs == null) return 0;
-    final streak = _prefs!.getInt('love_streak') ?? 0;
-    // Validar que la racha sea razonable (máximo 365 días)
-    if (streak < 0 || streak > 365) {
-      LoggerService.warning('getCurrentStreak: Valor corrupto detectado: $streak. Reiniciando a 0.', origin: 'DailyLoveService');
-      // Reiniciar valor corrupto
-      _prefs!.setInt('love_streak', 0);
-      return 0;
-    }
-    return streak;
+    return StreakService.instance.currentStreak;
   }
 
   Future<void> updateStreak() async {
-    // VERIFICACIÓN DE SEGURIDAD: Comprobar manipulación antes de actualizar racha
-    final secureTimeService = SecureTimeService.instance;
-    final debugInfo = secureTimeService.getDebugInfo();
-    final manipulationCount = debugInfo['manipulationDetections'] ?? 0;
-    
-    if (manipulationCount > 3) {
-      // Demasiadas manipulaciones detectadas - no actualizar racha
-      return;
-    }
-    
-    final prefs = await this.prefs;
-    final lastUsed = prefs.getString('last_used_date');
-    final today = secureTimeService.getSecureTime().toIso8601String().split('T')[0];
-
-    if (lastUsed == null) {
-      // Primera vez
-      await prefs.setInt('love_streak', 1);
-      await prefs.setString('last_used_date', today);
-    } else if (lastUsed != today) {
-      final lastUsedDate = DateTime.parse(lastUsed);
-      final todayDate = DateTime.parse(today);
-      final difference = todayDate.difference(lastUsedDate).inDays;
-
-      if (difference == 1) {
-        // Día consecutivo
-        final currentStreak = getCurrentStreak();
-        await prefs.setInt('love_streak', currentStreak + 1);
-      } else if (difference > 1) {
-        // Se rompió la racha
-        await prefs.setInt('love_streak', 1);
-      }
-      await prefs.setString('last_used_date', today);
-    }
-    
-    // Sincronizar con la UI si hay un StreakService disponible
-    // await StreakService.instance.syncWithDailyLoveService();
+    // No-op: streak is managed exclusively by StreakService.recordAppVisit()
+    // which is called from the app lifecycle in main.dart.
   }
 
   // Estadísticas de uso con validación
   int getTotalScans() {
-    if (_prefs == null) return 0;
-    final scans = _prefs!.getInt('total_scans') ?? 0;
-    // Validar que el número de escaneos sea razonable (máximo 10,000)
-    if (scans < 0 || scans > 10000) {
-      LoggerService.warning('getTotalScans: Valor corrupto detectado: $scans. Reiniciando a 0.', origin: 'DailyLoveService');
-      // Reiniciar valor corrupto
-      _prefs!.setInt('total_scans', 0);
-      return 0;
-    }
-    return scans;
+    // Delegate to StreakService as single source of truth
+    return StreakService.instance.totalScans;
   }
 
   Future<void> incrementTotalScans() async {
     final prefs = await this.prefs;
-    final current = getTotalScans();
+    final current = prefs.getInt('total_scans') ?? 0;
     await prefs.setInt('total_scans', current + 1);
+    // Sync StreakService in-memory value
+    await StreakService.instance.syncWithDailyLoveService();
   }
 
   // Compatibilidad promedio
@@ -385,16 +337,9 @@ class DailyLoveService {
     if (_prefs == null) return;
     
     bool needsRepair = false;
-    final streak = _prefs!.getInt('love_streak') ?? 0;
+    // Streak is owned by StreakService – do NOT read/write 'love_streak' here.
     final totalScans = _prefs!.getInt('total_scans') ?? 0;
     final totalCompatibility = _prefs!.getDouble('total_compatibility') ?? 0.0;
-    
-    // Validar racha
-    if (streak < 0 || streak > 365) {
-      LoggerService.warning('Validación: Racha corrupta ($streak). Reiniciando.', origin: 'DailyLoveService');
-      _prefs!.setInt('love_streak', 0);
-      needsRepair = true;
-    }
     
     // Validar total de escaneos
     if (totalScans < 0 || totalScans > 10000) {

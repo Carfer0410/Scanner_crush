@@ -7,6 +7,7 @@ import 'monetization_service.dart';
 import 'secure_time_service.dart';
 import 'logger_service.dart';
 import 'global_economy_service.dart';
+import 'streak_service.dart';
 
 enum CoinSpendResult { success, insufficientCoins, actionNotAvailable }
 
@@ -74,7 +75,7 @@ class TournamentService {
   );
   static const int _maxAdEntriesPerDay = int.fromEnvironment(
     'AB_TOURNAMENT_MAX_AD_ENTRIES_PER_DAY',
-    defaultValue: 3,
+    defaultValue: 10,
   );
   static const int _baseCoinReward = int.fromEnvironment(
     'AB_TOURNAMENT_BASE_COIN_REWARD',
@@ -164,7 +165,7 @@ class TournamentService {
     final shopTickets = shopDate == today ? (prefs.getInt('tournament_shop_tickets_today') ?? 0) : 0;
 
     final coins = await GlobalEconomyService.instance.getCoins();
-    final streak = prefs.getInt('tournament_daily_streak') ?? 0;
+    final streak = StreakService.instance.currentStreak;
 
     if (isPremium) {
       return TournamentPassState(
@@ -239,23 +240,7 @@ class TournamentService {
     final completionsToday = completionDate == today ? (prefs.getInt('tournament_completions_today') ?? 0) : 0;
     final firstToday = completionsToday == 0;
 
-    final streakDate = prefs.getString('tournament_streak_date');
-    int streak = prefs.getInt('tournament_daily_streak') ?? 0;
-    if (streakDate != today) {
-      if (streakDate == null) {
-        streak = 1;
-      } else {
-        final last = DateTime.tryParse(streakDate);
-        final now = SecureTimeService.instance.getSecureDate();
-        if (last != null && now.difference(last).inDays == 1) {
-          streak += 1;
-        } else {
-          streak = 1;
-        }
-      }
-      await prefs.setString('tournament_streak_date', today);
-      await prefs.setInt('tournament_daily_streak', streak);
-    }
+    final streak = StreakService.instance.currentStreak;
 
     final streakBonus = (streak > 0 && streak % 3 == 0) ? 15 : 0;
     final coinsEarned = _baseCoinReward +
@@ -657,17 +642,10 @@ class TournamentService {
   }
 
   // ---------------------------------------------------------------------------
-  // Same algorithm used by CrushService for consistency
+  // Delegates to CrushService for consistent scoring across the app
   // ---------------------------------------------------------------------------
   int _generateCompatibilityPercentage(String name1, String name2) {
-    final sorted = [name1.toLowerCase(), name2.toLowerCase()]..sort();
-    final combined = sorted.join();
-    var hash = 0;
-    for (int i = 0; i < combined.length; i++) {
-      hash = ((hash << 5) - hash + combined.codeUnitAt(i)) & 0xffffffff;
-    }
-    final positiveHash = hash.abs();
-    final percentage = 30 + (positiveHash % 71);
-    return percentage.clamp(30, 100);
+    // Reuse the resonance algorithm from CrushService via its public method
+    return CrushService.instance.generateCompatibilityScore(name1, name2);
   }
 }

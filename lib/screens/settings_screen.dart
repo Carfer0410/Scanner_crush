@@ -15,6 +15,7 @@ import '../services/monetization_service.dart';
 import '../services/admob_service.dart';
 import '../services/crush_service.dart';
 import 'package:scanner_crush/generated/l10n/app_localizations.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'premium_screen.dart';
 import 'history_screen.dart';
 
@@ -782,6 +783,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _showHelpDialog() {
+    final localizations = AppLocalizations.of(context)!;
+    final helpText = _normalizeDialogText(localizations.helpDialogContent);
+    final sections = helpText.split('\n\n');
+    final intro = sections.isNotEmpty ? sections.first.trim() : '';
+    final outro = sections.length > 2 ? sections.last.trim() : '';
+    final stepLines = sections
+        .expand((section) => section.split('\n'))
+        .map((line) => line.trim())
+        .where((line) => line.startsWith('-'))
+        .map((line) => line.replaceFirst('-', '').trim())
+        .toList();
+
+    final isEn = Localizations.localeOf(context).languageCode == 'en';
+
     showDialog(
       context: context,
       builder:
@@ -790,25 +805,117 @@ class _SettingsScreenState extends State<SettingsScreen> {
               borderRadius: BorderRadius.circular(20),
             ),
             backgroundColor: ThemeService.instance.cardColor,
-            title: Text(
-              AppLocalizations.of(context)!.helpDialogTitle,
-              style: GoogleFonts.poppins(
-                fontWeight: FontWeight.bold,
-                color: ThemeService.instance.textColor,
-              ),
+            title: Row(
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: ThemeService.instance.primaryColor.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    Icons.support_agent,
+                    color: ThemeService.instance.primaryColor,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    localizations.helpDialogTitle,
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.bold,
+                      color: ThemeService.instance.textColor,
+                    ),
+                  ),
+                ),
+              ],
             ),
-            content: Text(
-              _normalizeDialogText(AppLocalizations.of(context)!.helpDialogContent),
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                color: ThemeService.instance.textColor,
+            content: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (intro.isNotEmpty)
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: ThemeService.instance.surfaceColor,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: ThemeService.instance.borderColor.withOpacity(0.8),
+                        ),
+                      ),
+                      child: Text(
+                        intro,
+                        style: GoogleFonts.poppins(
+                          fontSize: 13,
+                          height: 1.4,
+                          color: ThemeService.instance.textColor,
+                        ),
+                      ),
+                    ),
+
+                  if (stepLines.isNotEmpty) ...[
+                    const SizedBox(height: 14),
+                    Text(
+                      isEn ? 'How to use it' : 'Cómo usarla',
+                      style: GoogleFonts.poppins(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: ThemeService.instance.textColor,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ...List.generate(stepLines.length, (index) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: _buildHelpStepTile(
+                          step: index + 1,
+                          text: stepLines[index],
+                        ),
+                      );
+                    }),
+                  ],
+
+                  if (outro.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.amber.withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.amber.withOpacity(0.35)),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('💡', style: TextStyle(fontSize: 16)),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              outro,
+                              style: GoogleFonts.poppins(
+                                fontSize: 12,
+                                color: ThemeService.instance.textColor,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
                 child: Text(
-                  AppLocalizations.of(context)!.understood,
+                  localizations.understood,
                   style: GoogleFonts.poppins(
                     fontWeight: FontWeight.bold,
                     color: ThemeService.instance.primaryColor,
@@ -817,6 +924,53 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ],
           ),
+    );
+  }
+
+  Widget _buildHelpStepTile({required int step, required String text}) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: ThemeService.instance.surfaceColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: ThemeService.instance.borderColor.withOpacity(0.7),
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 22,
+            height: 22,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: ThemeService.instance.primaryColor,
+            ),
+            child: Text(
+              '$step',
+              style: GoogleFonts.poppins(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              text,
+              style: GoogleFonts.poppins(
+                fontSize: 13,
+                height: 1.35,
+                color: ThemeService.instance.textColor,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -875,11 +1029,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 color: ThemeService.instance.textColor,
               ),
             ),
-            content: Text(
-              _normalizeDialogText(AppLocalizations.of(context)!.privacyDialogContent),
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                color: ThemeService.instance.textColor,
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    _normalizeDialogText(AppLocalizations.of(context)!.privacyDialogContent),
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: ThemeService.instance.textColor,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Center(
+                    child: ElevatedButton.icon(
+                      onPressed: () async {
+                        final url = Uri.parse('https://sites.google.com/view/politicas-scanner-crush/p%C3%A1gina-principal');
+                        if (await canLaunchUrl(url)) {
+                          await launchUrl(url, mode: LaunchMode.externalApplication);
+                        }
+                      },
+                      icon: const Icon(Icons.open_in_new, size: 18),
+                      label: Text(
+                        AppLocalizations.of(context)!.viewFullPolicy,
+                        style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: ThemeService.instance.primaryColor,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             actions: [
@@ -968,6 +1154,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         'last_used_date',
         'total_scans',
         'best_streak',
+        'love_streak_recoveries_used',
+        'love_streak_pending_recovery_target',
+        'love_streak_pending_recovery_date',
 
         // Daily love service keys
         'total_compatibility', // Agregado para limpiar estadísticas de compatibilidad

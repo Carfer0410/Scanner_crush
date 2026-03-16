@@ -7,7 +7,7 @@ import 'secure_time_service.dart';
 ///
 /// This service is NOT a separate theme system. All theme definitions
 /// live in [AppTheme] and are applied through [ThemeService].
-/// PremiumThemeService only controls *temporary access* (watch-ad → 2 hours)
+/// PremiumThemeService only controls *temporary access* (watch-ad → 3 hours)
 /// and handles expiration cleanup.
 class PremiumThemeService {
   static final PremiumThemeService _instance = PremiumThemeService._internal();
@@ -17,8 +17,8 @@ class PremiumThemeService {
   static PremiumThemeService get instance => _instance;
 
   SharedPreferences? _prefs;
-  static const Duration _firstAdUnlockDuration = Duration(hours: 2);
-  static const Duration _repeatAdUnlockDuration = Duration(hours: 2);
+  static const Duration _firstAdUnlockDuration = Duration(hours: 3);
+  static const Duration _repeatAdUnlockDuration = Duration(hours: 3);
   static const int _maxAdUnlocksPerDay = 3;
 
   /// Map of temporary access: {themeTypeName: expiryIsoString}
@@ -64,7 +64,7 @@ class PremiumThemeService {
   }
 
   /// Grants temporary access to a premium theme after watching an ad.
-  /// First unlock per theme: 2h. Re-unlocks: 2h.
+  /// First unlock per theme: 3h. Re-unlocks: 3h.
   /// Returns false if daily ad-unlock limit has been reached.
   Future<bool> grantTemporaryAccessToTheme(String themeId) async {
     final prefs = _prefs ?? await SharedPreferences.getInstance();

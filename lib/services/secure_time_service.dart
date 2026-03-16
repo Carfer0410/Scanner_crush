@@ -213,8 +213,12 @@ class SecureTimeService {
 
   /// Obtiene la fecha segura sin tiempo (solo año, mes, día)
   DateTime getSecureDate() {
-    final secureTime = getSecureTime();
-    return DateTime(secureTime.year, secureTime.month, secureTime.day);
+    final secureLocalTime = getSecureTime().toLocal();
+    return DateTime(
+      secureLocalTime.year,
+      secureLocalTime.month,
+      secureLocalTime.day,
+    );
   }
 
   /// Verifica si dos fechas son del mismo día (de forma segura)

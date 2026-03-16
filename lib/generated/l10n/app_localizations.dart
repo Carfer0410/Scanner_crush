@@ -1358,7 +1358,7 @@ abstract class AppLocalizations {
   /// Save percentage message
   ///
   /// In en, this message translates to:
-  /// **'Save {percentage}%'**
+  /// **'Save'**
   String save(String percentage);
 
   /// Subscribe button
@@ -1760,7 +1760,7 @@ abstract class AppLocalizations {
   /// Purchase premium button
   ///
   /// In en, this message translates to:
-  /// **'Get Premium - \$2.99/month'**
+  /// **'Subscribe Now'**
   String get purchasePremium;
 
   /// Welcome to premium title
@@ -2927,6 +2927,66 @@ abstract class AppLocalizations {
   /// **'/month'**
   String get perMonth;
 
+  /// No description provided for @perYear.
+  ///
+  /// In en, this message translates to:
+  /// **'/year'**
+  String get perYear;
+
+  /// No description provided for @monthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get monthly;
+
+  /// No description provided for @yearly.
+  ///
+  /// In en, this message translates to:
+  /// **'Yearly'**
+  String get yearly;
+
+  /// No description provided for @bestValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Best Value'**
+  String get bestValue;
+
+  /// No description provided for @choosePlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your plan'**
+  String get choosePlan;
+
+  /// No description provided for @premiumPlanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium'**
+  String get premiumPlanTitle;
+
+  /// No description provided for @premiumPlusPlanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium Plus'**
+  String get premiumPlusPlanTitle;
+
+  /// No description provided for @premiumPlusDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything in Premium + Unlimited 16-player tournaments, advanced analytics and exclusive Plus themes'**
+  String get premiumPlusDescription;
+
+  /// No description provided for @subscribeTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscribe'**
+  String get subscribeTo;
+
+  /// No description provided for @selectedPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected plan'**
+  String get selectedPlan;
+
   /// Monthly price
   ///
   /// In en, this message translates to:
@@ -3170,19 +3230,19 @@ abstract class AppLocalizations {
   /// No description provided for @privacyTitle.
   ///
   /// In en, this message translates to:
-  /// **'Privacy'**
+  /// **'Privacy Policy'**
   String get privacyTitle;
 
   /// No description provided for @privacySubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Privacy policy and terms'**
+  /// **'View our privacy policy'**
   String get privacySubtitle;
 
   /// No description provided for @privacyDialogTitle.
   ///
   /// In en, this message translates to:
-  /// **'🔒 Privacy'**
+  /// **'🔒 Privacy Policy'**
   String get privacyDialogTitle;
 
   /// No description provided for @privacyDialogContent.
@@ -3190,6 +3250,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your privacy is important to us.\n\n• Names are stored only locally\n• We don\'t share personal information\n• Results are generated randomly\n• You can delete your history anytime\n\nThis app is for entertainment only.'**
   String get privacyDialogContent;
+
+  /// No description provided for @viewFullPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'View full policy'**
+  String get viewFullPolicy;
 
   /// No description provided for @confirmClearDataTitle.
   ///
@@ -3736,6 +3802,216 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'🏆 Final Match'**
   String get tournamentFinalMatch;
+
+  /// No description provided for @duelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'⚔️ Love Duel'**
+  String get duelTitle;
+
+  /// No description provided for @duelHeadline.
+  ///
+  /// In en, this message translates to:
+  /// **'Who wins your heart?'**
+  String get duelHeadline;
+
+  /// No description provided for @duelDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Pit two crushes against each other and discover who\'s more compatible with you across 4 love dimensions.'**
+  String get duelDescription;
+
+  /// No description provided for @duelHowToPlayTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How does it work?'**
+  String get duelHowToPlayTitle;
+
+  /// No description provided for @duelStep1.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your name and the names of two special people'**
+  String get duelStep1;
+
+  /// No description provided for @duelStep2.
+  ///
+  /// In en, this message translates to:
+  /// **'Our algorithm analyzes compatibility across 4 dimensions'**
+  String get duelStep2;
+
+  /// No description provided for @duelStep3.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch the epic battle unfold round by round!'**
+  String get duelStep3;
+
+  /// No description provided for @duelDimExplainTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The 4 Dimensions of Love'**
+  String get duelDimExplainTitle;
+
+  /// No description provided for @duelDimEmotionalDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Emotional connection and sentimental depth'**
+  String get duelDimEmotionalDesc;
+
+  /// No description provided for @duelDimPassionDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Chemistry, attraction and romantic energy'**
+  String get duelDimPassionDesc;
+
+  /// No description provided for @duelDimIntellectualDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Mental affinity, humor and conversation'**
+  String get duelDimIntellectualDesc;
+
+  /// No description provided for @duelDimDestinyDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Cosmic compatibility and fate alignment'**
+  String get duelDimDestinyDesc;
+
+  /// No description provided for @duelTiebreakerNote.
+  ///
+  /// In en, this message translates to:
+  /// **'If it\'s a 2-2 tie, a sudden-death tiebreaker round activates!'**
+  String get duelTiebreakerNote;
+
+  /// No description provided for @duelFunFact.
+  ///
+  /// In en, this message translates to:
+  /// **'Fun fact'**
+  String get duelFunFact;
+
+  /// No description provided for @duelFunFact1.
+  ///
+  /// In en, this message translates to:
+  /// **'68% of duels end with a clear winner in the first 3 rounds'**
+  String get duelFunFact1;
+
+  /// No description provided for @duelFunFact2.
+  ///
+  /// In en, this message translates to:
+  /// **'The Passion dimension is the most unpredictable of all'**
+  String get duelFunFact2;
+
+  /// No description provided for @duelFunFact3.
+  ///
+  /// In en, this message translates to:
+  /// **'Only 12% of duels reach the final tiebreaker'**
+  String get duelFunFact3;
+
+  /// No description provided for @duelFunFact4.
+  ///
+  /// In en, this message translates to:
+  /// **'Emotional connection is the most important dimension for long relationships'**
+  String get duelFunFact4;
+
+  /// No description provided for @duelFunFact5.
+  ///
+  /// In en, this message translates to:
+  /// **'Names with more than 6 letters tend to have higher intellectual compatibility'**
+  String get duelFunFact5;
+
+  /// No description provided for @duelYourName.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name'**
+  String get duelYourName;
+
+  /// No description provided for @duelCrushA.
+  ///
+  /// In en, this message translates to:
+  /// **'Crush A\'s name'**
+  String get duelCrushA;
+
+  /// No description provided for @duelCrushB.
+  ///
+  /// In en, this message translates to:
+  /// **'Crush B\'s name'**
+  String get duelCrushB;
+
+  /// No description provided for @duelStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Duel! ⚔️'**
+  String get duelStart;
+
+  /// No description provided for @duelLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing battle...'**
+  String get duelLoading;
+
+  /// No description provided for @duelSameNameError.
+  ///
+  /// In en, this message translates to:
+  /// **'Crush names cannot be the same.'**
+  String get duelSameNameError;
+
+  /// No description provided for @duelGetReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Get Ready!'**
+  String get duelGetReady;
+
+  /// No description provided for @duelRound.
+  ///
+  /// In en, this message translates to:
+  /// **'Round'**
+  String get duelRound;
+
+  /// No description provided for @duelDimEmotional.
+  ///
+  /// In en, this message translates to:
+  /// **'Emotional ❤️'**
+  String get duelDimEmotional;
+
+  /// No description provided for @duelDimPassion.
+  ///
+  /// In en, this message translates to:
+  /// **'Passion 🔥'**
+  String get duelDimPassion;
+
+  /// No description provided for @duelDimIntellectual.
+  ///
+  /// In en, this message translates to:
+  /// **'Intellectual 🧠'**
+  String get duelDimIntellectual;
+
+  /// No description provided for @duelDimDestiny.
+  ///
+  /// In en, this message translates to:
+  /// **'Destiny ✨'**
+  String get duelDimDestiny;
+
+  /// No description provided for @duelShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get duelShare;
+
+  /// No description provided for @duelPlayAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Play Again'**
+  String get duelPlayAgain;
+
+  /// No description provided for @duelHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get duelHome;
+
+  /// No description provided for @duelWelcomeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pit your crushes in an epic duel'**
+  String get duelWelcomeSubtitle;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

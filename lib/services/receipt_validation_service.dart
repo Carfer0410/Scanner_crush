@@ -50,7 +50,7 @@ class ReceiptValidationService {
 
   static const bool requireServerValidationInRelease = bool.fromEnvironment(
     'REQUIRE_SERVER_PURCHASE_VALIDATION',
-    defaultValue: true,
+    defaultValue: false,
   );
 
   static const String _baseUrl = String.fromEnvironment(

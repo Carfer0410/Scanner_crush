@@ -8,6 +8,7 @@ class FriendlyLimitDialog extends StatelessWidget {
   final int remainingScans;
   final VoidCallback? onWatchAd;
   final VoidCallback? onUseCoins;
+  final VoidCallback? onWatchAdForCoins;
   final VoidCallback? onUpgrade;
   
   const FriendlyLimitDialog({
@@ -15,6 +16,7 @@ class FriendlyLimitDialog extends StatelessWidget {
     required this.remainingScans,
     this.onWatchAd,
     this.onUseCoins,
+    this.onWatchAdForCoins,
     this.onUpgrade,
   }) : super(key: key);
 
@@ -94,7 +96,21 @@ class FriendlyLimitDialog extends StatelessWidget {
                 const SizedBox(height: 12),
               ],
               
-              // Opción 2: Coins
+              // Opción 2: Ganar coins viendo anuncio
+              if (onWatchAdForCoins != null) ...[
+                _buildOption(
+                  icon: Icons.monetization_on_outlined,
+                  title: AppLocalizations.of(context)?.adCoinsButtonLabel(30) ?? 'Ad +30c',
+                  subtitle: Localizations.localeOf(context).languageCode == 'en'
+                      ? 'Watch ad to earn coins'
+                      : 'Ve un anuncio y gana coins',
+                  color: Colors.amber.shade700,
+                  onTap: onWatchAdForCoins,
+                ),
+                const SizedBox(height: 12),
+              ],
+
+              // Opción 3: Comprar escaneos con coins
               if (onUseCoins != null) ...[
                 _buildOption(
                   icon: Icons.toll,
@@ -106,7 +122,7 @@ class FriendlyLimitDialog extends StatelessWidget {
                 const SizedBox(height: 12),
               ],
 
-              // Opción 3: Premium
+              // Opción 4: Premium
               _buildOption(
                 icon: Icons.star_border,
                 title: AppLocalizations.of(context)?.unlimitedScans ?? 'Escaneos ilimitados',
@@ -117,7 +133,7 @@ class FriendlyLimitDialog extends StatelessWidget {
               
               const SizedBox(height: 12),
               
-              // Opción 4: Esperar
+              // Opción 5: Esperar
               _buildOption(
                 icon: Icons.schedule,
                 title: AppLocalizations.of(context)?.waitUntilTomorrow ?? 'Esperar hasta mañana',

@@ -6,6 +6,24 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../services/secure_time_service.dart';
 
 import 'logger_service.dart';
+
+enum RewardedAdStatus {
+  rewarded,
+  dismissed,
+  notReady,
+  failedToLoad,
+  failedToShow,
+  alreadyShowing,
+}
+
+class RewardedAdResult {
+  const RewardedAdResult(this.status);
+
+  final RewardedAdStatus status;
+
+  bool get rewardEarned => status == RewardedAdStatus.rewarded;
+}
+
 /// Servicio avanzado de AdMob para Scanner Crush
 class AdMobService {
   static final AdMobService _instance = AdMobService._internal();
@@ -47,6 +65,17 @@ class AdMobService {
   bool _isInterstitialAdLoaded = false;
   bool _isRewardedAdLoaded = false;
   bool _isInitialized = false;
+  bool _isRewardedAdLoading = false;
+  bool _isRewardedAdShowing = false;
+  Completer<void>? _rewardedLoadCompleter;
+
+  // Equilibrio UX vs ingresos
+  static const int _interstitialCooldownMinutes = 3;
+  static const int _minActionsBeforeInterstitial = 4;
+  static const int _maxInterstitialPerDay = 7;
+
+  static const int _rewardedCooldownSeconds = 90;
+  static const int _maxRewardedPerDay = 8;
 
   bool get _useProductionAds => _forceProductionAds;
 
@@ -210,7 +239,13 @@ class AdMobService {
 
   /// Mostrar Anuncio Intersticial
   Future<bool> showInterstitialAd() async {
+    if (!await _canShowInterstitialAd(commit: false)) {
+      LoggerService.debug('Interstitial ad blocked by cooldown/daily cap', origin: 'AdMobService');
+      return false;
+    }
+
     if (_interstitialAd != null && _isInterstitialAdLoaded) {
+      await _canShowInterstitialAd(commit: true);
       await _interstitialAd!.show();
       return true;
     } else {
@@ -223,6 +258,16 @@ class AdMobService {
 
   /// Cargar Anuncio con Recompensa
   Future<void> _loadRewardedAd() async {
+    if (_isRewardedAdLoaded && _rewardedAd != null) {
+      return;
+    }
+    if (_isRewardedAdLoading) {
+      return _rewardedLoadCompleter?.future ?? Future.value();
+    }
+
+    _isRewardedAdLoading = true;
+    _rewardedLoadCompleter = Completer<void>();
+
     await RewardedAd.load(
       adUnitId: _rewardedAdUnitId,
       request: const AdRequest(),
@@ -233,6 +278,10 @@ class AdMobService {
           
           if (kDebugMode) {
             LoggerService.info('Rewarded ad loaded', origin: 'admob_service');
+          }
+          _isRewardedAdLoading = false;
+          if (!(_rewardedLoadCompleter?.isCompleted ?? true)) {
+            _rewardedLoadCompleter?.complete();
           }
 
           // Configurar callbacks
@@ -258,7 +307,12 @@ class AdMobService {
         },
         onAdFailedToLoad: (error) {
           LoggerService.warning('Rewarded ad failed to load: $error', origin: 'AdMobService');
+          _rewardedAd = null;
           _isRewardedAdLoaded = false;
+          _isRewardedAdLoading = false;
+          if (!(_rewardedLoadCompleter?.isCompleted ?? true)) {
+            _rewardedLoadCompleter?.complete();
+          }
           // Reintentar en 30 segundos
           Future.delayed(const Duration(seconds: 30), () {
             _loadRewardedAd();
@@ -268,62 +322,122 @@ class AdMobService {
     );
   }
 
+  Future<bool> _ensureRewardedAdReady({
+    Duration timeout = const Duration(seconds: 8),
+  }) async {
+    if (_rewardedAd != null && _isRewardedAdLoaded) {
+      return true;
+    }
+
+    await _loadRewardedAd();
+
+    final waitFuture = _rewardedLoadCompleter?.future ?? Future.value();
+    try {
+      await waitFuture.timeout(timeout);
+    } catch (_) {
+      LoggerService.warning(
+        'Rewarded ad readiness wait timed out',
+        origin: 'AdMobService',
+      );
+    }
+
+    return _rewardedAd != null && _isRewardedAdLoaded;
+  }
+
+  Future<RewardedAdResult> showRewardedAdDetailed({
+    required OnUserEarnedRewardCallback onUserEarnedReward,
+    Function()? onAdDismissed,
+  }) async {
+    if (_isRewardedAdShowing) {
+      LoggerService.debug('Rewarded ad already showing', origin: 'AdMobService');
+      return const RewardedAdResult(RewardedAdStatus.alreadyShowing);
+    }
+
+    if (!await _canShowRewardedAd(commit: false)) {
+      LoggerService.debug('Rewarded ad blocked by cooldown/daily cap', origin: 'AdMobService');
+      return const RewardedAdResult(RewardedAdStatus.notReady);
+    }
+
+    final ready = await _ensureRewardedAdReady();
+    if (!ready || _rewardedAd == null) {
+      LoggerService.debug('Rewarded ad not ready after wait', origin: 'AdMobService');
+      return const RewardedAdResult(RewardedAdStatus.notReady);
+    }
+
+    await _canShowRewardedAd(commit: true);
+
+    _isRewardedAdShowing = true;
+    final completer = Completer<RewardedAdResult>();
+    var rewardGiven = false;
+
+    _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
+      onAdShowedFullScreenContent: (ad) {
+        LoggerService.debug('Rewarded ad showed', origin: 'AdMobService');
+        _trackAdEvent('rewarded_showed');
+      },
+      onAdDismissedFullScreenContent: (ad) {
+        if (!rewardGiven) {
+          onAdDismissed?.call();
+        }
+        if (!completer.isCompleted) {
+          completer.complete(
+            RewardedAdResult(
+              rewardGiven ? RewardedAdStatus.rewarded : RewardedAdStatus.dismissed,
+            ),
+          );
+        }
+        ad.dispose();
+        _rewardedAd = null;
+        _isRewardedAdLoaded = false;
+        _isRewardedAdShowing = false;
+        _loadRewardedAd();
+      },
+      onAdFailedToShowFullScreenContent: (ad, error) {
+        LoggerService.error('Rewarded ad failed to show: $error', origin: 'AdMobService');
+        if (!completer.isCompleted) {
+          completer.complete(const RewardedAdResult(RewardedAdStatus.failedToShow));
+        }
+        ad.dispose();
+        _rewardedAd = null;
+        _isRewardedAdLoaded = false;
+        _isRewardedAdShowing = false;
+        _loadRewardedAd();
+      },
+    );
+
+    try {
+      await _rewardedAd!.show(
+        onUserEarnedReward: (ad, reward) {
+          rewardGiven = true;
+          try {
+            onUserEarnedReward(ad, reward);
+          } catch (e) {
+            LoggerService.error('Error in onUserEarnedReward callback: $e', origin: 'AdMobService');
+          }
+        },
+      );
+    } catch (e) {
+      LoggerService.error('Rewarded ad show threw error: $e', origin: 'AdMobService');
+      _isRewardedAdShowing = false;
+      _rewardedAd = null;
+      _isRewardedAdLoaded = false;
+      _loadRewardedAd();
+      return const RewardedAdResult(RewardedAdStatus.failedToShow);
+    }
+
+    return completer.future;
+  }
+
   /// Mostrar Anuncio con Recompensa
   Future<bool> showRewardedAd({
     required OnUserEarnedRewardCallback onUserEarnedReward,
     Function()? onAdDismissed,
   }) async {
-    if (_rewardedAd != null && _isRewardedAdLoaded) {
-      final completer = Completer<bool>();
-      var rewardGiven = false;
-      // Configurar callbacks ANTES de show() para evitar race condition
-      _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
-        onAdShowedFullScreenContent: (ad) {
-          LoggerService.debug('Rewarded ad showed', origin: 'AdMobService');
-          _trackAdEvent('rewarded_showed');
-        },
-        onAdDismissedFullScreenContent: (ad) {
-          // Llamar a onAdDismissed sólo si NO se obtuvo la recompensa
-          if (!rewardGiven) onAdDismissed?.call();
-          try {
-            if (!completer.isCompleted) completer.complete(rewardGiven);
-          } catch (_) {}
-          ad.dispose();
-          _isRewardedAdLoaded = false;
-          _loadRewardedAd();
-        },
-        onAdFailedToShowFullScreenContent: (ad, error) {
-          LoggerService.error('Rewarded ad failed to show: $error', origin: 'AdMobService');
-          try {
-            if (!completer.isCompleted) completer.complete(false);
-          } catch (_) {}
-          ad.dispose();
-          _isRewardedAdLoaded = false;
-          _loadRewardedAd();
-        },
-      );
-      // Envolver el callback de recompensa para saber si el usuario obtuvo la reward
-      await _rewardedAd!.show(onUserEarnedReward: (ad, reward) {
-        rewardGiven = true;
-        try {
-          onUserEarnedReward(ad, reward);
-        } catch (e) {
-          LoggerService.error('Error in onUserEarnedReward callback: $e', origin: 'AdMobService');
-        }
-        try {
-          if (!completer.isCompleted) completer.complete(true);
-        } catch (_) {}
-      });
-
-      // Esperar hasta que ad se cierre y saber si se obtuvo la recompensa
-      final rewardResult = await completer.future;
-      return rewardResult;
-    } else {
-      LoggerService.debug('Rewarded ad not ready', origin: 'AdMobService');
-      // Intentar cargar uno nuevo
-      await _loadRewardedAd();
-      return false;
-    }
+    final result = await showRewardedAdDetailed(
+      onUserEarnedReward: onUserEarnedReward,
+      onAdDismissed: onAdDismissed,
+    );
+    return result.rewardEarned;
   }
 
   /// Verificar si hay anuncios disponibles
@@ -365,19 +479,7 @@ class AdMobService {
 
   /// Configurar frecuencia de anuncios intersticiales (más inteligente)
   Future<bool> shouldShowInterstitialAd() async {
-    final lastShown = _prefs?.getInt('last_interstitial_timestamp') ?? 0;
-    final now = SecureTimeService.instance.getSecureTime().millisecondsSinceEpoch;
-    const cooldownMinutes = 2; // Reducido a 2 minutos para mejor monetización
-    
-    // También considerar número de acciones del usuario
-    final todayActions = _prefs?.getInt('user_actions_today') ?? 0;
-    
-    if (now - lastShown > (cooldownMinutes * 60 * 1000) && todayActions >= 3) {
-      await _prefs?.setInt('last_interstitial_timestamp', now);
-      return true;
-    }
-    
-    return false;
+    return _canShowInterstitialAd(commit: false);
   }
 
   /// Incrementar contador de acciones del usuario
@@ -392,5 +494,55 @@ class AdMobService {
       final currentActions = _prefs?.getInt('user_actions_today') ?? 0;
       await _prefs?.setInt('user_actions_today', currentActions + 1);
     }
+  }
+
+  String _todayKey() =>
+      SecureTimeService.instance.getSecureDate().toIso8601String().split('T')[0];
+
+  int _getDailyCounter(String baseKey) {
+    final key = '${baseKey}_${_todayKey()}';
+    return _prefs?.getInt(key) ?? 0;
+  }
+
+  Future<void> _incrementDailyCounter(String baseKey) async {
+    final key = '${baseKey}_${_todayKey()}';
+    final current = _prefs?.getInt(key) ?? 0;
+    await _prefs?.setInt(key, current + 1);
+  }
+
+  Future<bool> _canShowInterstitialAd({required bool commit}) async {
+    final lastShown = _prefs?.getInt('last_interstitial_timestamp') ?? 0;
+    final now = SecureTimeService.instance.getSecureTime().millisecondsSinceEpoch;
+    final todayActions = _prefs?.getInt('user_actions_today') ?? 0;
+    final shownToday = _getDailyCounter('interstitial_shown_count');
+
+    if (todayActions < _minActionsBeforeInterstitial) return false;
+    if (shownToday >= _maxInterstitialPerDay) return false;
+
+    const cooldownMs = _interstitialCooldownMinutes * 60 * 1000;
+    if (now - lastShown < cooldownMs) return false;
+
+    if (commit) {
+      await _prefs?.setInt('last_interstitial_timestamp', now);
+      await _incrementDailyCounter('interstitial_shown_count');
+    }
+    return true;
+  }
+
+  Future<bool> _canShowRewardedAd({required bool commit}) async {
+    final lastShown = _prefs?.getInt('last_rewarded_timestamp') ?? 0;
+    final now = SecureTimeService.instance.getSecureTime().millisecondsSinceEpoch;
+    final shownToday = _getDailyCounter('rewarded_shown_count');
+
+    if (shownToday >= _maxRewardedPerDay) return false;
+
+    const cooldownMs = _rewardedCooldownSeconds * 1000;
+    if (now - lastShown < cooldownMs) return false;
+
+    if (commit) {
+      await _prefs?.setInt('last_rewarded_timestamp', now);
+      await _incrementDailyCounter('rewarded_shown_count');
+    }
+    return true;
   }
 }

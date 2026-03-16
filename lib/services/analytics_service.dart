@@ -129,6 +129,84 @@ class AnalyticsService {
       trendData: await _getTrendData(allResults),
       topMatches: await _getTopMatches(allResults),
       monthlyData: await _getMonthlyData(allResults),
+      advancedMetrics: _calculateAdvancedMetrics(allResults),
+    );
+  }
+
+  AdvancedLoveMetrics _calculateAdvancedMetrics(List<CrushResult> results) {
+    if (results.isEmpty) {
+      return AdvancedLoveMetrics.empty();
+    }
+
+    final total = results.length;
+    final uniqueCrushes = results
+        .map((r) => r.crushName.trim().toLowerCase())
+        .where((n) => n.isNotEmpty)
+        .toSet()
+        .length;
+
+    final repeatScanRate = total == 0
+        ? 0.0
+        : ((total - uniqueCrushes).clamp(0, total)) / total;
+
+    final avg = results.map((r) => r.percentage).reduce((a, b) => a + b) / total;
+    final variance = results
+            .map((r) => (r.percentage - avg) * (r.percentage - avg))
+            .reduce((a, b) => a + b) /
+        total;
+    final volatility = variance.sqrtClamped();
+
+    final consistencyScore = (100 - (volatility * 1.6)).clamp(25, 98).toDouble();
+
+    final emotionalAvg = results.map((r) => r.emotionalScore).reduce((a, b) => a + b) / total;
+    final passionAvg = results.map((r) => r.passionScore).reduce((a, b) => a + b) / total;
+    final intellectualAvg = results.map((r) => r.intellectualScore).reduce((a, b) => a + b) / total;
+    final destinyAvg = results.map((r) => r.destinyScore).reduce((a, b) => a + b) / total;
+
+    final sortedByDate = [...results]..sort((a, b) => a.timestamp.compareTo(b.timestamp));
+    final recentSlice = sortedByDate.length <= 7
+        ? sortedByDate
+        : sortedByDate.sublist(sortedByDate.length - 7);
+    final olderSlice = sortedByDate.length <= 14
+        ? sortedByDate.take((sortedByDate.length / 2).floor()).toList()
+        : sortedByDate.sublist(sortedByDate.length - 14, sortedByDate.length - 7);
+
+    final recentAvg = recentSlice.isEmpty
+        ? avg
+        : recentSlice.map((r) => r.percentage).reduce((a, b) => a + b) / recentSlice.length;
+    final olderAvg = olderSlice.isEmpty
+        ? avg
+        : olderSlice.map((r) => r.percentage).reduce((a, b) => a + b) / olderSlice.length;
+    final momentum = (recentAvg - olderAvg).toDouble();
+
+    final eliteMatches = results.where((r) => r.percentage >= 85).length;
+    final lowMatches = results.where((r) => r.percentage <= 45).length;
+    final celebrityRate = total == 0
+        ? 0.0
+        : results.where((r) => r.isCelebrity).length / total;
+
+    final hourCounter = <int, int>{};
+    for (final r in results) {
+      hourCounter[r.timestamp.hour] = (hourCounter[r.timestamp.hour] ?? 0) + 1;
+    }
+    final bestHour = hourCounter.entries.isEmpty
+        ? 20
+        : hourCounter.entries.reduce((a, b) => a.value >= b.value ? a : b).key;
+
+    return AdvancedLoveMetrics(
+      uniqueCrushes: uniqueCrushes,
+      repeatScanRate: repeatScanRate,
+      consistencyScore: consistencyScore,
+      volatility: volatility,
+      momentum: momentum,
+      emotionalAvg: emotionalAvg,
+      passionAvg: passionAvg,
+      intellectualAvg: intellectualAvg,
+      destinyAvg: destinyAvg,
+      eliteMatches: eliteMatches,
+      lowMatches: lowMatches,
+      celebrityRate: celebrityRate,
+      peakHour: bestHour,
     );
   }
 
@@ -274,6 +352,7 @@ class AnalyticsService {
     }
 
     final stats = await getCompatibilityStats();
+    final advanced = stats.advancedMetrics;
     final insights = <PersonalInsight>[];
 
     // Solo generar insights de compatibilidad si hay datos suficientes
@@ -353,6 +432,65 @@ class AnalyticsService {
       ));
     }
 
+    final isEn = loc.localeName.toLowerCase().startsWith('en');
+
+    if (stats.totalScans >= 8) {
+      final dominantDimension = <String, double>{
+        (isEn ? 'Emotional' : 'Emocional'): advanced.emotionalAvg,
+        (isEn ? 'Passion' : 'Pasión'): advanced.passionAvg,
+        (isEn ? 'Intellectual' : 'Intelectual'): advanced.intellectualAvg,
+        (isEn ? 'Destiny' : 'Destino'): advanced.destinyAvg,
+      }.entries.reduce((a, b) => a.value >= b.value ? a : b);
+
+      insights.add(PersonalInsight(
+        icon: '🧬',
+        title: isEn ? 'Your dominant dimension' : 'Tu dimensión dominante',
+        description: isEn
+            ? 'Your strongest pattern is ${dominantDimension.key} (${dominantDimension.value.toInt()}%). Use it as your romantic advantage.'
+            : 'Tu patrón más fuerte es ${dominantDimension.key} (${dominantDimension.value.toInt()}%). Úsalo como ventaja romántica.',
+        type: InsightType.positive,
+      ));
+    }
+
+    if (stats.totalScans >= 10) {
+      if (advanced.consistencyScore >= 72) {
+        insights.add(PersonalInsight(
+          icon: '🎯',
+          title: isEn ? 'Consistent love radar' : 'Radar amoroso consistente',
+          description: isEn
+              ? 'Your consistency index is ${advanced.consistencyScore.toInt()}%. You are making very coherent romantic choices.'
+              : 'Tu índice de consistencia es ${advanced.consistencyScore.toInt()}%. Estás tomando decisiones románticas muy coherentes.',
+          type: InsightType.achievement,
+        ));
+      } else {
+        insights.add(PersonalInsight(
+          icon: '🧪',
+          title: isEn ? 'Exploration phase' : 'Fase de exploración',
+          description: isEn
+              ? 'Consistency ${advanced.consistencyScore.toInt()}%: you are still testing different profiles. Great stage to discover your type.'
+              : 'Consistencia ${advanced.consistencyScore.toInt()}%: todavía estás probando perfiles distintos. Es una gran etapa para descubrir tu tipo.',
+          type: InsightType.fun,
+        ));
+      }
+    }
+
+    if (stats.totalScans >= 12 && advanced.momentum.abs() >= 2) {
+      insights.add(PersonalInsight(
+        icon: advanced.momentum > 0 ? '📈' : '📉',
+        title: advanced.momentum > 0
+            ? (isEn ? 'Compatibility momentum up' : 'Momentum de compatibilidad al alza')
+            : (isEn ? 'Compatibility momentum down' : 'Momentum de compatibilidad a la baja'),
+        description: advanced.momentum > 0
+            ? (isEn
+                ? 'Your recent compatibility improved by +${advanced.momentum.toStringAsFixed(1)} points vs previous period.'
+                : 'Tu compatibilidad reciente mejoró +${advanced.momentum.toStringAsFixed(1)} puntos frente al período anterior.')
+            : (isEn
+                ? 'Your recent compatibility dropped ${advanced.momentum.abs().toStringAsFixed(1)} points. Time to recalibrate your choices.'
+                : 'Tu compatibilidad reciente bajó ${advanced.momentum.abs().toStringAsFixed(1)} puntos. Es momento de recalibrar tus elecciones.'),
+        type: advanced.momentum > 0 ? InsightType.positive : InsightType.motivational,
+      ));
+    }
+
     return insights;
   }
 
@@ -363,7 +501,10 @@ class AnalyticsService {
     }
 
     final stats = await getCompatibilityStats();
+    final advanced = stats.advancedMetrics;
     final predictions = <LovePrediction>[];
+
+    final isEn = loc.localeName.toLowerCase().startsWith('en');
 
     // Verificar que hay suficientes datos reales para tendencias
     final realDataPoints = stats.trendData.where((t) => t.count > 0).length;
@@ -458,6 +599,50 @@ class AnalyticsService {
       ));
     }
 
+    if (stats.totalScans >= 10) {
+      final dominant = <String, double>{
+        (isEn ? 'Emotional' : 'Emocional'): advanced.emotionalAvg,
+        (isEn ? 'Passion' : 'Pasión'): advanced.passionAvg,
+        (isEn ? 'Intellectual' : 'Intelectual'): advanced.intellectualAvg,
+        (isEn ? 'Destiny' : 'Destino'): advanced.destinyAvg,
+      }.entries.reduce((a, b) => a.value >= b.value ? a : b);
+
+      predictions.add(LovePrediction(
+        icon: '🧭',
+        title: isEn ? 'Strategic dimension focus' : 'Enfoque estratégico por dimensión',
+        description: isEn
+            ? 'In the next 30 days, prioritize profiles strong in ${dominant.key} (${dominant.value.toInt()}%) to maximize high-compatibility matches.'
+            : 'En los próximos 30 días, prioriza perfiles fuertes en ${dominant.key} (${dominant.value.toInt()}%) para maximizar matches de alta compatibilidad.',
+        confidence: (70 + (advanced.consistencyScore / 5)).clamp(65, 93).toInt(),
+        timeframe: isEn ? 'Next 30 days' : 'Próximos 30 días',
+      ));
+    }
+
+    if (stats.totalScans >= 14) {
+      predictions.add(LovePrediction(
+        icon: '⏰',
+        title: isEn ? 'Best time to scan' : 'Mejor hora para escanear',
+        description: isEn
+            ? 'Your strongest activity window is around ${_formatHourWindow(advanced.peakHour)}. Scanning there may improve engagement and outcomes.'
+            : 'Tu ventana de actividad más fuerte es alrededor de ${_formatHourWindow(advanced.peakHour)}. Escanear ahí puede mejorar engagement y resultados.',
+        confidence: 68,
+        timeframe: loc.predictionTimeframeNext2Weeks,
+      ));
+    }
+
+    if (stats.totalScans >= 15) {
+      final eliteRate = stats.totalScans == 0 ? 0 : (advanced.eliteMatches * 100 / stats.totalScans).round();
+      predictions.add(LovePrediction(
+        icon: '🏅',
+        title: isEn ? 'Elite match probability' : 'Probabilidad de match élite',
+        description: isEn
+            ? 'Based on your history, your elite-match probability is around $eliteRate%. Keep quality scans to increase it.'
+            : 'Según tu historial, tu probabilidad de match élite ronda el $eliteRate%. Mantén escaneos de calidad para subirla.',
+        confidence: (60 + eliteRate / 2).clamp(62, 91).toInt(),
+        timeframe: loc.predictionTimeframeNextMonth,
+      ));
+    }
+
     // Si no hay predicciones y el usuario tiene al menos 1 escaneo, dar una predicción motivacional
     if (predictions.isEmpty && stats.totalScans >= 1) {
       predictions.add(LovePrediction(
@@ -470,6 +655,13 @@ class AnalyticsService {
     }
 
     return predictions;
+  }
+
+  String _formatHourWindow(int hour) {
+    final start = hour.clamp(0, 23);
+    final end = ((start + 2) % 24);
+    String two(int n) => n.toString().padLeft(2, '0');
+    return '${two(start)}:00 - ${two(end)}:00';
   }
 }
 
@@ -487,6 +679,7 @@ class CompatibilityStats {
   final List<TrendPoint> trendData;
   final List<CrushResult> topMatches;
   final List<MonthlyData> monthlyData;
+  final AdvancedLoveMetrics advancedMetrics;
 
   CompatibilityStats({
     required this.totalScans,
@@ -500,6 +693,7 @@ class CompatibilityStats {
     required this.trendData,
     required this.topMatches,
     required this.monthlyData,
+    required this.advancedMetrics,
   });
 
   factory CompatibilityStats.empty() {
@@ -515,8 +709,57 @@ class CompatibilityStats {
       trendData: [],
       topMatches: [],
       monthlyData: [],
+      advancedMetrics: AdvancedLoveMetrics.empty(),
     );
   }
+}
+
+class AdvancedLoveMetrics {
+  final int uniqueCrushes;
+  final double repeatScanRate;
+  final double consistencyScore;
+  final double volatility;
+  final double momentum;
+  final double emotionalAvg;
+  final double passionAvg;
+  final double intellectualAvg;
+  final double destinyAvg;
+  final int eliteMatches;
+  final int lowMatches;
+  final double celebrityRate;
+  final int peakHour;
+
+  AdvancedLoveMetrics({
+    required this.uniqueCrushes,
+    required this.repeatScanRate,
+    required this.consistencyScore,
+    required this.volatility,
+    required this.momentum,
+    required this.emotionalAvg,
+    required this.passionAvg,
+    required this.intellectualAvg,
+    required this.destinyAvg,
+    required this.eliteMatches,
+    required this.lowMatches,
+    required this.celebrityRate,
+    required this.peakHour,
+  });
+
+  factory AdvancedLoveMetrics.empty() => AdvancedLoveMetrics(
+        uniqueCrushes: 0,
+        repeatScanRate: 0,
+        consistencyScore: 0,
+        volatility: 0,
+        momentum: 0,
+        emotionalAvg: 0,
+        passionAvg: 0,
+        intellectualAvg: 0,
+        destinyAvg: 0,
+        eliteMatches: 0,
+        lowMatches: 0,
+        celebrityRate: 0,
+        peakHour: 20,
+      );
 }
 
 class TrendPoint {
@@ -590,6 +833,19 @@ extension ListExtension<T> on List<T> {
   List<T> takeLast(int count) {
     if (count >= length) return this;
     return sublist(length - count);
+  }
+}
+
+extension _DoubleSqrtClamp on double {
+  double sqrtClamped() {
+    if (isNaN || isInfinite || this < 0) return 0;
+    double x = this;
+    double guess = x / 2.0;
+    if (guess == 0) return 0;
+    for (int i = 0; i < 8; i++) {
+      guess = (guess + x / guess) / 2;
+    }
+    return guess;
   }
 }
 

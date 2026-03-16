@@ -597,9 +597,279 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
 
           // Top matches - solo mostrar si hay datos
           if (_stats!.topMatches.isNotEmpty) _buildTopMatches(),
+
+          const SizedBox(height: 24),
+
+          if (_isPremium) _buildPremiumDeepReport() else _buildLockedPremiumReport(),
         ],
       ),
     );
+  }
+
+  Widget _buildLockedPremiumReport() {
+    final isEn = Localizations.localeOf(context).languageCode == 'en';
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Colors.deepPurple.withOpacity(0.16),
+            Colors.pink.withOpacity(0.12),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: Colors.purple.withOpacity(0.25)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Text('🔐', style: TextStyle(fontSize: 22)),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  isEn ? 'Premium Deep Report' : 'Reporte Profundo Premium',
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: ThemeService.instance.textColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            isEn
+                ? 'Unlock consistency score, emotional DNA, momentum and elite-match probability.'
+                : 'Desbloquea score de consistencia, ADN emocional, momentum y probabilidad de match élite.',
+            style: GoogleFonts.poppins(
+              fontSize: 13,
+              color: ThemeService.instance.subtitleColor,
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _chipPreview('🎯', isEn ? 'Consistency' : 'Consistencia'),
+              _chipPreview('📈', isEn ? 'Momentum' : 'Momentum'),
+              _chipPreview('🧬', isEn ? 'Love DNA' : 'ADN Amoroso'),
+              _chipPreview('🏅', isEn ? 'Elite Chance' : 'Chance Élite'),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const PremiumScreen()),
+                );
+              },
+              icon: const Icon(Icons.stars, size: 16),
+              label: Text(isEn ? 'Unlock Premium' : 'Desbloquear Premium'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _chipPreview(String emoji, String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      decoration: BoxDecoration(
+        color: ThemeService.instance.cardColor,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: ThemeService.instance.borderColor),
+      ),
+      child: Text(
+        '$emoji $label',
+        style: GoogleFonts.poppins(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: ThemeService.instance.textColor,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPremiumDeepReport() {
+    final metrics = _stats!.advancedMetrics;
+    final isEn = Localizations.localeOf(context).languageCode == 'en';
+
+    Widget scoreTile(String label, String value, Color color, String emoji) {
+      return Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.14),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: color.withOpacity(0.4)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '$emoji $label',
+              style: GoogleFonts.poppins(
+                fontSize: 11,
+                color: ThemeService.instance.subtitleColor,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              value,
+              style: GoogleFonts.poppins(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: ThemeService.instance.textColor,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Colors.deepPurple.withOpacity(0.12),
+            Colors.indigo.withOpacity(0.10),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: Colors.indigo.withOpacity(0.25)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            isEn ? '🧠 Premium Deep Report' : '🧠 Reporte Profundo Premium',
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: ThemeService.instance.textColor,
+            ),
+          ),
+          const SizedBox(height: 14),
+          GridView.count(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            crossAxisCount: 2,
+            mainAxisSpacing: 10,
+            crossAxisSpacing: 10,
+            childAspectRatio: 1.6,
+            children: [
+              scoreTile(
+                isEn ? 'Consistency' : 'Consistencia',
+                '${metrics.consistencyScore.toInt()}%',
+                Colors.green,
+                '🎯',
+              ),
+              scoreTile(
+                isEn ? 'Momentum' : 'Momentum',
+                metrics.momentum >= 0
+                    ? '+${metrics.momentum.toStringAsFixed(1)}'
+                    : metrics.momentum.toStringAsFixed(1),
+                metrics.momentum >= 0 ? Colors.blue : Colors.orange,
+                metrics.momentum >= 0 ? '📈' : '📉',
+              ),
+              scoreTile(
+                isEn ? 'Unique people' : 'Personas únicas',
+                '${metrics.uniqueCrushes}',
+                Colors.purple,
+                '🧩',
+              ),
+              scoreTile(
+                isEn ? 'Elite matches' : 'Matches élite',
+                '${metrics.eliteMatches}',
+                Colors.amber,
+                '🏅',
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            isEn ? 'Love DNA by dimensions' : 'ADN Amoroso por dimensiones',
+            style: GoogleFonts.poppins(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: ThemeService.instance.textColor,
+            ),
+          ),
+          const SizedBox(height: 8),
+          _dimensionProgress(isEn ? 'Emotional' : 'Emocional', metrics.emotionalAvg, Colors.pink),
+          _dimensionProgress(isEn ? 'Passion' : 'Pasión', metrics.passionAvg, Colors.deepOrange),
+          _dimensionProgress(isEn ? 'Intellectual' : 'Intelectual', metrics.intellectualAvg, Colors.lightBlue),
+          _dimensionProgress(isEn ? 'Destiny' : 'Destino', metrics.destinyAvg, Colors.purple),
+          const SizedBox(height: 8),
+          Text(
+            isEn
+                ? 'Peak scan window: ${_hourWindow(metrics.peakHour)}'
+                : 'Ventana pico de escaneo: ${_hourWindow(metrics.peakHour)}',
+            style: GoogleFonts.poppins(
+              fontSize: 12,
+              color: ThemeService.instance.subtitleColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _dimensionProgress(String label, double value, Color color) {
+    final safe = value.clamp(0, 100).toDouble();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 7),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 92,
+            child: Text(
+              label,
+              style: GoogleFonts.poppins(
+                fontSize: 12,
+                color: ThemeService.instance.subtitleColor,
+              ),
+            ),
+          ),
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(999),
+              child: LinearProgressIndicator(
+                value: safe / 100,
+                minHeight: 8,
+                backgroundColor: ThemeService.instance.surfaceColor,
+                valueColor: AlwaysStoppedAnimation<Color>(color),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            '${safe.toInt()}%',
+            style: GoogleFonts.poppins(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: ThemeService.instance.textColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _hourWindow(int hour) {
+    final start = hour.clamp(0, 23);
+    final end = (start + 2) % 24;
+    String two(int n) => n.toString().padLeft(2, '0');
+    return '${two(start)}:00 - ${two(end)}:00';
   }
 
   Widget _buildInsightsTab() {

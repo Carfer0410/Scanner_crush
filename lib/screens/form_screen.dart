@@ -32,6 +32,8 @@ class _FormScreenState extends State<FormScreen> {
   final _userNameController = TextEditingController();
   final _crushNameController = TextEditingController();
   bool _isLoading = false;
+  DateTime? _lastScanTapAt;
+  static const Duration _scanTapCooldown = Duration(milliseconds: 1200);
   BannerAd? _bannerAd;
   bool _isBannerAdReady = false;
   Timer? _dailyResetTimer;
@@ -78,11 +80,21 @@ class _FormScreenState extends State<FormScreen> {
   // Duplicate dispose() removed; logic merged into the single dispose() above.
 
   Future<void> _scanLove() async {
+    if (_isLoading) return;
+
     if (!_formKey.currentState!.validate()) {
       // Add haptic feedback for validation error
       HapticFeedback.lightImpact();
       return;
     }
+
+    final now = DateTime.now();
+    if (_lastScanTapAt != null &&
+        now.difference(_lastScanTapAt!) < _scanTapCooldown) {
+      HapticFeedback.selectionClick();
+      return;
+    }
+    _lastScanTapAt = now;
 
     // Verificar límites de escaneo ANTES de proceder
     final canScan = await MonetizationService.instance.canScanToday();
@@ -163,6 +175,7 @@ class _FormScreenState extends State<FormScreen> {
       final coinsEarned = await ScannerEconomyService.instance.rewardScan(
         isCelebrity: false,
       );
+      await ScannerEconomyService.instance.recordHighScore(result.percentage);
 
       // Track user action para sistema de frecuencia de anuncios
       AdMobService.instance.trackUserAction();
@@ -260,10 +273,24 @@ class _FormScreenState extends State<FormScreen> {
     } catch (e) {
       if (mounted) {
         final localizations = AppLocalizations.of(context)!;
+        final isValidation = e is FormatException;
+        final message = isValidation
+            ? e.message
+            : localizations.unknownError;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(localizations.unknownError),
-            backgroundColor: Colors.red,
+            content: Row(
+              children: [
+                Icon(
+                  isValidation ? Icons.favorite_rounded : Icons.error_outline,
+                  color: Colors.white,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Expanded(child: Text(message.toString())),
+              ],
+            ),
+            backgroundColor: isValidation ? Colors.teal.shade600 : Colors.red,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
@@ -292,6 +319,7 @@ class _FormScreenState extends State<FormScreen> {
         remainingScans: remainingScans,
         onWatchAd: canWatchAd ? _watchAdForScans : null,
         onUseCoins: _useCoinsForScans,
+        onWatchAdForCoins: _watchAdForCoins,
         onUpgrade: () {
           Navigator.pop(context);
           _navigateToPremium();
@@ -391,6 +419,27 @@ class _FormScreenState extends State<FormScreen> {
       ),
     );
   }
+
+  Future<void> _watchAdForCoins() async {
+    final localizations = AppLocalizations.of(context)!;
+    Navigator.pop(context);
+    final ok = await ScannerEconomyService.instance.watchAdForCoins();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          ok
+              ? localizations.coinsEarnedMessage(ScannerEconomyService.instance.coinAdReward)
+              : localizations.noAdsAvailable,
+        ),
+        backgroundColor: ok ? Colors.green : Colors.orange,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        duration: const Duration(seconds: 6),
+      ),
+    );
+  }
+
   void _navigateToPremium() {
     Navigator.push(
       context,
@@ -515,24 +564,6 @@ class _FormScreenState extends State<FormScreen> {
 
                             const SizedBox(height: 24),
 
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                localizations.retentionRewardsTitle,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w700,
-                                  color: ThemeService.instance.textColor,
-                                ),
-                              ),
-                            ),
-
-                            const SizedBox(height: 8),
-
-                            const ScannerEconomyPanel(),
-
-                            const SizedBox(height: 36),
-
                             // User name field
                             CustomTextField(
                               hintText:
@@ -599,6 +630,25 @@ class _FormScreenState extends State<FormScreen> {
                             ),
 
                             const SizedBox(height: 40),
+
+                            // Retention rewards section
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                localizations.retentionRewardsTitle,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                  color: ThemeService.instance.textColor,
+                                ),
+                              ),
+                            ),
+
+                            const SizedBox(height: 8),
+
+                            const ScannerEconomyPanel(),
+
+                            const SizedBox(height: 24),
 
                             // Info card
                             Container(

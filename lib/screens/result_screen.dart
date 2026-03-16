@@ -71,17 +71,11 @@ class _ResultScreenState extends State<ResultScreen>
     });
 
     _loadBannerAd();
-    _showPostResultInterstitial();
 
     // Track user action para sistema de frecuencia de anuncios
+    // El interstitial se muestra al SALIR de la pantalla (Escanear de nuevo / Inicio),
+    // no al entrar, para que el usuario disfrute su resultado sin interrupciones.
     AdMobService.instance.trackUserAction();
-  }
-
-  void _showPostResultInterstitial() {
-    Future.delayed(const Duration(seconds: 2), () async {
-      if (!mounted) return;
-      await MonetizationService.instance.showInterstitialAd();
-    });
   }
 
   void _loadBannerAd() async {
@@ -360,11 +354,19 @@ class _ResultScreenState extends State<ResultScreen>
                   child: Row(
                     children: [
                       IconButton(
-                        onPressed:
-                            () => Navigator.popUntil(
-                              context,
-                              (route) => route.isFirst,
-                            ),
+                        onPressed: () async {
+                          if (!await MonetizationService.instance.isPremiumAsync()) {
+                            final shouldShow = await AdMobService.instance.shouldShowInterstitialAd();
+                            if (shouldShow && AdMobService.instance.isInterstitialAdReady) {
+                              await AdMobService.instance.showInterstitialAd();
+                            }
+                          }
+                          if (!context.mounted) return;
+                          Navigator.popUntil(
+                            context,
+                            (route) => route.isFirst,
+                          );
+                        },
                         icon: Icon(
                           Icons.home_rounded,
                           color: ThemeService.instance.textColor,
@@ -603,7 +605,83 @@ class _ResultScreenState extends State<ResultScreen>
                           .fadeIn(delay: 1.2.seconds)
                           .slideY(begin: 20, end: 0),
 
-                      const SizedBox(height: 40),
+                      const SizedBox(height: 24),
+
+                      // ── Compatibility Dimensions ──
+                      if (widget.result.emotionalScore > 0 ||
+                          widget.result.passionScore > 0 ||
+                          widget.result.intellectualScore > 0 ||
+                          widget.result.destinyScore > 0)
+                        Container(
+                          padding: const EdgeInsets.all(20),
+                          margin: const EdgeInsets.symmetric(horizontal: 10),
+                          decoration: BoxDecoration(
+                            color: ThemeService.instance.cardColor,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: ThemeService.instance.borderColor.withOpacity(0.5),
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.06),
+                                blurRadius: 12,
+                                offset: const Offset(0, 6),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            children: [
+                              Text(
+                                Localizations.localeOf(context).languageCode == 'en'
+                                    ? 'Compatibility Dimensions'
+                                    : 'Dimensiones de Compatibilidad',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                  color: ThemeService.instance.textColor,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              _buildDimensionBar(
+                                Localizations.localeOf(context).languageCode == 'en'
+                                    ? 'Emotional Connection'
+                                    : 'Conexión Emocional',
+                                widget.result.emotionalScore,
+                                const Color(0xFFE91E63),
+                                '💖',
+                              ),
+                              const SizedBox(height: 12),
+                              _buildDimensionBar(
+                                Localizations.localeOf(context).languageCode == 'en'
+                                    ? 'Passion & Chemistry'
+                                    : 'Pasión y Química',
+                                widget.result.passionScore,
+                                const Color(0xFFFF5722),
+                                '🔥',
+                              ),
+                              const SizedBox(height: 12),
+                              _buildDimensionBar(
+                                Localizations.localeOf(context).languageCode == 'en'
+                                    ? 'Intellectual Affinity'
+                                    : 'Afinidad Intelectual',
+                                widget.result.intellectualScore,
+                                const Color(0xFF2196F3),
+                                '🧠',
+                              ),
+                              const SizedBox(height: 12),
+                              _buildDimensionBar(
+                                Localizations.localeOf(context).languageCode == 'en'
+                                    ? 'Destiny Bond'
+                                    : 'Vínculo del Destino',
+                                widget.result.destinyScore,
+                                const Color(0xFF9C27B0),
+                                '✨',
+                              ),
+                            ],
+                          ),
+                        ).animate().fadeIn(delay: 1.4.seconds).slideY(begin: 15, end: 0),
+
+                      const SizedBox(height: 30),
 
                       // Action buttons
                       Row(
@@ -655,7 +733,54 @@ class _ResultScreenState extends State<ResultScreen>
       ),
     );
   }
+  Widget _buildDimensionBar(String label, int score, Color color, String emoji) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(emoji, style: const TextStyle(fontSize: 16)),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                label,
+                style: GoogleFonts.poppins(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: ThemeService.instance.textColor,
+                ),
+              ),
+            ),
+            Text(
+              '$score%',
+              style: GoogleFonts.poppins(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: color,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(6),
+          child: SizedBox(
+            height: 8,
+            child: TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0, end: score / 100.0),
+              duration: const Duration(milliseconds: 1500),
+              curve: Curves.easeOutCubic,
+              builder: (context, value, _) {
+                return LinearProgressIndicator(
+                  value: value,
+                  backgroundColor: color.withOpacity(0.12),
+                  valueColor: AlwaysStoppedAnimation<Color>(color),
+                );
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 }
-
-
-

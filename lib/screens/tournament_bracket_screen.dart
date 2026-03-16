@@ -544,33 +544,50 @@ class _TournamentBracketScreenState extends State<TournamentBracketScreen> {
                             Container(
                               width: double.infinity,
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 10),
+                                  horizontal: 16, vertical: 12),
                               margin: const EdgeInsets.only(bottom: 12),
                               decoration: BoxDecoration(
                                 gradient: isCurrent
                                     ? LinearGradient(colors: [
                                         ThemeService.instance.primaryColor
-                                            .withOpacity(0.2),
+                                            .withOpacity(0.25),
                                         ThemeService.instance.secondaryColor
-                                            .withOpacity(0.2),
+                                            .withOpacity(0.18),
                                       ])
-                                    : null,
-                                color: isCurrent
-                                    ? null
-                                    : ThemeService.instance.cardColor
-                                        .withOpacity(0.5),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                roundName,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
+                                    : LinearGradient(colors: [
+                                        ThemeService.instance.surfaceColor
+                                            .withOpacity(0.8),
+                                        ThemeService.instance.surfaceColor
+                                            .withOpacity(0.6),
+                                      ]),
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(
                                   color: isCurrent
                                       ? ThemeService.instance.primaryColor
-                                      : ThemeService.instance.subtitleColor,
+                                          .withOpacity(0.4)
+                                      : ThemeService.instance.borderColor
+                                          .withOpacity(0.5),
                                 ),
-                                textAlign: TextAlign.center,
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  if (isCurrent)
+                                    Icon(Icons.play_circle_filled,
+                                        color: ThemeService.instance.primaryColor,
+                                        size: 18),
+                                  if (isCurrent) const SizedBox(width: 8),
+                                  Text(
+                                    roundName,
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: isCurrent
+                                          ? ThemeService.instance.primaryColor
+                                          : ThemeService.instance.subtitleColor,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
 
@@ -715,21 +732,29 @@ class _TournamentBracketScreenState extends State<TournamentBracketScreen> {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: isNext
-            ? ThemeService.instance.primaryColor.withOpacity(0.1)
-            : ThemeService.instance.cardColor,
+        gradient: isNext
+            ? LinearGradient(colors: [
+                ThemeService.instance.primaryColor.withOpacity(0.12),
+                ThemeService.instance.secondaryColor.withOpacity(0.08),
+              ])
+            : LinearGradient(colors: [
+                ThemeService.instance.cardColor.withOpacity(0.95),
+                ThemeService.instance.surfaceColor.withOpacity(0.85),
+              ]),
         borderRadius: BorderRadius.circular(16),
-        border: isNext
-            ? Border.all(
-                color: ThemeService.instance.primaryColor.withOpacity(0.5),
-                width: 2,
-              )
-            : null,
+        border: Border.all(
+          color: isNext
+              ? ThemeService.instance.primaryColor.withOpacity(0.5)
+              : ThemeService.instance.borderColor.withOpacity(0.4),
+          width: isNext ? 2 : 1,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: isNext
+                ? ThemeService.instance.primaryColor.withOpacity(0.12)
+                : Colors.black.withOpacity(0.06),
+            blurRadius: isNext ? 12 : 8,
+            offset: const Offset(0, 3),
           ),
         ],
       ),

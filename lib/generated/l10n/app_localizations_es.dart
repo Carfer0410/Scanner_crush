@@ -670,7 +670,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String save(String percentage) {
-    return 'Ahorra $percentage%';
+    return 'Ahorra';
   }
 
   @override
@@ -876,7 +876,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get premiumSupportDescription => 'Atención prioritaria y soporte técnico avanzado';
 
   @override
-  String get purchasePremium => 'Obtener Premium - \$2.99/mes';
+  String get purchasePremium => 'Suscribirse Ahora';
 
   @override
   String get welcomeToPremium => '¡Bienvenido a Premium!';
@@ -1488,6 +1488,36 @@ class AppLocalizationsEs extends AppLocalizations {
   String get perMonth => '/mes';
 
   @override
+  String get perYear => '/año';
+
+  @override
+  String get monthly => 'Mensual';
+
+  @override
+  String get yearly => 'Anual';
+
+  @override
+  String get bestValue => 'Mejor Valor';
+
+  @override
+  String get choosePlan => 'Elige tu plan';
+
+  @override
+  String get premiumPlanTitle => 'Premium';
+
+  @override
+  String get premiumPlusPlanTitle => 'Premium Plus';
+
+  @override
+  String get premiumPlusDescription => 'Todo lo de Premium + Torneos ilimitados de 16, analíticas avanzadas y temas exclusivos Plus';
+
+  @override
+  String get subscribeTo => 'Suscribirse';
+
+  @override
+  String get selectedPlan => 'Plan seleccionado';
+
+  @override
   String get monthlyPrice => '\$2.99';
 
   @override
@@ -1616,16 +1646,19 @@ class AppLocalizationsEs extends AppLocalizations {
   String get aboutSubtitle => 'Información sobre la aplicación';
 
   @override
-  String get privacyTitle => 'Privacidad';
+  String get privacyTitle => 'Política de Privacidad';
 
   @override
-  String get privacySubtitle => 'Política de privacidad y términos';
+  String get privacySubtitle => 'Consulta nuestra política de privacidad';
 
   @override
-  String get privacyDialogTitle => '🔒 Privacidad';
+  String get privacyDialogTitle => '🔒 Política de Privacidad';
 
   @override
   String get privacyDialogContent => 'Tu privacidad es importante para nosotros.\n\n• Los nombres se almacenan solo localmente\n• No compartimos información personal\n• Los resultados son generados aleatoriamente\n• Puedes borrar tu historial en cualquier momento\n\nEsta app es solo para entretenimiento.';
+
+  @override
+  String get viewFullPolicy => 'Ver política completa';
 
   @override
   String get confirmClearDataTitle => '¿Eliminar Todos los Datos?';
@@ -1929,4 +1962,109 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get tournamentFinalMatch => '🏆 Duelo Final';
+
+  @override
+  String get duelTitle => '⚔️ Duelo de Amor';
+
+  @override
+  String get duelHeadline => '¿Quién conquista tu corazón?';
+
+  @override
+  String get duelDescription => 'Enfrenta a dos crushes y descubre quién es más compatible contigo en 4 dimensiones del amor.';
+
+  @override
+  String get duelHowToPlayTitle => '¿Cómo funciona?';
+
+  @override
+  String get duelStep1 => 'Escribe tu nombre y el de dos personas especiales';
+
+  @override
+  String get duelStep2 => 'Nuestro algoritmo analiza la compatibilidad en 4 dimensiones';
+
+  @override
+  String get duelStep3 => '¡Observa la batalla épica asalto por asalto!';
+
+  @override
+  String get duelDimExplainTitle => 'Las 4 Dimensiones del Amor';
+
+  @override
+  String get duelDimEmotionalDesc => 'Conexión sentimental y profundidad emocional';
+
+  @override
+  String get duelDimPassionDesc => 'Química, atracción y energía romántica';
+
+  @override
+  String get duelDimIntellectualDesc => 'Afinidad mental, humor y conversación';
+
+  @override
+  String get duelDimDestinyDesc => 'Compatibilidad cósmica y de destino';
+
+  @override
+  String get duelTiebreakerNote => 'Si hay empate 2-2, ¡se activa un asalto final de desempate!';
+
+  @override
+  String get duelFunFact => 'Dato curioso';
+
+  @override
+  String get duelFunFact1 => 'El 68% de los duelos terminan con un ganador claro en las primeras 3 rondas';
+
+  @override
+  String get duelFunFact2 => 'La dimensión Pasión es la más impredecible de todas';
+
+  @override
+  String get duelFunFact3 => 'Solo el 12% de los duelos llegan al desempate final';
+
+  @override
+  String get duelFunFact4 => 'La conexión Emocional es la dimensión más importante para relaciones largas';
+
+  @override
+  String get duelFunFact5 => 'Los nombres con más de 6 letras tienden a tener más compatibilidad intelectual';
+
+  @override
+  String get duelYourName => 'Tu nombre';
+
+  @override
+  String get duelCrushA => 'Nombre del Crush A';
+
+  @override
+  String get duelCrushB => 'Nombre del Crush B';
+
+  @override
+  String get duelStart => '¡Iniciar Duelo! ⚔️';
+
+  @override
+  String get duelLoading => 'Preparando batalla...';
+
+  @override
+  String get duelSameNameError => 'Los nombres de los crushes no pueden ser iguales.';
+
+  @override
+  String get duelGetReady => '¡Prepárate!';
+
+  @override
+  String get duelRound => 'Asalto';
+
+  @override
+  String get duelDimEmotional => 'Emocional ❤️';
+
+  @override
+  String get duelDimPassion => 'Pasión 🔥';
+
+  @override
+  String get duelDimIntellectual => 'Intelectual 🧠';
+
+  @override
+  String get duelDimDestiny => 'Destino ✨';
+
+  @override
+  String get duelShare => 'Compartir';
+
+  @override
+  String get duelPlayAgain => 'Jugar otra vez';
+
+  @override
+  String get duelHome => 'Inicio';
+
+  @override
+  String get duelWelcomeSubtitle => 'Enfrenta a tus crushes en un duelo épico';
 }

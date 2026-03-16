@@ -18,9 +18,13 @@ class PremiumScreen extends StatefulWidget {
 
 class _PremiumScreenState extends State<PremiumScreen> {
   bool _isLoading = false;
+  bool _isRestoringPurchases = false;
+  DateTime? _lastRestoreTapAt;
+  static const Duration _restoreTapCooldown = Duration(seconds: 5);
   BannerAd? _bannerAd;
   bool _isBannerAdReady = false;
   bool _isPremium = false;
+  String _selectedProductId = PurchaseService.premiumMonthlyId;
 
   @override
   void initState() {
@@ -170,7 +174,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
 
     try {
       final result = await PurchaseService.instance.buySubscription(
-        PurchaseService.premiumMonthlyId,
+        _selectedProductId,
       );
 
       if (!mounted) return;
@@ -254,47 +258,86 @@ class _PremiumScreenState extends State<PremiumScreen> {
     );
   }
 
-  void _restorePurchases() async {
-    // Restaurar compras reales con PurchaseService
-    final success = await PurchaseService.instance.restorePurchases();
-    if (!mounted) return;
+  Future<void> _restorePurchases() async {
+    if (_isRestoringPurchases) return;
 
-    if (success) {
+    final now = DateTime.now();
+    if (_lastRestoreTapAt != null &&
+        now.difference(_lastRestoreTapAt!) < _restoreTapCooldown) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            AppLocalizations.of(context)?.purchasesRestoredSuccessfully ??
-                'Purchases restored successfully',
+            Localizations.localeOf(context).languageCode == 'en'
+                ? 'Please wait a few seconds before trying again.'
+                : 'Espera unos segundos antes de volver a intentar.',
           ),
-          backgroundColor: Colors.green,
+          backgroundColor: Colors.blueGrey,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          duration: const Duration(seconds: 3),
         ),
       );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            AppLocalizations.of(context)?.noPreviousPurchases ?? '',
+      return;
+    }
+
+    _lastRestoreTapAt = now;
+    setState(() => _isRestoringPurchases = true);
+
+    try {
+      // Restaurar compras reales con PurchaseService
+      final success = await PurchaseService.instance.restorePurchases();
+      if (!mounted) return;
+
+      // Esperar un momento para que el purchaseStream procese las compras restauradas
+      await Future.delayed(const Duration(seconds: 2));
+      if (!mounted) return;
+
+      // Verificar si realmente hay suscripción activa después de restaurar
+      final hasActive = PurchaseService.instance.hasActiveSubscription() ||
+          MonetizationService.instance.isPremium;
+
+      if (success && hasActive) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)?.purchasesRestoredSuccessfully ??
+                  'Purchases restored successfully',
+            ),
+            backgroundColor: Colors.green,
           ),
-          backgroundColor: Colors.orange,
-        ),
-      );
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)?.noPreviousPurchases ?? '',
+            ),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isRestoringPurchases = false);
+      }
     }
   }
 
-  Future<String> _getPremiumPrice() async {
-    // Obtener precio real desde PurchaseService
-    final price = PurchaseService.instance.getFormattedPrice(
-      PurchaseService.premiumMonthlyId,
-    );
-
-    if (price != '-') {
-      final l10n = AppLocalizations.of(context);
-      final perMonth = l10n?.perMonth ?? '/month';
-      return '$price$perMonth';
+  String _getPriceForProduct(String productId) {
+    final price = PurchaseService.instance.getFormattedPrice(productId);
+    if (price != '-') return price;
+    switch (productId) {
+      case PurchaseService.premiumMonthlyId: return '\$2.99';
+      case PurchaseService.premiumYearlyId: return '\$9.99';
+      default: return '-';
     }
+  }
 
-    // Precio por defecto si no se puede cargar desde la tienda
-    return AppLocalizations.of(context)?.defaultPrice ?? '\$2.99/mes';
+  String _getPeriodLabel(String productId) {
+    final l10n = AppLocalizations.of(context)!;
+    if (productId.contains('yearly')) return l10n.perYear;
+    return l10n.perMonth;
   }
 
   String _getFeatureTitle(String key) {
@@ -541,83 +584,31 @@ class _PremiumScreenState extends State<PremiumScreen> {
                         );
                       }).toList(),
 
-                      const SizedBox(height: 40),
+                      const SizedBox(height: 32),
 
-                      // Sección de precios desde PurchaseService
-                      FutureBuilder<String>(
-                        future: _getPremiumPrice(),
-                        builder: (context, snapshot) {
-                          final price = snapshot.data ?? '';
-                          return Container(
-                            padding: const EdgeInsets.all(25),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  ThemeService.instance.primaryColor,
-                                  ThemeService.instance.secondaryColor,
-                                ],
-                              ),
-                              borderRadius: BorderRadius.circular(20),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: ThemeService.instance.primaryColor.withOpacity(0.4),
-                                  blurRadius: 15,
-                                  offset: const Offset(0, 8),
-                                ),
-                              ],
-                            ),
-                            child: Column(
-                              children: [
-                                Text(
-                                  AppLocalizations.of(context)?.specialOffer ??
-                                      'Special Offer',
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 16,
-                                    color: Colors.white.withOpacity(0.9),
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(Icons.stars, color: Colors.amber, size: 28),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      'Premium',
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 28,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 8),
-                                if (price.isNotEmpty)
-                                  Text(
-                                    price,
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 32,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  AppLocalizations.of(context)?.cancelAnytime ??
-                                      'Cancel anytime',
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 14,
-                                    color: Colors.white.withOpacity(0.8),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ).animate().scale(delay: 1.2.seconds),
+                      // --- Plan selector title ---
+                      Text(
+                        AppLocalizations.of(context)?.choosePlan ?? 'Choose your plan',
+                        style: GoogleFonts.poppins(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w700,
+                          color: ThemeService.instance.textColor,
+                        ),
+                        textAlign: TextAlign.center,
+                      ).animate().fadeIn(delay: 1.seconds),
 
                       const SizedBox(height: 20),
+
+                      // --- PREMIUM PLANS ---
+                      _buildTierSection(
+                        tierName: AppLocalizations.of(context)?.premiumPlanTitle ?? 'Premium',
+                        icon: Icons.stars,
+                        color: Colors.amber,
+                        monthlyId: PurchaseService.premiumMonthlyId,
+                        yearlyId: PurchaseService.premiumYearlyId,
+                      ).animate().fadeIn(delay: 1.1.seconds).slideY(begin: 0.1),
+
+                      const SizedBox(height: 24),
 
                       // Banner Ad (solo si NO es premium)
                       if (_bannerAd != null && _isBannerAdReady && !_isPremium) ...[
@@ -629,39 +620,43 @@ class _PremiumScreenState extends State<PremiumScreen> {
                         const SizedBox(height: 20),
                       ],
 
-                      const SizedBox(height: 20),
-
                       // Purchase button
                       GradientButton(
                         text:
                             _isLoading
-                                ? (AppLocalizations.of(context)?.processing ??
-                                    '')
-                                : (AppLocalizations.of(
-                                      context,
-                                    )?.purchasePremium ??
-                                    ''),
+                                ? (AppLocalizations.of(context)?.processing ?? '')
+                                : (AppLocalizations.of(context)?.purchasePremium ?? ''),
                         icon: Icons.credit_card,
                         backgroundColor: Colors.amber,
                         onPressed: _purchasePremium,
                         isLoading: _isLoading,
                       ),
 
+                      const SizedBox(height: 8),
+
+                      Text(
+                        AppLocalizations.of(context)?.cancelAnytime ?? 'Cancel anytime',
+                        style: GoogleFonts.poppins(
+                          fontSize: 13,
+                          color: ThemeService.instance.subtitleColor,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+
                       const SizedBox(height: 16),
 
                       // Restore purchases link
                       TextButton(
-                        onPressed: _restorePurchases,
+                        onPressed: _isRestoringPurchases ? null : _restorePurchases,
                         child: Text(
-                          AppLocalizations.of(
-                                context,
-                              )?.restorePurchasesButton ??
-                              '',
+                          _isRestoringPurchases
+                              ? (Localizations.localeOf(context).languageCode == 'en'
+                                  ? 'Restoring...'
+                                  : 'Restaurando...')
+                              : (AppLocalizations.of(context)?.restorePurchasesButton ?? ''),
                           style: GoogleFonts.poppins(
                             fontSize: 14,
-                            color: ThemeService.instance.textColor.withOpacity(
-                              0.6,
-                            ),
+                            color: ThemeService.instance.textColor.withOpacity(0.6),
                             decoration: TextDecoration.underline,
                           ),
                         ),
@@ -674,6 +669,226 @@ class _PremiumScreenState extends State<PremiumScreen> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTierSection({
+    required String tierName,
+    required IconData icon,
+    required Color color,
+    required String monthlyId,
+    required String yearlyId,
+    bool isPremiumPlus = false,
+  }) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            color.withOpacity(0.08),
+            ThemeService.instance.cardColor,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: _selectedProductId == monthlyId || _selectedProductId == yearlyId
+              ? color.withOpacity(0.6)
+              : ThemeService.instance.borderColor,
+          width: _selectedProductId == monthlyId || _selectedProductId == yearlyId ? 2 : 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // Tier header
+          Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: color.withOpacity(0.2),
+                ),
+                child: Icon(icon, color: color, size: 22),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                tierName,
+                style: GoogleFonts.poppins(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: ThemeService.instance.textColor,
+                ),
+              ),
+              if (isPremiumPlus) ...[
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    l10n.bestValue,
+                    style: GoogleFonts.poppins(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: color,
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+
+          if (isPremiumPlus) ...[
+            const SizedBox(height: 8),
+            Text(
+              l10n.premiumPlusDescription,
+              style: GoogleFonts.poppins(
+                fontSize: 12,
+                color: ThemeService.instance.subtitleColor,
+              ),
+            ),
+          ],
+
+          const SizedBox(height: 14),
+
+          // Monthly option
+          _buildPlanOption(
+            productId: monthlyId,
+            period: l10n.monthly,
+            price: _getPriceForProduct(monthlyId),
+            periodSuffix: _getPeriodLabel(monthlyId),
+            color: color,
+          ),
+
+          const SizedBox(height: 10),
+
+          // Yearly option
+          _buildPlanOption(
+            productId: yearlyId,
+            period: l10n.yearly,
+            price: _getPriceForProduct(yearlyId),
+            periodSuffix: _getPeriodLabel(yearlyId),
+            color: color,
+            badge: l10n.mostPopular,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPlanOption({
+    required String productId,
+    required String period,
+    required String price,
+    required String periodSuffix,
+    required Color color,
+    String? badge,
+  }) {
+    final isSelected = _selectedProductId == productId;
+
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedProductId = productId;
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? color.withOpacity(0.12)
+              : ThemeService.instance.cardColor.withOpacity(0.5),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isSelected ? color : ThemeService.instance.borderColor.withOpacity(0.5),
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            // Radio indicator
+            Container(
+              width: 22,
+              height: 22,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: isSelected ? color : ThemeService.instance.subtitleColor,
+                  width: 2,
+                ),
+                color: isSelected ? color : Colors.transparent,
+              ),
+              child: isSelected
+                  ? const Icon(Icons.check, color: Colors.white, size: 14)
+                  : null,
+            ),
+            const SizedBox(width: 12),
+
+            // Period label
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        period,
+                        style: GoogleFonts.poppins(
+                          fontSize: 15,
+                          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                          color: ThemeService.instance.textColor,
+                        ),
+                      ),
+                      if (badge != null) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                          decoration: BoxDecoration(
+                            color: Colors.green.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            badge,
+                            style: GoogleFonts.poppins(
+                              fontSize: 9,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green.shade700,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            // Price
+            Text(
+              '$price$periodSuffix',
+              style: GoogleFonts.poppins(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: isSelected ? color : ThemeService.instance.textColor,
+              ),
+            ),
+          ],
         ),
       ),
     );

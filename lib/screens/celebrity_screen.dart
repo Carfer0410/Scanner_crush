@@ -150,6 +150,7 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
       final streakUpdate = await StreakService.instance.recordScan();
       final coinsEarned =
           await ScannerEconomyService.instance.rewardScan(isCelebrity: true);
+      await ScannerEconomyService.instance.recordHighScore(result.percentage);
       AdMobService.instance.trackUserAction();
 
       if (mounted &&
@@ -221,12 +222,26 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
           },
         ),
       );
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
+      final isValidation = e is FormatException;
+      final message = isValidation
+          ? e.message
+          : AppLocalizations.of(context)!.errorGeneratingResult;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(AppLocalizations.of(context)!.errorGeneratingResult),
-          backgroundColor: Colors.red,
+          content: Row(
+            children: [
+              Icon(
+                isValidation ? Icons.favorite_rounded : Icons.error_outline,
+                color: Colors.white,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Expanded(child: Text(message.toString())),
+            ],
+          ),
+          backgroundColor: isValidation ? Colors.teal.shade600 : Colors.red,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           duration: const Duration(seconds: 6),
@@ -245,6 +260,7 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
         remainingScans: remainingScans,
         onWatchAd: canWatchAd ? _watchAdForScans : null,
         onUseCoins: _useCoinsForScans,
+        onWatchAdForCoins: _watchAdForCoins,
         onUpgrade: () {
           Navigator.pop(context);
           _navigateToPremium();
@@ -296,6 +312,27 @@ class _CelebrityScreenState extends State<CelebrityScreen> {
       ),
     );
   }
+
+  Future<void> _watchAdForCoins() async {
+    final localizations = AppLocalizations.of(context)!;
+    Navigator.pop(context);
+    final ok = await ScannerEconomyService.instance.watchAdForCoins();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          ok
+              ? localizations.coinsEarnedMessage(ScannerEconomyService.instance.coinAdReward)
+              : localizations.noAdsAvailable,
+        ),
+        backgroundColor: ok ? Colors.green : Colors.orange,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        duration: const Duration(seconds: 6),
+      ),
+    );
+  }
+
   void _navigateToPremium() {
     Navigator.push(
       context,

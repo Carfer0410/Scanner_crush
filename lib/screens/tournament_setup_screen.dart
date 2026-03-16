@@ -304,16 +304,42 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
     }
   }
 
+  void _removeCelebrityEntriesThatDoNotMatchPreference(String? preference) {
+    if (preference == null) {
+      return;
+    }
+
+    for (final controller in _participantControllers) {
+      final name = controller.text.trim();
+      if (name.isEmpty) {
+        continue;
+      }
+
+      if (!CrushService.instance.checkIsCelebrity(name, flexible: true)) {
+        continue;
+      }
+
+      final inferredGender = CrushService.instance.inferCelebrityGender(name);
+      if (inferredGender != preference) {
+        controller.clear();
+      }
+    }
+  }
+
   void _fillAllWithCelebrities() {
-    final count = _participantControllers.where((c) => c.text.trim().isEmpty).length;
-    if (count == 0) return;
     var celebrities = CrushService.instance.getCelebrityNames(gender: _celebrityGenderPreference);
     if (celebrities.isEmpty) {
       celebrities = CrushService.instance.getCelebrityNames();
     }
     celebrities.shuffle();
-    int celebIdx = 0;
+    if (celebrities.isEmpty) return;
+
     setState(() {
+      for (final controller in _participantControllers) {
+        controller.clear();
+      }
+
+      int celebIdx = 0;
       for (int i = 0; i < _participantControllers.length; i++) {
         if (_participantControllers[i].text.trim().isEmpty && celebIdx < celebrities.length) {
           _participantControllers[i].text = celebrities[celebIdx];
@@ -367,7 +393,7 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
     final participants = names.map((name) {
       return TournamentParticipant(
         name: name,
-        isCelebrity: CrushService.instance.checkIsCelebrity(name),
+        isCelebrity: CrushService.instance.checkIsCelebrity(name, flexible: true),
       );
     }).toList();
 
@@ -702,20 +728,6 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
 
                       const SizedBox(height: 14),
 
-                      _sectionCard(
-                        child: _loadingPass
-                            ? const Center(child: CircularProgressIndicator())
-                            : _buildDailyPassCard(isEn),
-                      ),
-                      const SizedBox(height: 14),
-                      _sectionCard(
-                        child: _loadingMissions
-                            ? const Center(child: CircularProgressIndicator())
-                            : _buildWeeklyMissionsCard(isEn),
-                      ),
-
-                      const SizedBox(height: 20),
-
                       // ── SECTION 1: Tu nombre ───────────────────────
                       _sectionCard(
                         child: Column(
@@ -848,6 +860,7 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
                                         onChanged: (v) {
                                           setState(() {
                                             _celebrityGenderPreference = v;
+                                            _removeCelebrityEntriesThatDoNotMatchPreference(v);
                                           });
                                         },
                                       ),
@@ -908,6 +921,21 @@ class _TournamentSetupScreenState extends State<TournamentSetupScreen>
                             ],
                           ),
                         ).animate().scale(delay: 600.ms, duration: 500.ms),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // ── Daily Pass & Weekly Missions ────────────────
+                      _sectionCard(
+                        child: _loadingPass
+                            ? const Center(child: CircularProgressIndicator())
+                            : _buildDailyPassCard(isEn),
+                      ),
+                      const SizedBox(height: 14),
+                      _sectionCard(
+                        child: _loadingMissions
+                            ? const Center(child: CircularProgressIndicator())
+                            : _buildWeeklyMissionsCard(isEn),
                       ),
 
                       const SizedBox(height: 20),
